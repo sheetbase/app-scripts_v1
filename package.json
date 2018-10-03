@@ -1,0 +1,41 @@
+{
+  "name": "@sheetbase/app-scripts",
+  "version": "0.0.1",
+  "description": "Scripts for Sheetbase modules and apps.",
+  "main": "index.js",
+  "bin": {
+    "sheetbase-app-scripts": "./index.js"
+  },
+  "scripts": {
+    "clean": "node ./scripts/clean",
+    "tsc": "tsc",
+    "copy": "node ./scripts/copy",
+    "build": "npm run clean && npm run tsc && npm run copy",
+	"publish": "cd ./dist && npm publish --access public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sheetbase/app-scripts.git"
+  },
+  "keywords": [
+    "sheetbase",
+	"build-tools",
+	"google-apps-script"
+  ],
+  "author": "Sheetbase",
+  "homepage": "https://sheetbase.net",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sheetbase/app-scripts/issues"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^5.0.4",
+    "@types/node": "^10.11.3",
+    "typescript": "^3.1.1"
+  },
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "commander": "^2.18.0",
+    "fs-extra": "^7.0.0"
+  }
+}
