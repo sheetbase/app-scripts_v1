@@ -1,6 +1,6 @@
 {
   "name": "@sheetbase/app-scripts",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Scripts for Sheetbase modules and apps.",
   "main": "index.js",
   "bin": {
@@ -10,8 +10,7 @@
     "clean": "node ./scripts/clean",
     "tsc": "tsc",
     "copy": "node ./scripts/copy",
-    "build": "npm run clean && npm run tsc && npm run copy",
-	"publish": "cd ./dist && npm publish --access public"
+    "build": "npm run clean && npm run tsc && npm run copy"
   },
   "repository": {
     "type": "git",
