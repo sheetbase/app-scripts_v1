@@ -1,5 +1,7 @@
 # sheetbase-app-scripts
 
+Scripts for Sheetbase modules and apps.
+
 [![License][license_badge]][license_url] [![Support me on Patreon][patreon_badge]][patreon_url] [![PayPal][paypal_donate_badge]][paypal_donate_url] [![Ask me anything][ask_me_badge]][ask_me_url]
 
 ## Install
