@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 
+// TODO: TODO
+// TODO: generate docs from types/module.ts
+
+
 /**
  * Scripts for Sheetbase modules and apps.
  */
 
-const program = require('commander');
 import chalk from 'chalk';
-const yellow = chalk.yellow;
+const program = require('commander');
 
 import buildCommand from './controllers/build.controller';
 import pushCommand from './controllers/push.controller';
+
+import { getSheetbaseDependencies } from './services/npm/npm.service';
 
 /**
  * Set global CLI configurations
@@ -20,15 +25,23 @@ program
   .description('Scripts for Sheetbase modules and apps');
 
 program
-  .command('build')
-  .option('-p, --prod', 'Production build for app.')
+  .command('build [name]')
+  .option('-a, --app', 'Build an app, else a module.')
+  .option('-b, --bundle', 'Merge dependencies with the module.')
   .description(`Build module of app for GAS deployment.`)
-  .action(async (options) => await buildCommand(options));
+  .action(async (name, options) => await buildCommand(name, options));
 
 program
   .command('push')
   .description(`Push module of app to GAS using @google/clasp.`)
   .action(async () => await pushCommand());
+
+program
+  .command('test')
+  .description(`Test`)
+  .action(async () => {
+    console.log(await getSheetbaseDependencies());
+  });
 
 program
   .command('help')

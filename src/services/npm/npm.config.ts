@@ -1,0 +1,1 @@
+export const SHEETBASE_MODULE_FILE_NAME = 'sheetbase.module.ts';

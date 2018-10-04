@@ -15,11 +15,18 @@ Add these scripts to project *package.json*.
 ```json
 {
     "scripts": {
-        "build": "sheetbase-app-scripts build",
+        "build": "sheetbase-app-scripts build \"<module_name>\"",
         "push": "sheetbase-app-scripts push"
     }
 }
 ```
+## How?
+
+TODO
+
+## Project structure
+
+TODO
 
 ## License
 

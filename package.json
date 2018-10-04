@@ -18,8 +18,8 @@
   },
   "keywords": [
     "sheetbase",
-	"build-tools",
-	"google-apps-script"
+    "build-tools",
+    "google-apps-script"
   ],
   "author": "Sheetbase",
   "homepage": "https://sheetbase.net",
@@ -30,11 +30,15 @@
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
     "@types/node": "^10.11.3",
+    "@types/prettier": "^1.13.2",
     "typescript": "^3.1.1"
   },
   "dependencies": {
     "chalk": "^2.4.1",
+    "change-case": "^3.0.2",
     "commander": "^2.18.0",
-    "fs-extra": "^7.0.0"
+    "fs-extra": "^7.0.0",
+    "fs-readdir-recursive": "^1.1.0",
+    "prettier": "^1.14.3"
   }
 }
