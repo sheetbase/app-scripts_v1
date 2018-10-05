@@ -1,16 +1,17 @@
 import chalk from 'chalk';
 import { resolve, basename } from 'path';
-import { remove, ensureDir, copy, outputFile } from 'fs-extra';
+import { remove, ensureDir, copy, outputFile, readFile } from 'fs-extra';
 import { snakeCase, paramCase, pascalCase, constantCase } from 'change-case';
 
-import { SHEETBASE_MODULE_FILE_NAME } from '../services/npm/npm.config';
+import { SHEETBASE_MODULE_FILE_NAME } from '../services/code/code.config';
 import { IBuildCodeInput } from '../services/code/code.type';
-import { buildMainSource, buildGASIndex, buildDependenciesBundle } from '../services/code/code.service';
+import { buildCode, buildDependenciesBundle, getPolyfill } from '../services/code/code.service';
 import { getSheetbaseDependencies } from '../services/npm/npm.service';
 
 export interface IOptions {
     app?: boolean;
     bundle?: boolean;
+    vendor?: boolean;
 }
 
 export default async (name: string = null, options: IOptions = {}) => {
@@ -32,20 +33,10 @@ export default async (name: string = null, options: IOptions = {}) => {
             nameSnakeCase,
             nameConstantCase
         },
-        bundle: options.bundle
+        bundle: options.bundle,
+        vendor: options.vendor
     };
-
-    // build
-    await buildProject(buildData);
-
-    console.log(chalk.green('Build success!'));
-    return process.exit();
-}
-
-async function buildProject(buildData: IBuildCodeInput) {
-    const { type, dist, names, bundle } = buildData;
-    const { nameParamCase } = names;
-    
+        
     // clean
     try {
         await remove(dist);
@@ -56,40 +47,51 @@ async function buildProject(buildData: IBuildCodeInput) {
         console.log(error);
         return process.exit(1);
     }
-    
+
     // build & copy
     try {
-        let { gas, npm } = await buildMainSource(buildData);
-        const libIndex: string = await buildGASIndex(buildData);
-        const dependencies: string[] = await getSheetbaseDependencies();
-
-        // npm
-        if (type === 'module') {
-            await outputFile(SHEETBASE_MODULE_FILE_NAME, npm);
+        // code
+        const code = await buildCode(buildData);
+        for (const path in code) {
+            const content = code[path];
+            await outputFile(path, content);
         }
 
-        // gas
-        await outputFile(`${dist}/${nameParamCase}.ts`, gas);
-        await outputFile(`${dist}/@index.ts`, libIndex);
-        await copy(`.clasp.json`, dist + '/.clasp.json');
-        await copy(`appsscript.json`, dist + '/appsscript.json');
         // dependencies
-        if (bundle) {
+        const dependencies: string[] = await getSheetbaseDependencies();
+        if (options.bundle) {
             const dependenciesBundle: string = await buildDependenciesBundle(dependencies);
-            gas = dependenciesBundle + '\r\n\r\n' + gas;
-            await outputFile(`${dist}/${nameParamCase}.ts`, gas);
+            const gasContent: string = dependenciesBundle + '\r\n\r\n' + await readFile(`${dist}/${nameParamCase}.ts`, 'utf-8');
+            await outputFile(`${dist}/${nameParamCase}.ts`, gasContent);
         } else {
             for (let i = 0; i < dependencies.length; i++) {
                 const src = dependencies[i];
-                const dest = src.replace('node_modules', 'modules')
-                                .replace('sheetbase.module.ts', 'module.ts');
+                const dest = src.replace('node_modules', '@modules')
+                .replace('sheetbase.module.ts', 'module.ts');
                 await copy(src, dist + '/' + dest);
             }
         }
+        
+        // polyfill
+        if (type === 'app') {
+            const POLYFILL: string = await getPolyfill();            
+            if (options.bundle) {
+                const gasContent: string = POLYFILL + '\r\n\r\n' + await readFile(`${dist}/${nameParamCase}.ts`, 'utf-8');
+                await outputFile(`${dist}/${nameParamCase}.ts`, gasContent);
+            } else {
+                await outputFile(`${dist}/@modules/@polyfill.ts`, POLYFILL);
+            }
+        }
+
+        // meta
+        await copy(`.clasp.json`, dist + '/.clasp.json');
+        await copy(`appsscript.json`, dist + '/appsscript.json');
     } catch (error) {
         console.log(chalk.red('Errors building project.\n'));
         console.log(error);        
         return process.exit(1);
     }
 
+    console.log(chalk.green('Build success!'));
+    return process.exit();
 }

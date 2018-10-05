@@ -26,8 +26,9 @@ program
 
 program
   .command('build [name]')
-  .option('-a, --app', 'Build an app, else a module.')
-  .option('-b, --bundle', 'Merge dependencies with the module.')
+  .option('--app', 'Build an app, else a module.')
+  .option('--bundle', 'Merge dependencies with the module.')
+  .option('--vendor', 'A vendor module.')
   .description(`Build module of app for GAS deployment.`)
   .action(async (name, options) => await buildCommand(name, options));
 

@@ -1,7 +1,7 @@
 import { readJSON, readdirSync, pathExists } from 'fs-extra';
 
 import { INPMPackageDotJson } from './npm.type';
-import { SHEETBASE_MODULE_FILE_NAME } from './npm.config';
+import { SHEETBASE_MODULE_FILE_NAME } from '../code/code.config';
 
 export async function packageJson(): Promise<INPMPackageDotJson> {
     return await readJSON('package.json');
