@@ -2,6 +2,7 @@ import { readFile } from 'fs-extra';
 import { format } from 'prettier';
 import axios from 'axios';
 const readDir = require('fs-readdir-recursive');
+const ts2gas = require('ts2gas');
 
 import { IBuildCodeInput } from './code.type';
 import { packageJson } from '../npm/npm.service';
@@ -22,31 +23,26 @@ export async function buildDescription(data: IBuildCodeInput): Promise<string> {
     if (homepage || repository) { content += `\r\n* Homepage: ${homepage || repository.url}`; }
     if (license) { content += `\r\n* License: ${license}`; }
     if (repository) { content += `\r\n* Repo: ${repository.url}`; }
-    content += '\r\n*/\r\n\r\n';
+    content += '\r\n*/';
     return format(content, { parser: 'typescript' });
 }
 
 
-export async function buildCode(data: IBuildCodeInput): Promise<{[key: string]: string}> {
-    const { src, dist, names, type, vendor, bundle, ugly } = data;
-    const { namePascalCase, nameParamCase } = names;
-
-    let files: string[]
-    let fileContent: string[] = [];
-    let indexContent: string = '';
-    let mainContent: string = '';
-    let npmOutput: string = '';
-    let gasOutput: string = '';
-    let result: any = {};
+export async function buildMain(data: IBuildCodeInput): Promise<{[key: string]: string}> {
+    const { src, dist, names, type, vendor, bundle } = data;
+    const { namePascalCase, nameParamCase } = names;    
 
     // read index.ts
+    let indexContent: string = '';
     try {
         indexContent = await readFile(`${src}/index.ts`, 'utf-8');
     } catch (error) {
         /* no "src/index.ts" */
     }
 
-    // read all except index.ts and types
+    // read all except files or folders in BUILD_MAIN_CODE_IGNORE
+    let files: string[];
+    let filesContent: string[] = [];
     files = readDir(src, (name, index, dir) => {
         const path: string = (<string> dir + '/' + name).replace(src, '');
         const ignore = new RegExp(BUILD_MAIN_CODE_IGNORE.join('|'), 'g');
@@ -55,117 +51,111 @@ export async function buildCode(data: IBuildCodeInput): Promise<{[key: string]: 
     for (let i = 0; i < files.length; i++) {
         const path: string = `${src}\\${files[i]}`;
         const content: string = await readFile(path, 'utf-8');
-        fileContent.push(content);
+        filesContent.push(content);
     }
 
-    // get description
+    // build description
     const fileDescription: string = await buildDescription(data);
 
-    // generate results
-    if (type === 'app') {
-        mainContent = `
-            ${fileContent.join('\r\n\r\n')}
+    // main content
+    let mainContent: string = (filesContent.join('\r\n\r\n') + '\r\n' + indexContent).trim();
+    if (!vendor) {
+        mainContent = `{
+            ${filesContent.join('\r\n\r\n')}
             ${indexContent}
-        `;
-        // sum up
-        gasOutput = (bundle ? fileDescription: '') +
-                    '\r\n' +
-                    mainContent;
-        gasOutput = format(gasOutput, { parser: 'typescript' });
-        // result
-        result[`${dist}/${nameParamCase}.ts`] = gasOutput;
-        result[`${dist}/@index.ts`] = await buildIndex(data);
+            return moduleExports || {};
+        }`;
+        mainContent = mainContent.replace(/(export\ )/g, '');
+        mainContent = `export function ${namePascalCase}Module() ` +  mainContent;
+    }
+
+    // extra
+    let npmExtra = `
+        // add to the global namespace
+        var proccess = proccess || this;
+        proccess['${namePascalCase}'] = ${namePascalCase}Module();
+    `;
+    let gasExtra = `
+        // add exports to the global namespace
+        export const ${namePascalCase} = ${namePascalCase}Module();
+        for (const prop of Object.keys({... ${namePascalCase}, ... Object.getPrototypeOf(${namePascalCase})})) {
+            this[prop] = ${namePascalCase}[prop];
+        }
+    `;
+
+    // outputs
+    let npmOutput: string = '';
+    let gasOutput: string = '';
+    gasOutput = (bundle ? fileDescription: '') + '\r\n' + mainContent;
+    if (type !== 'app') {
+        npmOutput = fileDescription + '\r\n' + mainContent;
+    }
+
+    // extra
+    if (!vendor) {
+        npmOutput = npmOutput + '\r\n\r\n' + npmExtra;
+        gasOutput = gasOutput + '\r\n\r\n' + gasExtra;
+    }
+
+    // compile
+    if (vendor) {
+        const PLACEHOLDER_PHASE = '/**===REPLACE_THIS_WITH_THE_CONTENT===*/';
+        const npmExtraCompiled: string = ts2gas(
+            PLACEHOLDER_PHASE + npmExtra
+        );
+        const gasExtraCompiled: string = ts2gas(
+            PLACEHOLDER_PHASE + gasExtra
+        );
+        const npmExtraCompiledSplits = npmExtraCompiled.split(PLACEHOLDER_PHASE);
+        const gasExtraCompiledSplits = gasExtraCompiled.split(PLACEHOLDER_PHASE);
+        npmOutput = npmExtraCompiledSplits[0] + npmOutput + npmExtraCompiledSplits[1];
+        gasOutput = gasExtraCompiledSplits[0] + gasOutput + gasExtraCompiledSplits[1];
     } else {
-        if (vendor) {
-            mainContent = `
-                ${fileContent.join('\r\n\r\n')}
-                ${indexContent}
-            `;
-        } else {
-            mainContent = `
-                {
-                    ${fileContent.join('\r\n\r\n')}
-                    ${indexContent}
-                    return moduleExports || {};
-                }
-            `;
-            mainContent = mainContent.replace(/(export\ )/g, '');
-            mainContent = `export function ${namePascalCase}Module() ` +  mainContent;
-        }
-        if (!ugly) {
-            mainContent = format(mainContent, { parser: 'typescript' });
-        }
-        mainContent = mainContent.trim();
-        // extra
-        let npmOutputExtra: string = `
-            // add to the global namespace
-            var proccess = proccess || this;
-            proccess['${namePascalCase}'] = ${namePascalCase}Module();
-        `;
-        npmOutputExtra = format(npmOutputExtra, { parser: 'typescript' });
-        let gasOutputExtra: string = `
-            // add exports to the global namespace
-            export const ${namePascalCase} = ${namePascalCase}Module();
-            for (const prop of Object.keys({... ${namePascalCase}, ... Object.getPrototypeOf(${namePascalCase})})) {
-                this[prop] = ${namePascalCase}[prop];
-            }
-        `;
-        gasOutputExtra = format(gasOutputExtra, { parser: 'typescript' });
-        // sum up
-        npmOutput = fileDescription +
-                    '\r\n' +
-                    mainContent +
-                    '\r\n\r\n' +
-                    npmOutputExtra;
-        gasOutput = (bundle ? fileDescription: '') +
-                    '\r\n' +
-                    mainContent +
-                    '\r\n\r\n' +
-                    gasOutputExtra;
-        // result
-        result[`${dist}/${nameParamCase}.ts`] = gasOutput;
-        result[`${dist}/@index.ts`] = await buildIndex(data);
+        npmOutput = ts2gas(npmOutput);
+        gasOutput = ts2gas(gasOutput);
+    }
+
+    // results
+    let result: any = {};
+    result[`${dist}/${nameParamCase}.js`] = gasOutput;
+    if (type !== 'app') {
         result[`${SHEETBASE_MODULE_FILE_NAME}`] = npmOutput;
     }
+
     return result;
 }
 
 export async function buildIndex(data: IBuildCodeInput): Promise<string> {
     const { src, names } = data;
     const { nameSnakeCase } = names;
-
+    // read "src/example.ts"
     let exampleContent: string = '';
-    let output: string = '';
-
-    // read src/example.ts
     try {
         exampleContent = await readFile(`${src}/example.ts`, 'utf-8');
         exampleContent = exampleContent.replace(/(export function\ )/g, `export function ${nameSnakeCase}_`);
     } catch (error) {
         /* no "src/example.ts" */
     }
-
     // get description
     const fileDescription: string = await buildDescription(data);
-
     // sum up
-    output = `
+    let indexOutput = `
         ${fileDescription}        
         ${exampleContent}
     `;
-    output = format(output, { parser: 'typescript' });
-    
-    return output;
+    // compile
+    indexOutput = ts2gas(indexOutput);
+    return indexOutput;
 }
 
 export async function buildDependenciesBundle(dependencies: string[]): Promise<string> {
-    let fileContent: string[] = [];
+    let filesContent: string[] = [];
     for (let i = 0; i < dependencies.length; i++) {
         const path: string = `${dependencies[i]}`;
         const content: string = await readFile(path, 'utf-8');
-        fileContent.push(content);
+        filesContent.push(content);
     }
-    return fileContent.join('\r\n\r\n');
+    return filesContent.join('\r\n\r\n');
 }
 
 export async function getPolyfill(): Promise<string> {

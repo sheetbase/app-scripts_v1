@@ -29,7 +29,6 @@ program
   .option('--app', 'Build an app, else a module.')
   .option('--vendor', 'A vendor module.')
   .option('--bundle', 'Merge dependencies with the module.')
-  .option('--ugly', 'Do not format output code.')
   .description(`Build module of app for GAS deployment.`)
   .action(async (name, options) => await buildCommand(name, options));
 

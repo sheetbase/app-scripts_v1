@@ -8,8 +8,7 @@ export interface IBuildCodeInput {
         nameConstantCase?: string;
     };
     // options
-    type?: string; // --app
+    type?: string; // --app (else = module)
     vendor?: boolean;
     bundle?: boolean;
-    ugly?: boolean;
 }

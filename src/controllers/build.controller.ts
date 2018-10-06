@@ -5,7 +5,7 @@ import { snakeCase, paramCase, pascalCase, constantCase } from 'change-case';
 
 import { SHEETBASE_MODULE_FILE_NAME } from '../services/code/code.config';
 import { IBuildCodeInput } from '../services/code/code.type';
-import { buildCode, buildDependenciesBundle, getPolyfill } from '../services/code/code.service';
+import { buildMain, buildIndex, buildDependenciesBundle, getPolyfill } from '../services/code/code.service';
 import { getSheetbaseDependencies } from '../services/npm/npm.service';
 
 export interface IOptions {
@@ -35,8 +35,7 @@ export default async (name: string = null, options: IOptions = {}) => {
             nameConstantCase
         },
         vendor: options.vendor,
-        bundle: options.bundle,
-        ugly: options.ugly
+        bundle: options.bundle
     };
         
     // clean
@@ -52,24 +51,28 @@ export default async (name: string = null, options: IOptions = {}) => {
 
     // build & copy
     try {
-        // code
-        const code = await buildCode(buildData);
-        for (const path in code) {
-            const content = code[path];
+        // main
+        const mainCode = await buildMain(buildData);
+        for (const path in mainCode) {
+            const content = mainCode[path];
             await outputFile(path, content);
         }
+
+        // index.js
+        const indexContent = await buildIndex(buildData);
+        await outputFile(`${dist}/@index.js`, indexContent);
 
         // dependencies
         const dependencies: string[] = await getSheetbaseDependencies();
         if (options.bundle) {
             const dependenciesBundle: string = await buildDependenciesBundle(dependencies);
-            const gasContent: string = dependenciesBundle + '\r\n\r\n' + await readFile(`${dist}/${nameParamCase}.ts`, 'utf-8');
-            await outputFile(`${dist}/${nameParamCase}.ts`, gasContent);
+            const gasContent: string = dependenciesBundle + '\r\n\r\n' + await readFile(`${dist}/${nameParamCase}.js`, 'utf-8');
+            await outputFile(`${dist}/${nameParamCase}.js`, gasContent);
         } else {
             for (let i = 0; i < dependencies.length; i++) {
                 const src = dependencies[i];
                 const dest = src.replace('node_modules', '@modules')
-                .replace('sheetbase.module.ts', 'module.ts');
+                .replace('sheetbase.module.js', 'module.js');
                 await copy(src, dist + '/' + dest);
             }
         }
@@ -78,10 +81,10 @@ export default async (name: string = null, options: IOptions = {}) => {
         if (type === 'app') {
             const POLYFILL: string = await getPolyfill();            
             if (options.bundle) {
-                const gasContent: string = POLYFILL + '\r\n\r\n' + await readFile(`${dist}/${nameParamCase}.ts`, 'utf-8');
-                await outputFile(`${dist}/${nameParamCase}.ts`, gasContent);
+                const gasContent: string = POLYFILL + '\r\n\r\n' + await readFile(`${dist}/${nameParamCase}.js`, 'utf-8');
+                await outputFile(`${dist}/${nameParamCase}.js`, gasContent);
             } else {
-                await outputFile(`${dist}/@modules/@polyfill.ts`, POLYFILL);
+                await outputFile(`${dist}/@modules/@polyfill.js`, POLYFILL);
             }
         }
 
