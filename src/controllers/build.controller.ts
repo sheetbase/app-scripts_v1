@@ -10,8 +10,9 @@ import { getSheetbaseDependencies } from '../services/npm/npm.service';
 
 export interface IOptions {
     app?: boolean;
-    bundle?: boolean;
     vendor?: boolean;
+    bundle?: boolean;
+    ugly?: boolean;
 }
 
 export default async (name: string = null, options: IOptions = {}) => {
@@ -33,8 +34,9 @@ export default async (name: string = null, options: IOptions = {}) => {
             nameSnakeCase,
             nameConstantCase
         },
+        vendor: options.vendor,
         bundle: options.bundle,
-        vendor: options.vendor
+        ugly: options.ugly
     };
         
     // clean

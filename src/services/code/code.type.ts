@@ -1,5 +1,4 @@
 export interface IBuildCodeInput {
-    type?: string;
     src?: string;
     dist?: string;
     names?: {
@@ -8,6 +7,9 @@ export interface IBuildCodeInput {
         nameParamCase?: string;
         nameConstantCase?: string;
     };
-    bundle?: boolean;
+    // options
+    type?: string; // --app
     vendor?: boolean;
+    bundle?: boolean;
+    ugly?: boolean;
 }

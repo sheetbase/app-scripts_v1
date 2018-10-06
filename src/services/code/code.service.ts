@@ -11,7 +11,7 @@ export async function buildDescription(data: IBuildCodeInput): Promise<string> {
     const { type, names } = data;
     const { namePascalCase } = names;
     const { name, description, version, author, homepage, license, repository } = await packageJson();
-    let content: string = '';
+    let content: string = '\r\n';
     content += '/**';
     if (type) { content += `\r\n* Sheetbase ${type}`; }
     if (name) { content += `\r\n* Name: ${name}`; }
@@ -23,18 +23,18 @@ export async function buildDescription(data: IBuildCodeInput): Promise<string> {
     if (license) { content += `\r\n* License: ${license}`; }
     if (repository) { content += `\r\n* Repo: ${repository.url}`; }
     content += '\r\n*/\r\n\r\n';
-    return content;
+    return format(content, { parser: 'typescript' });
 }
 
 
 export async function buildCode(data: IBuildCodeInput): Promise<{[key: string]: string}> {
-    const { type, src, dist, names, bundle, vendor } = data;
+    const { src, dist, names, type, vendor, bundle, ugly } = data;
     const { namePascalCase, nameParamCase } = names;
 
     let files: string[]
     let fileContent: string[] = [];
-    let sourceAndIndexContent: string = '';
     let indexContent: string = '';
+    let mainContent: string = '';
     let npmOutput: string = '';
     let gasOutput: string = '';
     let result: any = {};
@@ -61,62 +61,72 @@ export async function buildCode(data: IBuildCodeInput): Promise<{[key: string]: 
     // get description
     const fileDescription: string = await buildDescription(data);
 
-    // sum up
+    // generate results
     if (type === 'app') {
-        sourceAndIndexContent = `
+        mainContent = `
             ${fileContent.join('\r\n\r\n')}
             ${indexContent}
         `;
+        // sum up
         gasOutput = (bundle ? fileDescription: '') +
-                    sourceAndIndexContent;
-        // format
+                    '\r\n' +
+                    mainContent;
         gasOutput = format(gasOutput, { parser: 'typescript' });
-        // return
+        // result
         result[`${dist}/${nameParamCase}.ts`] = gasOutput;
         result[`${dist}/@index.ts`] = await buildIndex(data);
     } else {
         if (vendor) {
-            sourceAndIndexContent = `
+            mainContent = `
                 ${fileContent.join('\r\n\r\n')}
                 ${indexContent}
             `;
         } else {
-            sourceAndIndexContent = `
+            mainContent = `
                 {
                     ${fileContent.join('\r\n\r\n')}
                     ${indexContent}
                     return moduleExports || {};
                 }
             `;
-            sourceAndIndexContent = sourceAndIndexContent.replace(/(export\ )/g, '');
-            sourceAndIndexContent = `export function ${namePascalCase}Module() ` + sourceAndIndexContent;
-        }    
-        // custom
+            mainContent = mainContent.replace(/(export\ )/g, '');
+            mainContent = `export function ${namePascalCase}Module() ` +  mainContent;
+        }
+        if (!ugly) {
+            mainContent = format(mainContent, { parser: 'typescript' });
+        }
+        mainContent = mainContent.trim();
+        // extra
+        let npmOutputExtra: string = `
+            // add to the global namespace
+            var proccess = proccess || this;
+            proccess['${namePascalCase}'] = ${namePascalCase}Module();
+        `;
+        npmOutputExtra = format(npmOutputExtra, { parser: 'typescript' });
+        let gasOutputExtra: string = `
+            // add exports to the global namespace
+            export const ${namePascalCase} = ${namePascalCase}Module();
+            for (const prop of Object.keys({... ${namePascalCase}, ... Object.getPrototypeOf(${namePascalCase})})) {
+                this[prop] = ${namePascalCase}[prop];
+            }
+        `;
+        gasOutputExtra = format(gasOutputExtra, { parser: 'typescript' });
+        // sum up
         npmOutput = fileDescription +
-                    sourceAndIndexContent +
-                    `
-                        // add to the global namespace
-                        var proccess = proccess || this;
-                        proccess['${namePascalCase}'] = ${namePascalCase}Module();
-                    `;
+                    '\r\n' +
+                    mainContent +
+                    '\r\n\r\n' +
+                    npmOutputExtra;
         gasOutput = (bundle ? fileDescription: '') +
-                    sourceAndIndexContent +
-                    `
-                        // add exports to the global namespace
-                        export const ${namePascalCase} = ${namePascalCase}Module();
-                        for (const prop of Object.keys({... ${namePascalCase}, ... Object.getPrototypeOf(${namePascalCase})})) {
-                            this[prop] = ${namePascalCase}[prop];
-                        }
-                    `;
-        // format
-        npmOutput = format(npmOutput, { parser: 'typescript' });
-        gasOutput = format(gasOutput, { parser: 'typescript' });
-        // return
+                    '\r\n' +
+                    mainContent +
+                    '\r\n\r\n' +
+                    gasOutputExtra;
+        // result
         result[`${dist}/${nameParamCase}.ts`] = gasOutput;
         result[`${dist}/@index.ts`] = await buildIndex(data);
         result[`${SHEETBASE_MODULE_FILE_NAME}`] = npmOutput;
     }
-
     return result;
 }
 

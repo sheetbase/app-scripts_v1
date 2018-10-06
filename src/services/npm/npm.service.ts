@@ -9,11 +9,11 @@ export async function packageJson(): Promise<INPMPackageDotJson> {
 
 export async function getSheetbaseDependencies(): Promise<string[]> {
     let paths: string[] = [];
-    // load peer and dev dependencies
+    // load peer and dev dependencies to ignored when bundling
     const { devDependencies, peerDependencies } = await packageJson();
     const ignoreDependencies: string[] = [... Object.keys(devDependencies || {}), ... Object.keys(peerDependencies || {})];
-    const ignore = new RegExp('/' + ignoreDependencies.join('/|/') + '/', 'g');    
-    // loop through all packages and test for sheetbase.module.ts
+    const ignore = new RegExp('/' + ignoreDependencies.join('/|/') + '/', 'g');  
+    // loop through all packages and test for "sheetbase.module.ts"
     const packages: string[] = readdirSync('node_modules', { encoding: 'utf8' });
     for (let i = 0; i < packages.length; i++) {
         const packageName = packages[i];
