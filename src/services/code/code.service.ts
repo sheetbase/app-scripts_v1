@@ -59,7 +59,7 @@ export async function buildMain(data: IBuildCodeInput): Promise<{[key: string]: 
 
     // main content
     let mainContent: string = (filesContent.join('\r\n\r\n') + '\r\n' + indexContent).trim();
-    if (!vendor) {
+    if (type !== 'app' && !vendor) {
         mainContent = `{
             ${filesContent.join('\r\n\r\n')}
             ${indexContent}
@@ -92,7 +92,7 @@ export async function buildMain(data: IBuildCodeInput): Promise<{[key: string]: 
     }
 
     // extra
-    if (!vendor) {
+    if (type !== 'app' && !vendor) {
         npmOutput = npmOutput + '\r\n\r\n' + npmExtra;
         gasOutput = gasOutput + '\r\n\r\n' + gasExtra;
     }
