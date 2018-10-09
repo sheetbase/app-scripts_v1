@@ -42,7 +42,7 @@ export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
     const gitUrlSplit = gitUrl.split('/');
     const orgName: string = gitUrlSplit.splice(gitUrlSplit.length - 2, 1).pop();
     let docsUrl: string = gitUrl.replace(orgName + '/', '')
-                                .replace('github.com', `${orgName}.github.com`);
+                                .replace('github.com', `${orgName}.github.io`);
 
     // .clasp.json
     const { scriptId } = <{ scriptId?: string }> await readJson('.clasp.json');
