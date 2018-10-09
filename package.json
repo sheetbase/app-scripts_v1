@@ -1,6 +1,6 @@
 {
   "name": "@sheetbase/app-scripts",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Scripts for Sheetbase modules and apps.",
   "main": "index.js",
   "bin": {
@@ -10,6 +10,7 @@
     "clean": "node ./scripts/clean",
     "tsc": "tsc",
     "copy": "node ./scripts/copy",
+    "docs": "node ./scripts/docs",
     "build": "npm run clean && npm run tsc && npm run copy"
   },
   "repository": {
@@ -31,16 +32,21 @@
     "@types/fs-extra": "^5.0.4",
     "@types/node": "^10.11.3",
     "@types/prettier": "^1.13.2",
-    "typescript": "^3.1.1"
+    "extract-comments": "^1.0.0",
+    "parse-comments": "^0.4.3",
+    "typescript": "^3.1.1",
+    "ucfirst": "^1.0.0"
   },
   "dependencies": {
     "axios": "^0.18.0",
     "chalk": "^2.4.1",
     "change-case": "^3.0.2",
     "commander": "^2.18.0",
+    "dedent": "^0.7.0",
     "fs-extra": "^7.0.0",
     "fs-readdir-recursive": "^1.1.0",
     "prettier": "^1.14.3",
+    "strip-indent": "^2.0.0",
     "ts2gas": "^1.2.0"
   }
 }

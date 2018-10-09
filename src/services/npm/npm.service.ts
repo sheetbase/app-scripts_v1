@@ -3,16 +3,18 @@ import { readJSON, readdirSync, pathExists } from 'fs-extra';
 import { INPMPackageDotJson } from './npm.type';
 import { SHEETBASE_MODULE_FILE_NAME } from '../code/code.config';
 
-export async function packageJson(): Promise<INPMPackageDotJson> {
-    return await readJSON('package.json');
+export async function packageJson(path: string = '.'): Promise<INPMPackageDotJson> {
+    return await readJSON(path + '/package.json');
 }
 
 export async function getSheetbaseDependencies(): Promise<string[]> {
     let paths: string[] = [];
     // load peer and dev dependencies to ignored when bundling
-    const { devDependencies, peerDependencies } = await packageJson();
-    const ignoreDependencies: string[] = [... Object.keys(devDependencies || {}), ... Object.keys(peerDependencies || {})];
-    const ignore = new RegExp('/' + ignoreDependencies.join('/|/') + '/', 'g');  
+    const { peerDependencies } = await packageJson();
+    const ignoreDependencies: string[] = await getSheetbasePeerDependenciesDependencies(
+        Object.keys(peerDependencies || {})
+    );
+    const ignore = new RegExp('/' + ignoreDependencies.join('/|/') + '/', 'g');
     // loop through all packages and test for "sheetbase.module.ts"
     const packages: string[] = readdirSync('node_modules', { encoding: 'utf8' });
     for (let i = 0; i < packages.length; i++) {
@@ -36,4 +38,14 @@ export async function getSheetbaseDependencies(): Promise<string[]> {
         }
     }
     return paths;
+}
+
+export async function getSheetbasePeerDependenciesDependencies(peerDependencies: string[]): Promise<string[]> {
+    let resultDependencies: string[] = peerDependencies;
+    for (let i = 0; i < peerDependencies.length; i++) {
+        const dependency: string = peerDependencies[i];
+        const { dependencies } = await packageJson(`./node_modules/${dependency}`);
+        resultDependencies = resultDependencies.concat([... Object.keys(dependencies || {})]);
+    }
+    return resultDependencies;
 }

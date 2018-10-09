@@ -8,18 +8,65 @@ Scripts for Sheetbase modules and apps.
 
 ``$ npm install --save-dev @sheetbase/app-scripts``
 
-## Usage
-
-Add these scripts to project *package.json*.
+Add these lines to the project *package.json*.
 
 ```json
 {
-    "scripts": {
-        "build": "sheetbase-app-scripts build \"<module_name>\"",
-        "push": "sheetbase-app-scripts push"
-    }
+	"exportName": "MyModule", // optional
+	"scripts": {
+		"build:code": "sheetbase-app-scripts build",
+		"build:readme": "sheetbase-app-scripts readme",
+		"build": "npm run build:code && npm run build:readme",
+		"push": "sheetbase-app-scripts push"
+	}
 }
 ```
+
+## Usage
+
+### Build
+
+Build module of app for GAS deployment.
+
+#### Options
+
+- `exportName`: Optional export name or use the folder name.
+- `--app`: Build an app, else a module.
+- `--vendor`: A vendor module.
+- `--bundle`: Merge dependencies with the module.
+
+#### Examples
+
+- `sheetbase-app-scripts build` (build a module).
+- `sheetbase-app-scripts build --app` (build a backend app).
+- `sheetbase-app-scripts build --vendor` (build a module that ported from an package).
+- `sheetbase-app-scripts build --bundle` (build a module and add bundle all dependencies to the output file).
+
+### Push
+
+Push module of app to GAS using @google/clasp.
+
+#### Examples
+
+- `sheetbase-app-scripts push` (push content in 'dist' folder).
+
+### Readme
+
+Generate README.md.
+
+#### Options
+
+- `exportName`: Optional export name or use the folder name.
+- `--no-docs`: No docs link.
+
+#### Examples
+
+- `sheetbase-app-scripts readme` (update the readme file).
+
+### Help
+
+Displays the help.
+
 ## How?
 
 TODO

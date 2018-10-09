@@ -30,7 +30,7 @@ export async function buildDescription(data: IBuildCodeInput): Promise<string> {
 
 export async function buildMain(data: IBuildCodeInput): Promise<{[key: string]: string}> {
     const { src, dist, names, type, vendor, bundle } = data;
-    const { namePascalCase, nameParamCase } = names;    
+    const { namePascalCase, nameParamCase } = names;
 
     // read index.ts
     let indexContent: string = '';
@@ -99,7 +99,7 @@ export async function buildMain(data: IBuildCodeInput): Promise<{[key: string]: 
 
     // compile
     if (vendor) {
-        const PLACEHOLDER_PHASE = '/**===REPLACE_THIS_WITH_THE_CONTENT===*/';
+        const PLACEHOLDER_PHASE = '/**_SHEETBASE_MODULE_VENDOR_CONTENT_HERE_*/';
         const npmExtraCompiled: string = ts2gas(
             PLACEHOLDER_PHASE + npmExtra
         );

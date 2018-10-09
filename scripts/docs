@@ -1,0 +1,83 @@
+/**
+ * Generates the How To section of the docs.
+ * Ensures the code for sheetbase-app-scripts commands is well documented.
+ * @todo Generate a list of commands for the beginning of the README.
+ */
+var fs = require('fs');
+var fsExtra = require('fs-extra');
+var parseComments = require('parse-comments');
+var extract = require('extract-comments');
+var file = fs.readFileSync('src/index.ts').toString();
+var ucfirst = require('ucfirst');
+// The README will be a concatenation of lines in this variable.
+var readme = [
+    '## Usage',
+];
+// Remove first line (#!/usr/bin/env node)
+var fileLines = file.split('\n');
+fileLines.splice(0, 1);
+var fileWithoutFirstLine = fileLines.join('\n');
+// Extract JSDoc comments out of our file.
+var comments = extract(fileWithoutFirstLine);
+for (var _i = 0, comments_1 = comments; _i < comments_1.length; _i++) {
+    var command = comments_1[_i];
+    // To use the parseComments module, complete the stripped comment.
+    var comment = "/*" + command.raw + "*/";
+    var sheetbaseCommand = parseComments(comment)[0];
+    // Only print valid commands.
+    if (sheetbaseCommand && sheetbaseCommand.description && sheetbaseCommand.name) {
+        readme.push('');
+        readme.push("### " + ucfirst(sheetbaseCommand.name));
+        readme.push('');
+        readme.push(sheetbaseCommand.description);
+        // Parameters (@param)
+        if (sheetbaseCommand.params && sheetbaseCommand.params.length) {
+            readme.push('');
+            readme.push('#### Options\n');
+            sheetbaseCommand.params.map(function (param) {
+                var isOptional = param.type.indexOf('?') !== -1;
+                // readme.push(JSON.stringify(param));
+                var paramName = param.parent || param.description.split(' ')[0];
+                if (isOptional) {
+                    readme.push([
+                        // `\`sheetbase-app-scripts ${sheetbaseCommand.name}`,
+                        "- `" + paramName + "`:",
+                        param.description,
+                    ].join(' '));
+                }
+                else {
+                    // Required parameters descriptions aren't parsed by parse-comments. Parse them manually.
+                    readme.push([
+                        // `\`sheetbase-app-scripts ${sheetbaseCommand.name}`,
+                        "- `" + paramName + "`:",
+                        param.description,
+                    ].join(' '));
+                }
+            });
+        }
+        // Examples (@example)
+        if (sheetbaseCommand.example) {
+            readme.push('');
+            readme.push('#### Examples\n');
+            var examples = sheetbaseCommand.example.split(',');
+            examples.map(function (example) {
+                var exampleSplit = example.split(' > ');
+                readme.push("- `sheetbase-app-scripts " + exampleSplit[0] + "` " + exampleSplit[1]);
+            });
+        }
+        // Extra Description (@desc)
+        if (sheetbaseCommand.desc) {
+            readme.push('');
+            var lines = sheetbaseCommand.desc.split('-');
+            lines.map(function (line, i) {
+                var value = '';
+                if (i)
+                    value += '- ';
+                readme.push(value + line.trim());
+            });
+        }
+    }
+}
+// console.log(readme.join('\n'));
+fsExtra.outputFileSync('./docs/usage.md', readme.join('\n'));
+console.log('\nWrite ... docs/usage.md');

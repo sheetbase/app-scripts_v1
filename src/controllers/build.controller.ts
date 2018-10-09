@@ -6,7 +6,7 @@ import { snakeCase, paramCase, pascalCase, constantCase } from 'change-case';
 import { SHEETBASE_MODULE_FILE_NAME } from '../services/code/code.config';
 import { IBuildCodeInput } from '../services/code/code.type';
 import { buildMain, buildIndex, buildDependenciesBundle, getPolyfill } from '../services/code/code.service';
-import { getSheetbaseDependencies } from '../services/npm/npm.service';
+import { packageJson, getSheetbaseDependencies } from '../services/npm/npm.service';
 
 export interface IOptions {
     app?: boolean;
@@ -15,12 +15,15 @@ export interface IOptions {
     ugly?: boolean;
 }
 
-export default async (name: string = null, options: IOptions = {}) => {
-    name = name || basename(process.cwd());
-    const namePascalCase = pascalCase(name);
-    const nameSnakeCase = snakeCase(name);
-    const nameParamCase = paramCase(name);
-    const nameConstantCase = constantCase(name);
+export default async (nameExport: string = null, options: IOptions = {}) => {
+    if (!nameExport) {
+        const packageDotJson = await packageJson();
+        nameExport = packageDotJson.exportName || basename(process.cwd());
+    }
+    const namePascalCase = pascalCase(nameExport);
+    const nameSnakeCase = snakeCase(nameExport);
+    const nameParamCase = paramCase(nameExport);
+    const nameConstantCase = constantCase(nameExport);
 
     const type = options.app ? 'app': 'module';
     const src = resolve('.', 'src');

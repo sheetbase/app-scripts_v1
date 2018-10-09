@@ -1,5 +1,6 @@
 export interface INPMPackageDotJson {
     name?: string;
+    exportName?: string;
 	version?: string;
 	description?: string;
 	author?: string;
