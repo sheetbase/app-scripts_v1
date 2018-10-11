@@ -72,8 +72,8 @@ export async function buildMain(data: IBuildCodeInput): Promise<{[key: string]: 
     // extra
     let npmExtra = `
         // add to the global namespace
-        var proccess = proccess || this;
-        proccess['${namePascalCase}'] = ${namePascalCase}Module();
+        var process = process || this;
+        process['${namePascalCase}'] = ${namePascalCase}Module();
     `;
     let gasExtra = `
         // add exports to the global namespace

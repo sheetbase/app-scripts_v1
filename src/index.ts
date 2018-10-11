@@ -26,16 +26,18 @@ program
  * @param {string?} [--app] Build an app, else a module.
  * @param {string?} [--vendor] A vendor module.
  * @param {string?} [--bundle] Merge dependencies with the module.
+ * @param {string?} [--no-polyfill] Not include polyfill for build --app.
  * @example build > (build a module).
  * @example build --app > (build a backend app).
  * @example build --vendor > (build a module that ported from an package).
- * @example build --bundle > (build a module and add bundle all dependencies to the output file).
+ * @example build --bundle > (build a module and add bundle all dependencies).
  */
 program
   .command('build [exportName]')
   .option('--app', 'Build an app, else a module.')
   .option('--vendor', 'A vendor module.')
   .option('--bundle', 'Merge dependencies with the module.')
+  .option('--no-polyfill', 'Not include polyfill for build --app.')
   .description(`Build module of app for GAS deployment.`)
   .action(async (exportName, options) => await buildCommand(exportName, options));
 

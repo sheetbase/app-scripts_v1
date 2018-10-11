@@ -1,11 +1,10 @@
 import chalk from 'chalk';
-import { outputFile } from 'fs-extra';
+import { readJson, outputFile } from 'fs-extra';
 import { basename, resolve } from 'path';
 import { pascalCase } from 'change-case';
 
 import { buildReadme } from '../services/readme/readme.service';
 import { IBuildReadmeInput } from '../services/readme/readme.type';
-import { packageJson } from '../services/npm/npm.service';
 
 export interface IOption {
     docs?: boolean;
@@ -13,8 +12,8 @@ export interface IOption {
 
 export default async (nameExport: string = null, options: IOption = {}) => {
     if (!nameExport) {
-        const packageDotJson = await packageJson();
-        nameExport = packageDotJson.exportName || basename(process.cwd());
+        const dotClaspDotJson = await readJson('.clasp.json');
+        nameExport = dotClaspDotJson.exportName || basename(process.cwd());
     }
     const namePascalCase = pascalCase(nameExport);
     const src = resolve('.', 'src');

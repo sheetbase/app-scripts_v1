@@ -12,10 +12,20 @@ export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
     const { namePascalCase } = names;
 
     // readme
+    let header: string = '';
     let content: string = '';
     let footer: string = '';
     try {
         const readmeContent = await readFile('README.md', 'utf-8');
+        
+        // header
+        const HEADER_START = '<!-- <header> -->';
+        const HEADER_END = '<!-- </header> -->';
+        header = readmeContent.substring(
+            readmeContent.lastIndexOf(HEADER_START), 
+            readmeContent.lastIndexOf(HEADER_END) + HEADER_END.length
+        );
+
         // content
         const CONTENT_START = '<!-- <content> -->';
         const CONTENT_END = '<!-- </content> -->';
@@ -38,7 +48,8 @@ export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
     // package.json
     const { name, description, homepage, license, repository } = await packageJson();
     const gitUrl = (repository.url).replace('.git', '');
-    // docs url (github pasge to /docs)
+    // docs url
+	// need to setup a github page serves 'docs' folder)
     const gitUrlSplit = gitUrl.split('/');
     const orgName: string = gitUrlSplit.splice(gitUrlSplit.length - 2, 1).pop();
     let docsUrl: string = gitUrl.replace(orgName + '/', '')
@@ -75,7 +86,7 @@ export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
 
     ${description}
 
-    ${content}
+    ${header}
 
     ## Install
 
@@ -87,9 +98,11 @@ export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
 
     ${
     oauthScopes ?
-    '## Scopes' + '\r\n' + '\`' + oauthScopes.join('\r\n') + '\`':
+    '## Scopes' + '\r\n' + '\`' + oauthScopes.join('\`\r\n\`') + '\`':
     ''
     }
+
+    ${content}
 
     ## Examples
 
@@ -114,7 +127,7 @@ export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
     `
     ## API
 
-    An overview of the API, for detail please refer [the documentation](${docsUrl})
+    An overview of the API, for detail please refer [the documentation](${docsUrl}).
 
     ${api}
     `:

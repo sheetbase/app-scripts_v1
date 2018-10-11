@@ -10,9 +10,9 @@ export async function packageJson(path: string = '.'): Promise<INPMPackageDotJso
 export async function getSheetbaseDependencies(): Promise<string[]> {
     let paths: string[] = [];
     // load peer and dev dependencies to ignored when bundling
-    const { peerDependencies } = await packageJson();
-    const ignoreDependencies: string[] = await getSheetbasePeerDependenciesDependencies(
-        Object.keys(peerDependencies || {})
+    const { peerDependencies, devDependencies } = await packageJson();
+    const ignoreDependencies: string[] = await getSheetbaseChildDependencies(
+        [ ... Object.keys(peerDependencies || {}), ... Object.keys(devDependencies || {}) ]
     );
     const ignore = new RegExp('/' + ignoreDependencies.join('/|/') + '/', 'g');
     // loop through all packages and test for "sheetbase.module.ts"
@@ -40,12 +40,12 @@ export async function getSheetbaseDependencies(): Promise<string[]> {
     return paths;
 }
 
-export async function getSheetbasePeerDependenciesDependencies(peerDependencies: string[]): Promise<string[]> {
-    let resultDependencies: string[] = peerDependencies;
-    for (let i = 0; i < peerDependencies.length; i++) {
-        const dependency: string = peerDependencies[i];
-        const { dependencies } = await packageJson(`./node_modules/${dependency}`);
-        resultDependencies = resultDependencies.concat([... Object.keys(dependencies || {})]);
+export async function getSheetbaseChildDependencies(parents: string[]): Promise<string[]> {
+    let resultDependencies: string[] = parents;
+    for (let i = 0; i < parents.length; i++) {
+        const parent: string = parents[i];
+        const { dependencies, peerDependencies, devDependencies } = await packageJson(`./node_modules/${parent}`);
+        resultDependencies = resultDependencies.concat([... Object.keys(dependencies || {}), ... Object.keys(peerDependencies || {}), ... Object.keys(devDependencies || {})]);
     }
     return resultDependencies;
 }

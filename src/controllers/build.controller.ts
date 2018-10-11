@@ -1,24 +1,24 @@
 import chalk from 'chalk';
 import { resolve, basename } from 'path';
-import { remove, ensureDir, copy, outputFile, readFile } from 'fs-extra';
+import { remove, copy, outputFile, readJson, readFile } from 'fs-extra';
 import { snakeCase, paramCase, pascalCase, constantCase } from 'change-case';
 
 import { SHEETBASE_MODULE_FILE_NAME } from '../services/code/code.config';
 import { IBuildCodeInput } from '../services/code/code.type';
 import { buildMain, buildIndex, buildDependenciesBundle, getPolyfill } from '../services/code/code.service';
-import { packageJson, getSheetbaseDependencies } from '../services/npm/npm.service';
+import { getSheetbaseDependencies } from '../services/npm/npm.service';
 
 export interface IOptions {
     app?: boolean;
     vendor?: boolean;
     bundle?: boolean;
-    ugly?: boolean;
+    polyfill?: boolean;
 }
 
 export default async (nameExport: string = null, options: IOptions = {}) => {
     if (!nameExport) {
-        const packageDotJson = await packageJson();
-        nameExport = packageDotJson.exportName || basename(process.cwd());
+        const dotClaspDotJson = await readJson('.clasp.json');
+        nameExport = dotClaspDotJson.exportName || basename(process.cwd());
     }
     const namePascalCase = pascalCase(nameExport);
     const nameSnakeCase = snakeCase(nameExport);
@@ -30,13 +30,14 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
     const dist = resolve('.', 'dist');
 
     const buildData: IBuildCodeInput = {
-        type, src, dist,
+        src, dist,
         names: {
             namePascalCase,
             nameParamCase,
             nameSnakeCase,
             nameConstantCase
         },
+        type,
         vendor: options.vendor,
         bundle: options.bundle
     };
@@ -45,7 +46,6 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
     try {
         await remove(dist);
         await remove(SHEETBASE_MODULE_FILE_NAME);
-        await ensureDir(dist);
     } catch (error) {
         console.log(chalk.red('Errors prepearing project.\n'));
         console.log(error);
@@ -61,7 +61,7 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
             await outputFile(path, content);
         }
 
-        // index.js
+        // @index.js
         const indexContent = await buildIndex(buildData);
         await outputFile(`${dist}/@index.js`, indexContent);
 
@@ -81,7 +81,7 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
         }
         
         // polyfill
-        if (type === 'app') {
+        if (type === 'app' && options.polyfill) {
             const POLYFILL: string = await getPolyfill();            
             if (options.bundle) {
                 const gasContent: string = POLYFILL + '\r\n\r\n' + await readFile(`${dist}/${nameParamCase}.js`, 'utf-8');

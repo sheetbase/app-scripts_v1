@@ -10,13 +10,14 @@ Build module of app for GAS deployment.
 - `--app`: Build an app, else a module.
 - `--vendor`: A vendor module.
 - `--bundle`: Merge dependencies with the module.
+- `--no-polyfill`: Not include polyfill for build --app.
 
 #### Examples
 
 - `sheetbase-app-scripts build` (build a module).
 - `sheetbase-app-scripts build --app` (build a backend app).
 - `sheetbase-app-scripts build --vendor` (build a module that ported from an package).
-- `sheetbase-app-scripts build --bundle` (build a module and add bundle all dependencies to the output file).
+- `sheetbase-app-scripts build --bundle` (build a module and add bundle all dependencies).
 
 ### Push
 

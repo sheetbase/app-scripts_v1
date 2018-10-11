@@ -180,9 +180,11 @@ function parseProperty(propertyString: string): IProperty {
 }
 
 function formatMethod(parsedMethod: IMethodParsed): string {
+    // TODO: TODO
     return JSON.stringify(parsedMethod);
 }
 
 function formatProperty(parsedProperty: IPropertyParsed): string {
+    // TODO: TODO
     return JSON.stringify(parsedProperty);
 }
