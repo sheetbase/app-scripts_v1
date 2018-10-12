@@ -52,7 +52,7 @@ Push module of app to GAS using @google/clasp.
 
 ### Readme
 
-Generate README.md.
+Generate README file.
 
 #### Options
 
@@ -62,10 +62,6 @@ Generate README.md.
 #### Examples
 
 - `sheetbase-app-scripts readme` (update the readme file).
-
-### Help
-
-Displays the help.
 
 ## How?
 

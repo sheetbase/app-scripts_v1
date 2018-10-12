@@ -40,6 +40,14 @@ export async function buildMain(data: IBuildCodeInput): Promise<{[key: string]: 
         /* no "src/index.ts" */
     }
 
+    // read global.ts
+    let globalContent: string = '';
+    try {
+        globalContent = await readFile(`${src}/global.ts`, 'utf-8');
+    } catch (error) {
+        /* no "src/global.ts" */
+    }
+
     // read all except files or folders in BUILD_MAIN_CODE_IGNORE
     let files: string[];
     let filesContent: string[] = [];
@@ -96,6 +104,10 @@ export async function buildMain(data: IBuildCodeInput): Promise<{[key: string]: 
         npmOutput = npmOutput + '\r\n\r\n' + npmExtra;
         gasOutput = gasOutput + '\r\n\r\n' + gasExtra;
     }
+
+    // global
+    npmOutput = npmOutput + '\r\n\r\n' + globalContent;
+    gasOutput = gasOutput + '\r\n\r\n' + globalContent;
 
     // compile
     if (vendor) {

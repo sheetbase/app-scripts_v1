@@ -98,7 +98,7 @@ export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
 
     ${
     oauthScopes ?
-    '## Scopes' + '\r\n' + '\`' + oauthScopes.join('\`\r\n\`') + '\`':
+    '## Scopes' + '\r\n' + '\`' + oauthScopes.join('\`\r\n\r\n\`') + '\`':
     ''
     }
 

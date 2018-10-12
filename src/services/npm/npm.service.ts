@@ -10,10 +10,9 @@ export async function packageJson(path: string = '.'): Promise<INPMPackageDotJso
 export async function getSheetbaseDependencies(): Promise<string[]> {
     let paths: string[] = [];
     // load peer and dev dependencies to ignored when bundling
+    // TODO: need better implementation
     const { peerDependencies, devDependencies } = await packageJson();
-    const ignoreDependencies: string[] = await getSheetbaseChildDependencies(
-        [ ... Object.keys(peerDependencies || {}), ... Object.keys(devDependencies || {}) ]
-    );
+    const ignoreDependencies: string[] = [... Object.keys(peerDependencies || {}), ... Object.keys(devDependencies || {})];
     const ignore = new RegExp('/' + ignoreDependencies.join('/|/') + '/', 'g');
     // loop through all packages and test for "sheetbase.module.ts"
     const packages: string[] = readdirSync('node_modules', { encoding: 'utf8' });
