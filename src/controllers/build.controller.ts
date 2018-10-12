@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { resolve, basename } from 'path';
-import { remove, copy, outputFile, readJson, readFile } from 'fs-extra';
+import { remove, copy, outputFile, readJson, readFile, pathExists } from 'fs-extra';
 import { snakeCase, paramCase, pascalCase, constantCase } from 'change-case';
 
 import { SHEETBASE_MODULE_FILE_NAME } from '../services/code/code.config';
@@ -68,9 +68,10 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
         // dependencies
         const dependencies: string[] = await getSheetbaseDependencies();
         if (options.bundle) {
-            const dependenciesBundle: string = await buildDependenciesBundle(dependencies);
-            const gasContent: string = dependenciesBundle + '\r\n\r\n' + await readFile(`${dist}/${nameParamCase}.js`, 'utf-8');
-            await outputFile(`${dist}/${nameParamCase}.js`, gasContent);
+            const modulesContent: string = await buildDependenciesBundle(dependencies);
+            if (modulesContent) {
+                await outputFile(`${dist}/@modules.js`, modulesContent);
+            }
         } else {
             for (let i = 0; i < dependencies.length; i++) {
                 const src = dependencies[i];
@@ -84,10 +85,13 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
         if (type === 'app' && options.polyfill) {
             const POLYFILL: string = await getPolyfill();            
             if (options.bundle) {
-                const gasContent: string = POLYFILL + '\r\n\r\n' + await readFile(`${dist}/${nameParamCase}.js`, 'utf-8');
-                await outputFile(`${dist}/${nameParamCase}.js`, gasContent);
+                let modulesContent: string = POLYFILL;
+                if (!! await pathExists(`${dist}/@modules.js`)) {
+                    modulesContent = modulesContent + '\r\n\r\n' + await readFile(`${dist}/@modules.js`, 'utf-8')
+                }
+                await outputFile(`${dist}/@modules.js`, modulesContent);
             } else {
-                await outputFile(`${dist}/@modules/@polyfill.js`, POLYFILL);
+                await outputFile(`${dist}/@modules/@sheetbase/polyfill-server/module.js`, POLYFILL);
             }
         }
 

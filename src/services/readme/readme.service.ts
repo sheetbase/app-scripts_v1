@@ -6,41 +6,24 @@ const stripIndent = require('strip-indent');
 import { IBuildReadmeInput } from './readme.type';
 import { packageJson } from '../npm/npm.service';
 import { parseInterfaces } from '../typescript/typescript.service';
+import { extractString } from '../util/util.service';
 
 export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
     const { names, docs } = data;
     const { namePascalCase } = names;
 
     // readme
-    let header: string = '';
-    let content: string = '';
-    let footer: string = '';
+    let readmeBlockHeader: string = '';
+    let readmeBlockCenter: string = '';
+    let readmeBlockFooter: string = '';
     try {
         const readmeContent = await readFile('README.md', 'utf-8');
-        
         // header
-        const HEADER_START = '<!-- <header> -->';
-        const HEADER_END = '<!-- </header> -->';
-        header = readmeContent.substring(
-            readmeContent.lastIndexOf(HEADER_START), 
-            readmeContent.lastIndexOf(HEADER_END) + HEADER_END.length
-        );
-
-        // content
-        const CONTENT_START = '<!-- <content> -->';
-        const CONTENT_END = '<!-- </content> -->';
-        content = readmeContent.substring(
-            readmeContent.lastIndexOf(CONTENT_START), 
-            readmeContent.lastIndexOf(CONTENT_END) + CONTENT_END.length
-        );
-    
-        // footer
-        const FOOTER_START = '<!-- <footer> -->';
-        const FOOTER_END = '<!-- </footer> -->';
-        footer = readmeContent.substring(
-            readmeContent.lastIndexOf(FOOTER_START), 
-            readmeContent.lastIndexOf(FOOTER_END) + FOOTER_END.length
-        );
+        readmeBlockHeader = extractString(readmeContent, '<!-- <block:header> -->', '<!-- </block:header> -->');
+        // content        
+        readmeBlockCenter = extractString(readmeContent, '<!-- <block:center> -->', '<!-- </block:center> -->');
+        // footer        
+        readmeBlockFooter = extractString(readmeContent, '<!-- <block:footer> -->', '<!-- </block:footer> -->');        
     } catch(error) {
         /* no file */
     }
@@ -76,8 +59,8 @@ export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
     // api
     let api: string = '';
     try {
-        api = await buildApi(data);
-    } catch(error) {       
+        api = await buildApiContent(data);
+    } catch(error) {        
         /* no file or error */
     }
 
@@ -86,7 +69,7 @@ export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
 
     ${description}
 
-    ${header}
+${readmeBlockHeader}
 
     ## Install
 
@@ -102,7 +85,7 @@ export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
     ''
     }
 
-    ${content}
+${readmeBlockCenter}
 
     ## Examples
 
@@ -138,12 +121,12 @@ export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
 
     **${name}** is released under the [${license}](${gitUrl}/blob/master/LICENSE) license.
 
-    ${footer}
+${readmeBlockFooter}
     `);
     return format(output, { parser: 'markdown' });
 }
 
-async function buildApi(data: IBuildReadmeInput): Promise<string> {
+async function buildApiContent(data: IBuildReadmeInput): Promise<string> {
     const { src, names } = data;
     const { namePascalCase } = names;
     let output: string = '';

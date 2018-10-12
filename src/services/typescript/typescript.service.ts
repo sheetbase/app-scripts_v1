@@ -3,6 +3,7 @@ const readDir = require('fs-readdir-recursive');
 const stripIndent = require('strip-indent');
 
 import { IInterfaceParsed, IMethod, IProperty, IMethodParsed, IPropertyParsed } from './typescript.type';
+import { extractString } from '../util/util.service';
 
 export async function getInterfaces(path: string): Promise<{[name: string]: string}> {
     // read all typed files
@@ -27,10 +28,7 @@ export async function getInterfaces(path: string): Promise<{[name: string]: stri
     for (let i = 0; i < interfaceSplits.length; i++) {
         const block = interfaceSplits[i].trim();
         const interfaceName: string = block.split('{')[0].trim();
-        let interfaceContent: string = block.substring(
-            block.indexOf('{') + 1,
-            block.lastIndexOf('}')
-        ).trim();
+        let interfaceContent: string = extractString(block, '{', '}', false, false).trim();
 
         // return
         interfaces[interfaceName] = interfaceContent;
@@ -82,10 +80,7 @@ function parseMethod(methodString: string): IMethod {
         methodName = methodName.replace('?', '').trim();
     }
     if (/\<(.*)\>/.test(methodName)) {
-        let typeParams = methodName.substring(
-            methodName.indexOf('<') + 1,
-            methodName.lastIndexOf('>')
-        ).trim();
+        let typeParams = extractString(methodName, '<', '>', false, false).trim();
         parsedMethod.typeParams = typeParams.split(',')
                                     .map(x => x.trim());
         methodName = methodName.replace(/\<(.*)\>/g, '').trim();
@@ -100,10 +95,7 @@ function parseMethod(methodString: string): IMethod {
 
     // params
     let params: IPropertyParsed[] = [];
-    const paramsString: string = methodString.substring(
-        methodString.indexOf('(') + 1,
-        methodString.lastIndexOf(')')
-    ).trim();
+    const paramsString: string = extractString(methodString, '(', ')', false, false).trim();
 
     (<string[]> paramsString.split(',')).forEach(paramString => {
         let param: IPropertyParsed = { name: null };
@@ -152,10 +144,7 @@ function parseProperty(propertyString: string): IProperty {
     propertyParsed.name = propName;
 
     // type
-    let type: string = propertyString.substring(
-        propertyString.indexOf('{') + 1,
-        propertyString.lastIndexOf('}')
-    ).trim();
+    let type: string = extractString(propertyString, '{', '}', false, false).trim();
     if (type) {
         type = '{' + type + '}';
     } else {

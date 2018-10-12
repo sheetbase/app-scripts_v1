@@ -8,8 +8,8 @@ import { IBuildCodeInput } from './code.type';
 import { packageJson } from '../npm/npm.service';
 import { BUILD_MAIN_CODE_IGNORE, SHEETBASE_MODULE_FILE_NAME, POLYFILL_FILE_URL } from './code.config';
 
-export async function buildDescription(data: IBuildCodeInput): Promise<string> {
-    const { type, names } = data;
+export async function buildDescriptionContent(buildData: IBuildCodeInput): Promise<string> {
+    const { type, names } = buildData;
     const { namePascalCase } = names;
     const { name, description, version, author, homepage, license, repository } = await packageJson();
     let content: string = '\r\n';
@@ -28,14 +28,20 @@ export async function buildDescription(data: IBuildCodeInput): Promise<string> {
 }
 
 
-export async function buildMain(data: IBuildCodeInput): Promise<{[key: string]: string}> {
-    const { src, dist, names, type, vendor, bundle } = data;
+export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: string]: string}> {
+    const { src, dist, names, type, vendor, bundle } = buildData;
     const { namePascalCase, nameParamCase } = names;
 
     // read index.ts
     let indexContent: string = '';
     try {
         indexContent = await readFile(`${src}/index.ts`, 'utf-8');
+        if (vendor) {
+            indexContent = ts2gas(indexContent)
+                            .replace(/var\ exports\ [^\n]*/g, '')
+                            .replace(/var\ module\ [^\n]*/g, '')
+                            .trim();
+        }
     } catch (error) {
         /* no "src/index.ts" */
     }
@@ -44,6 +50,13 @@ export async function buildMain(data: IBuildCodeInput): Promise<{[key: string]: 
     let globalContent: string = '';
     try {
         globalContent = await readFile(`${src}/global.ts`, 'utf-8');
+        if (vendor) {
+            globalContent = ts2gas(globalContent)
+                            .replace(/var\ exports\ [^\n]*/g, '')
+                            .replace(/var\ module\ [^\n]*/g, '')
+                            .trim();
+        }
+        globalContent = '// code from global.ts\r\n' + globalContent;
     } catch (error) {
         /* no "src/global.ts" */
     }
@@ -63,13 +76,13 @@ export async function buildMain(data: IBuildCodeInput): Promise<{[key: string]: 
     }
 
     // build description
-    const fileDescription: string = await buildDescription(data);
+    const fileDescription: string = await buildDescriptionContent(buildData);
 
     // main content
-    let mainContent: string = (filesContent.join('\r\n\r\n') + '\r\n' + indexContent).trim();
+    let mainContent: string = (filesContent.join('\r\n') + '\r\n' + indexContent).trim();
     if (type !== 'app' && !vendor) {
         mainContent = `{
-            ${filesContent.join('\r\n\r\n')}
+            ${filesContent.join('\r\n')}
             ${indexContent}
             return moduleExports || {};
         }`;
@@ -94,20 +107,16 @@ export async function buildMain(data: IBuildCodeInput): Promise<{[key: string]: 
     // outputs
     let npmOutput: string = '';
     let gasOutput: string = '';
-    gasOutput = (bundle ? fileDescription: '') + '\r\n' + mainContent;
+    gasOutput = mainContent;
     if (type !== 'app') {
         npmOutput = fileDescription + '\r\n' + mainContent;
     }
 
     // extra
     if (type !== 'app' && !vendor) {
-        npmOutput = npmOutput + '\r\n\r\n' + npmExtra;
-        gasOutput = gasOutput + '\r\n\r\n' + gasExtra;
-    }
-
-    // global
-    npmOutput = npmOutput + '\r\n\r\n' + globalContent;
-    gasOutput = gasOutput + '\r\n\r\n' + globalContent;
+        npmOutput = npmOutput + '\r\n' + npmExtra;
+        gasOutput = gasOutput + '\r\n' + gasExtra;
+    }   
 
     // compile
     if (vendor) {
@@ -120,9 +129,12 @@ export async function buildMain(data: IBuildCodeInput): Promise<{[key: string]: 
         );
         const npmExtraCompiledSplits = npmExtraCompiled.split(PLACEHOLDER_PHASE);
         const gasExtraCompiledSplits = gasExtraCompiled.split(PLACEHOLDER_PHASE);
-        npmOutput = npmExtraCompiledSplits[0] + npmOutput + npmExtraCompiledSplits[1];
-        gasOutput = gasExtraCompiledSplits[0] + gasOutput + gasExtraCompiledSplits[1];
+        npmOutput = npmExtraCompiledSplits[0] + npmOutput + npmExtraCompiledSplits[1] + globalContent;
+        gasOutput = gasExtraCompiledSplits[0] + gasOutput + gasExtraCompiledSplits[1] + globalContent;
     } else {
+        // global
+        npmOutput = npmOutput + '\r\n' + globalContent;
+        gasOutput = gasOutput + '\r\n' + globalContent;
         npmOutput = ts2gas(npmOutput);
         gasOutput = ts2gas(gasOutput);
     }
@@ -149,10 +161,10 @@ export async function buildIndex(data: IBuildCodeInput): Promise<string> {
         /* no "src/example.ts" */
     }
     // get description
-    const fileDescription: string = await buildDescription(data);
+    const fileDescription: string = await buildDescriptionContent(data);
     // sum up
     let indexOutput = `
-        ${fileDescription}        
+        ${fileDescription}
         ${exampleContent}
     `;
     // compile
