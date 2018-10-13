@@ -20,7 +20,7 @@ program
   .description('Scripts for Sheetbase modules and apps');
 
 /**
- * Build module of app for GAS deployment.
+ * Build module or app for GAS deployment.
  * @name build
  * @param {string?} [exportName] Optional export name or use the folder name.
  * @param {string?} [--app] Build an app, else a module.
@@ -38,7 +38,7 @@ program
   .option('--vendor', 'A vendor module.')
   .option('--bundle', 'Merge dependencies with the module.')
   .option('--no-polyfill', 'Not include polyfill for build --app.')
-  .description(`Build module of app for GAS deployment.`)
+  .description(`Build module or app for GAS deployment.`)
   .action(async (exportName, options) => await buildCommand(exportName, options));
 
 /**
