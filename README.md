@@ -95,9 +95,10 @@ Build the module for distribution to GAS and NPM.
 	// (0)
 	// (6)
 
-	// add to the global namespace
-	var process = process || this;
-	process['${namePascalCase}'] = ${namePascalCase}Module();
+	// add '${namePascalCase}' to the global namespace
+	((process) => {
+		process['${namePascalCase}'] = ${namePascalCase}Module();
+	})(this);
 
 	// (3)
 	```
@@ -107,10 +108,12 @@ Build the module for distribution to GAS and NPM.
 	// (6)
 
 	// add exports to the global namespace
-	export const ${namePascalCase} = ${namePascalCase}Module();
-	for (const prop of Object.keys({... ${namePascalCase}, ... Object.getPrototypeOf(${namePascalCase})})) {
-		this[prop] = ${namePascalCase}[prop];
-	}
+	((process) => {
+		const ${namePascalCase} = ${namePascalCase}Module();
+		for (const prop of Object.keys({... ${namePascalCase}, ... Object.getPrototypeOf(${namePascalCase})})) {
+			process[prop] = ${namePascalCase}[prop];
+		}
+	})(this);
 
 	// (3)
 	```

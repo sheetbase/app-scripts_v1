@@ -92,16 +92,19 @@ export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: stri
 
     // extra
     let npmExtra = `
-        // add to the global namespace
-        var process = process || this;
-        process['${namePascalCase}'] = ${namePascalCase}Module();
+        // add '${namePascalCase}' to the global namespace
+        ((process) => {
+            process['${namePascalCase}'] = ${namePascalCase}Module();
+        })(this);
     `;
     let gasExtra = `
         // add exports to the global namespace
-        export const ${namePascalCase} = ${namePascalCase}Module();
-        for (const prop of Object.keys({... ${namePascalCase}, ... Object.getPrototypeOf(${namePascalCase})})) {
-            this[prop] = ${namePascalCase}[prop];
-        }
+        ((process) => {
+            const ${namePascalCase} = ${namePascalCase}Module();
+            for (const prop of Object.keys({... ${namePascalCase}, ... Object.getPrototypeOf(${namePascalCase})})) {
+                process[prop] = ${namePascalCase}[prop];
+            }
+        })(this);
     `;
 
     // outputs
