@@ -29,7 +29,7 @@ export async function buildDescriptionContent(buildData: IBuildCodeInput): Promi
 
 
 export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: string]: string}> {
-    const { src, dist, names, type, vendor, bundle } = buildData;
+    const { src, dist, names, type, vendor, preExposed, param } = buildData;
     const { namePascalCase, nameParamCase } = names;
 
     // read index.ts
@@ -87,17 +87,17 @@ export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: stri
             return moduleExports || {};
         }`;
         mainContent = mainContent.replace(/(export\ )/g, '');
-        mainContent = `export function ${namePascalCase}Module() ` +  mainContent;
+        mainContent = `export function ${namePascalCase}Module(${param || ''}) ` +  mainContent;
     }
 
     // extra
-    let npmExtra = `
+    let npmExtra = preExposed ? `
         // add '${namePascalCase}' to the global namespace
         ((process) => {
             process['${namePascalCase}'] = ${namePascalCase}Module();
         })(this);
-    `;
-    let gasExtra = `
+    `: '';
+    let gasExtra = preExposed ? `
         // add exports to the global namespace
         ((process) => {
             const ${namePascalCase} = ${namePascalCase}Module();
@@ -105,7 +105,7 @@ export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: stri
                 process[prop] = ${namePascalCase}[prop];
             }
         })(this);
-    `;
+    `: '';
 
     // outputs
     let npmOutput: string = '';

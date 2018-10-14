@@ -17,38 +17,37 @@ import readmeCommand from './controllers/readme.controller';
 program
   .version(require('./package.json').version, '-v, --version')
   .usage('sheetbase-app-scripts [options] [command]')
-  .description('Scripts for Sheetbase modules and apps');
+  .description('Scripts for Sheetbase backend modules and apps');
 
 /**
  * Build module or app for GAS deployment.
  * @name build
  * @param {string?} [exportName] Optional export name or use the folder name.
+ * @param {string?} [--param] Module params, seperated by commas.
  * @param {string?} [--app] Build an app, else a module.
  * @param {string?} [--vendor] A vendor module.
  * @param {string?} [--bundle] Merge dependencies with the module.
  * @param {string?} [--no-polyfill] Not include polyfill for build --app.
- * @example build > (build a module).
- * @example build --app > (build a backend app).
- * @example build --vendor > (build a module that ported from an package).
- * @example build --bundle > (build a module and add bundle all dependencies).
+ * @param {string?} [--no-pre-exposed] Not exposes the module default instance.
  */
 program
   .command('build [exportName]')
+  .option('--param [value]', 'Module params, seperated by commas.')
   .option('--app', 'Build an app, else a module.')
   .option('--vendor', 'A vendor module.')
   .option('--bundle', 'Merge dependencies with the module.')
   .option('--no-polyfill', 'Not include polyfill for build --app.')
+  .option('--no-pre-exposed', 'Not exposes the module default instance.')
   .description(`Build module or app for GAS deployment.`)
   .action(async (exportName, options) => await buildCommand(exportName, options));
 
 /**
- * Push module of app to GAS using @google/clasp.
+ * Push module or app to GAS using @google/clasp.
  * @name push
- * @example push > (push content in 'dist' folder).
  */
 program
   .command('push')
-  .description('Push module of app to GAS using @google/clasp.')
+  .description('Push module or app to GAS using @google/clasp.')
   .action(async () => await pushCommand());
 
 /**
@@ -56,7 +55,6 @@ program
  * @name readme
  * @param {string?} [exportName] Optional export name or use the folder name.
  * @param {string?} [--no-docs] No docs link.
- * @example readme > (update the readme file).
  */
 program
   .command('readme [exportName]')
@@ -77,7 +75,6 @@ program
 
 /**
  * All other commands are given a help message.
- * @example foo
  */
 program
   .command('*', { isDefault: true })

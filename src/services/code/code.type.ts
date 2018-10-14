@@ -8,7 +8,9 @@ export interface IBuildCodeInput {
         nameConstantCase?: string;
     };
     // options
+    param?: string;
     type?: string; // --app (else = module)
     vendor?: boolean;
     bundle?: boolean;
+    preExposed?: boolean;
 }

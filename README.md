@@ -1,6 +1,6 @@
 # sheetbase-app-scripts
 
-Scripts for Sheetbase modules and apps.
+Scripts for Sheetbase backend modules and apps.
 
 [![License][license_badge]][license_url] [![Support me on Patreon][patreon_badge]][patreon_url] [![PayPal][paypal_donate_badge]][paypal_donate_url] [![Ask me anything][ask_me_badge]][ask_me_url]
 
@@ -30,25 +30,16 @@ Build module or app for GAS deployment.
 #### Options
 
 - `exportName`: Optional export name or use the folder name.
+- `--param`: Module params, seperated by commas.
 - `--app`: Build an app, else a module.
 - `--vendor`: A vendor module.
 - `--bundle`: Merge dependencies with the module.
 - `--no-polyfill`: Not include polyfill for build --app.
-
-#### Examples
-
-- `sheetbase-app-scripts build` (build a module).
-- `sheetbase-app-scripts build --app` (build a backend app).
-- `sheetbase-app-scripts build --vendor` (build a module that ported from an package).
-- `sheetbase-app-scripts build --bundle` (build a module and add bundle all dependencies).
+- `--no-pre-exposed`: Not expose the module.
 
 ### Push
 
-Push module of app to GAS using @google/clasp.
-
-#### Examples
-
-- `sheetbase-app-scripts push` (push content in 'dist' folder).
+Push module or app to GAS using @google/clasp.
 
 ### Readme
 
@@ -59,10 +50,6 @@ Generate README file.
 - `exportName`: Optional export name or use the folder name.
 - `--no-docs`: No docs link.
 
-#### Examples
-
-- `sheetbase-app-scripts readme` (update the readme file).
-
 ## How?
 
 :ambulance: TODO: still a mess, needed improvements.
@@ -71,9 +58,11 @@ Generate README file.
 
 Script: `sheetbase-app-scripts build [--bundle]`
 
+Sample module: https://github.com/sheetbase/module-utils-server
+
 Build the module for distribution to GAS and NPM.
 
-- Get export name.
+- Get export name, for example: **Foo**.
 - Generate description comment block from info provided by package.json **(0)**.
 - Read src/index.ts (if exists) **(1)**.
 - Read src/example.ts (if exists) **(2)**.
@@ -83,7 +72,7 @@ Build the module for distribution to GAS and NPM.
 - Build module code **(6)**.
 
 	```ts
-	export function /**<export_name>*/Module() { 
+	export function FooModule(/** params if exist */) { 
 		// (5)
 		// (1)
 		return moduleExports || {};
@@ -95,9 +84,10 @@ Build the module for distribution to GAS and NPM.
 	// (0)
 	// (6)
 
-	// add '${namePascalCase}' to the global namespace
+	// if omit --no-pre-exposed, then:
+	// add 'Foo' to the global namespace
 	((process) => {
-		process['${namePascalCase}'] = ${namePascalCase}Module();
+		process['Foo'] = FooModule(/** params if exist */);
 	})(this);
 
 	// (3)
@@ -107,11 +97,12 @@ Build the module for distribution to GAS and NPM.
 	```ts
 	// (6)
 
+	// if omit --no-pre-exposed, then:
 	// add exports to the global namespace
 	((process) => {
-		const ${namePascalCase} = ${namePascalCase}Module();
-		for (const prop of Object.keys({... ${namePascalCase}, ... Object.getPrototypeOf(${namePascalCase})})) {
-			process[prop] = ${namePascalCase}[prop];
+		const Foo = FooModule(/** params if exist */);
+		for (const prop of Object.keys({... Foo, ... Object.getPrototypeOf(Foo)})) {
+			process[prop] = Foo[prop];
 		}
 	})(this);
 
@@ -127,6 +118,8 @@ Build the module for distribution to GAS and NPM.
 ### Build a module (vendor)
 
 Script: `sheetbase-app-scripts build --vendor [--bundle]`
+
+Sample module: https://github.com/sheetbase/module-md5-server
 
 Like build a module, but:
 
@@ -238,9 +231,9 @@ export function example2() {}
 export function exampleN() {}
 ```
 
-#### **src/\*\*** (optional)
+#### **src/\*\*/\*.ts** (optional)
 
-Any other file will be wrapped inside **<module_export_name>Module()** function.
+Any other *.ts* file will be wrapped inside **<module_export_name>Module()** function.
 
 ```ts
 function MyAwesomeModule() {
@@ -257,7 +250,7 @@ function MyAwesomeModule() {
 
 #### **src/\*.js** (optional)
 
-Usually a vendor module code.
+Usually a vendor module code. Sample file: https://github.com/Sheetbase/module-md5-server/blob/master/src/md5.min.js
 
 ### **.clasp.json**
 

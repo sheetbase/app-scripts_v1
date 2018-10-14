@@ -9,10 +9,12 @@ import { buildMain, buildIndex, buildDependenciesBundle, getPolyfill } from '../
 import { getSheetbaseDependencies } from '../services/npm/npm.service';
 
 export interface IOptions {
+    param?: string;
     app?: boolean;
     vendor?: boolean;
     bundle?: boolean;
     polyfill?: boolean;
+    preExposed?: boolean;
 }
 
 export default async (nameExport: string = null, options: IOptions = {}) => {
@@ -29,6 +31,9 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
     const src = resolve('.', 'src');
     const dist = resolve('.', 'dist');
 
+    // build params
+    const param: string = (options.param||'').split(',').map(x => x.trim()).join(', ');
+
     const buildData: IBuildCodeInput = {
         src, dist,
         names: {
@@ -38,10 +43,12 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
             nameConstantCase
         },
         type,
+        param: param,
         vendor: options.vendor,
-        bundle: options.bundle
+        bundle: options.bundle,
+        preExposed: options.preExposed
     };
-        
+    
     // clean
     try {
         await remove(dist);
