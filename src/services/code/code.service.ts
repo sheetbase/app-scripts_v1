@@ -29,7 +29,7 @@ export async function buildDescriptionContent(buildData: IBuildCodeInput): Promi
 
 
 export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: string]: string}> {
-    const { src, dist, names, type, vendor, preExposed, param } = buildData;
+    const { src, dist, names, type, vendor, init, param } = buildData;
     const { namePascalCase, nameParamCase } = names;
 
     // read index.ts
@@ -91,13 +91,13 @@ export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: stri
     }
 
     // extra
-    let npmExtra = preExposed ? `
+    let npmExtra = init ? `
         // add '${namePascalCase}' to the global namespace
         ((process) => {
             process['${namePascalCase}'] = ${namePascalCase}Module();
         })(this);
     `: '';
-    let gasExtra = preExposed ? `
+    let gasExtra = init ? `
         // add exports to the global namespace
         ((process) => {
             const ${namePascalCase} = ${namePascalCase}Module();

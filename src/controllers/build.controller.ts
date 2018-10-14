@@ -14,7 +14,7 @@ export interface IOptions {
     vendor?: boolean;
     bundle?: boolean;
     polyfill?: boolean;
-    preExposed?: boolean;
+    init?: boolean;
 }
 
 export default async (nameExport: string = null, options: IOptions = {}) => {
@@ -46,7 +46,7 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
         param: param,
         vendor: options.vendor,
         bundle: options.bundle,
-        preExposed: options.preExposed
+        init: options.init
     };
     
     // clean

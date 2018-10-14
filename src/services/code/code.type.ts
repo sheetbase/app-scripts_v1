@@ -12,5 +12,5 @@ export interface IBuildCodeInput {
     type?: string; // --app (else = module)
     vendor?: boolean;
     bundle?: boolean;
-    preExposed?: boolean;
+    init?: boolean;
 }

@@ -35,7 +35,7 @@ Build module or app for GAS deployment.
 - `--vendor`: A vendor module.
 - `--bundle`: Merge dependencies with the module.
 - `--no-polyfill`: Not include polyfill for build --app.
-- `--no-pre-exposed`: Not expose the module.
+- `--no-init`: Not init the default instance of the module.
 
 ### Push
 
@@ -84,7 +84,7 @@ Build the module for distribution to GAS and NPM.
 	// (0)
 	// (6)
 
-	// if omit --no-pre-exposed, then:
+	// if omit --no-init, then:
 	// add 'Foo' to the global namespace
 	((process) => {
 		process['Foo'] = FooModule(/** params if exist */);
@@ -97,7 +97,7 @@ Build the module for distribution to GAS and NPM.
 	```ts
 	// (6)
 
-	// if omit --no-pre-exposed, then:
+	// if omit --no-init, then:
 	// add exports to the global namespace
 	((process) => {
 		const Foo = FooModule(/** params if exist */);

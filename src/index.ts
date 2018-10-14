@@ -28,7 +28,7 @@ program
  * @param {string?} [--vendor] A vendor module.
  * @param {string?} [--bundle] Merge dependencies with the module.
  * @param {string?} [--no-polyfill] Not include polyfill for build --app.
- * @param {string?} [--no-pre-exposed] Not exposes the module default instance.
+ * @param {string?} [--no-init] Not init the default instance of the module.
  */
 program
   .command('build [exportName]')
@@ -37,7 +37,7 @@ program
   .option('--vendor', 'A vendor module.')
   .option('--bundle', 'Merge dependencies with the module.')
   .option('--no-polyfill', 'Not include polyfill for build --app.')
-  .option('--no-pre-exposed', 'Not exposes the module default instance.')
+  .option('--no-init', 'Not init the default instance of the module.')
   .description(`Build module or app for GAS deployment.`)
   .action(async (exportName, options) => await buildCommand(exportName, options));
 
