@@ -1,4 +1,4 @@
-import { readFile } from 'fs-extra';
+import { readFile, copy } from 'fs-extra';
 import { format } from 'prettier';
 import axios from 'axios';
 const readDir = require('fs-readdir-recursive');
@@ -6,7 +6,7 @@ const ts2gas = require('ts2gas');
 
 import { IBuildCodeInput } from './code.type';
 import { packageJson } from '../npm/npm.service';
-import { BUILD_MAIN_CODE_IGNORE, SHEETBASE_MODULE_FILE_NAME, POLYFILL_FILE_URL } from './code.config';
+import { BUILD_MAIN_CODE_IGNORE, SHEETBASE_MODULE_FILE_NAME, POLYFILL_FILE_URL, DEFAULT_COPIES } from './code.config';
 
 export async function buildDescriptionContent(buildData: IBuildCodeInput): Promise<string> {
     const { type, names } = buildData;
@@ -29,7 +29,7 @@ export async function buildDescriptionContent(buildData: IBuildCodeInput): Promi
 
 
 export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: string]: string}> {
-    const { src, dist, names, type, vendor, init, param } = buildData;
+    const { src, dist, names, type, vendor, init, params } = buildData;
     const { namePascalCase, nameParamCase } = names;
 
     // read index.ts
@@ -61,12 +61,27 @@ export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: stri
         /* no "src/global.ts" */
     }
 
+    // read configs (sheetbase.config.ts or config.ts)
+    let configContent: string = '';
+    try {
+        configContent += await readFile(`${src}/sheetbase.config.ts`, 'utf-8');
+        configContent = '// code from sheetbase.config.ts\r\n' + configContent;
+    } catch (error) {
+        /* no src/sheetbase.config.ts */
+    }
+    try {
+        configContent += await readFile(`${src}/config.ts`, 'utf-8');
+        configContent = '// code from config.ts\r\n' + configContent;
+    } catch (error) {
+        /* no src/config.ts */
+    }
+
     // read all except files or folders in BUILD_MAIN_CODE_IGNORE
     let files: string[];
     let filesContent: string[] = [];
     files = readDir(src, (name, index, dir) => {
         const path: string = (<string> dir + '/' + name).replace(src, '');
-        const ignore = new RegExp(BUILD_MAIN_CODE_IGNORE.join('|'), 'g');
+        const ignore = new RegExp([... BUILD_MAIN_CODE_IGNORE, ... DEFAULT_COPIES].join('|'), 'g');
         return !ignore.test(path);
     });
     for (let i = 0; i < files.length; i++) {
@@ -79,15 +94,19 @@ export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: stri
     const fileDescription: string = await buildDescriptionContent(buildData);
 
     // main content
-    let mainContent: string = (filesContent.join('\r\n') + '\r\n' + indexContent).trim();
+    let mainContent: string = (configContent + '\r\n' +
+                                filesContent.join('\r\n') + '\r\n' +
+                                indexContent
+                            ).trim();
     if (type !== 'app' && !vendor) {
         mainContent = `{
+            ${configContent}
             ${filesContent.join('\r\n')}
             ${indexContent}
             return moduleExports || {};
         }`;
         mainContent = mainContent.replace(/(export\ )/g, '');
-        mainContent = `export function ${namePascalCase}Module(${param || ''}) ` +  mainContent;
+        mainContent = `export function ${namePascalCase}Module(${params || ''}) ` +  mainContent;
     }
 
     // extra
@@ -188,4 +207,18 @@ export async function buildDependenciesBundle(dependencies: string[]): Promise<s
 export async function getPolyfill(): Promise<string> {
     const { data } = await axios.get(POLYFILL_FILE_URL);
     return data;
+}
+
+export async function copyContent(data: IBuildCodeInput): Promise<void> {
+    const { src, dist } = data;
+    let { copies } = data;
+    copies = copies.concat(DEFAULT_COPIES).filter(x => !!x);
+    for (let i = 0; i < copies.length; i++) {
+        const item = copies[i];
+        try {
+            await copy(`${src}/${item}`, `${dist}/${item}`);
+        } catch (error) {
+            /** no files or folders */
+        }
+    } 
 }

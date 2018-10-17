@@ -22,13 +22,6 @@ program
 /**
  * Build module or app for GAS deployment.
  * @name build
- * @param {string?} [exportName] Optional export name or use the folder name.
- * @param {string?} [--param] Module params, seperated by commas.
- * @param {string?} [--app] Build an app, else a module.
- * @param {string?} [--vendor] A vendor module.
- * @param {string?} [--bundle] Merge dependencies with the module.
- * @param {string?} [--no-polyfill] Not include polyfill for build --app.
- * @param {string?} [--no-init] Not init the default instance of the module.
  */
 program
   .command('build [exportName]')
@@ -36,8 +29,9 @@ program
   .option('--app', 'Build an app, else a module.')
   .option('--vendor', 'A vendor module.')
   .option('--bundle', 'Merge dependencies with the module.')
-  .option('--no-polyfill', 'Not include polyfill for build --app.')
+  .option('--polyfill', 'Include polyfill.')
   .option('--no-init', 'Not init the default instance of the module.')
+  .option('--copy [value]', 'Files or folders will be copied, seperated by commas.')
   .description(`Build module or app for GAS deployment.`)
   .action(async (exportName, options) => await buildCommand(exportName, options));
 
@@ -53,8 +47,6 @@ program
 /**
  * Generate README.md.
  * @name readme
- * @param {string?} [exportName] Optional export name or use the folder name.
- * @param {string?} [--no-docs] No docs link.
  */
 program
   .command('readme [exportName]')

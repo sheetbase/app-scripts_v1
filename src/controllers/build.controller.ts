@@ -5,7 +5,7 @@ import { snakeCase, paramCase, pascalCase, constantCase } from 'change-case';
 
 import { SHEETBASE_MODULE_FILE_NAME } from '../services/code/code.config';
 import { IBuildCodeInput } from '../services/code/code.type';
-import { buildMain, buildIndex, buildDependenciesBundle, getPolyfill } from '../services/code/code.service';
+import { buildMain, buildIndex, buildDependenciesBundle, getPolyfill, copyContent } from '../services/code/code.service';
 import { getSheetbaseDependencies } from '../services/npm/npm.service';
 
 export interface IOptions {
@@ -15,6 +15,7 @@ export interface IOptions {
     bundle?: boolean;
     polyfill?: boolean;
     init?: boolean;
+    copy?: string;
 }
 
 export default async (nameExport: string = null, options: IOptions = {}) => {
@@ -34,6 +35,9 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
     // build params
     const param: string = (options.param||'').split(',').map(x => x.trim()).join(', ');
 
+    // build copy
+    const copies: string[] = (options.copy||'').split(',').map(x => x.trim());
+
     const buildData: IBuildCodeInput = {
         src, dist,
         names: {
@@ -43,10 +47,11 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
             nameConstantCase
         },
         type,
-        param: param,
+        params: param,
         vendor: options.vendor,
         bundle: options.bundle,
-        init: options.init
+        init: options.init,
+        copies
     };
     
     // clean
@@ -89,7 +94,7 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
         }
         
         // polyfill
-        if (type === 'app' && options.polyfill) {
+        if (/*type === 'app' && */options.polyfill) {
             const POLYFILL: string = await getPolyfill();            
             if (options.bundle) {
                 let modulesContent: string = POLYFILL;
@@ -105,6 +110,9 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
         // meta
         await copy(`.clasp.json`, dist + '/.clasp.json');
         await copy(`appsscript.json`, dist + '/appsscript.json');
+
+        // copy
+        await copyContent(buildData);
     } catch (error) {
         console.log(chalk.red('Errors building project.\n'));
         console.log(error);        
