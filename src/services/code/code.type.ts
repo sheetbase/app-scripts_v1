@@ -1,4 +1,4 @@
-export interface IBuildCodeInput {
+export interface BuildCodeInput {
     src?: string;
     dist?: string;
     names?: {

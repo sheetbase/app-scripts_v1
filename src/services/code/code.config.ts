@@ -7,11 +7,12 @@ export const BUILD_MAIN_CODE_IGNORE = [
     'global.ts',
     'config.ts',
     'sheetbase.config.ts',
-    'types/'
+    'types/',
 ];
-export const POLYFILL_FILE_URL = 'https://raw.githubusercontent.com/Sheetbase/module-polyfill-server/master/sheetbase.module.js';
+export const POLYFILL_FILE_URL = 'https://raw.githubusercontent.com/sheetbase/' +
+'module-polyfill-server/master/sheetbase.module.js';
 export const DEFAULT_COPIES = [
     'views/',
     'static/',
-    'assets/'
+    'assets/',
 ];

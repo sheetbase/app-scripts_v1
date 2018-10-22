@@ -4,15 +4,20 @@ import axios from 'axios';
 const readDir = require('fs-readdir-recursive');
 const ts2gas = require('ts2gas');
 
-import { IBuildCodeInput } from './code.type';
+import { BuildCodeInput } from './code.type';
 import { packageJson } from '../npm/npm.service';
-import { BUILD_MAIN_CODE_IGNORE, SHEETBASE_MODULE_FILE_NAME, POLYFILL_FILE_URL, DEFAULT_COPIES } from './code.config';
+import {
+    BUILD_MAIN_CODE_IGNORE,
+    SHEETBASE_MODULE_FILE_NAME,
+    POLYFILL_FILE_URL,
+    DEFAULT_COPIES,
+} from './code.config';
 
-export async function buildDescriptionContent(buildData: IBuildCodeInput): Promise<string> {
+export async function buildDescriptionContent(buildData: BuildCodeInput): Promise<string> {
     const { type, names } = buildData;
     const { namePascalCase } = names;
     const { name, description, version, author, homepage, license, repository } = await packageJson();
-    let content: string = '\r\n';
+    let content = '\r\n';
     content += '/**';
     if (type) { content += `\r\n* Sheetbase ${type}`; }
     if (name) { content += `\r\n* Name: ${name}`; }
@@ -27,13 +32,12 @@ export async function buildDescriptionContent(buildData: IBuildCodeInput): Promi
     return format(content, { parser: 'typescript' });
 }
 
-
-export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: string]: string}> {
+export async function buildMain(buildData: BuildCodeInput): Promise<{[key: string]: string}> {
     const { src, dist, names, type, vendor, init, params } = buildData;
     const { namePascalCase, nameParamCase } = names;
 
     // read index.ts
-    let indexContent: string = '';
+    let indexContent = '';
     try {
         indexContent = await readFile(`${src}/index.ts`, 'utf-8');
         if (vendor) {
@@ -47,7 +51,7 @@ export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: stri
     }
 
     // read global.ts
-    let globalContent: string = '';
+    let globalContent = '';
     try {
         globalContent = await readFile(`${src}/global.ts`, 'utf-8');
         if (vendor) {
@@ -62,7 +66,7 @@ export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: stri
     }
 
     // read configs (sheetbase.config.ts or config.ts)
-    let configContent: string = '';
+    let configContent = '';
     try {
         configContent += await readFile(`${src}/sheetbase.config.ts`, 'utf-8');
         configContent = '// code from sheetbase.config.ts\r\n' + configContent;
@@ -78,14 +82,14 @@ export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: stri
 
     // read all except files or folders in BUILD_MAIN_CODE_IGNORE
     let files: string[];
-    let filesContent: string[] = [];
+    const filesContent: string[] = [];
     files = readDir(src, (name, index, dir) => {
-        const path: string = (<string> dir + '/' + name).replace(src, '');
+        const path: string = (dir as string + '/' + name).replace(src, '');
         const ignore = new RegExp([... BUILD_MAIN_CODE_IGNORE, ... DEFAULT_COPIES].join('|'), 'g');
         return !ignore.test(path);
     });
     for (let i = 0; i < files.length; i++) {
-        const path: string = `${src}\\${files[i]}`;
+        const path = `${src}\\${files[i]}`;
         const content: string = await readFile(path, 'utf-8');
         filesContent.push(content);
     }
@@ -110,25 +114,28 @@ export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: stri
     }
 
     // extra
-    let npmExtra = init ? `
+    const npmExtra = init ? `
         // add '${namePascalCase}' to the global namespace
         ((process) => {
             process['${namePascalCase}'] = ${namePascalCase}Module();
         })(this);
-    `: '';
-    let gasExtra = init ? `
+    ` : '';
+    const gasExtra = init ? `
         // add exports to the global namespace
         ((process) => {
             const ${namePascalCase} = ${namePascalCase}Module();
-            for (const prop of Object.keys({... ${namePascalCase}, ... Object.getPrototypeOf(${namePascalCase})})) {
+            for (const prop of Object.keys({
+                ... ${namePascalCase},
+                ... Object.getPrototypeOf(${namePascalCase})
+            })) {
                 process[prop] = ${namePascalCase}[prop];
             }
         })(this);
-    `: '';
+    ` : '';
 
     // outputs
-    let npmOutput: string = '';
-    let gasOutput: string = '';
+    let npmOutput = '';
+    let gasOutput = '';
     gasOutput = mainContent;
     if (type !== 'app') {
         npmOutput = fileDescription + '\r\n' + mainContent;
@@ -138,16 +145,16 @@ export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: stri
     if (type !== 'app' && !vendor) {
         npmOutput = npmOutput + '\r\n' + npmExtra;
         gasOutput = gasOutput + '\r\n' + gasExtra;
-    }   
+    }
 
     // compile
     if (vendor) {
         const PLACEHOLDER_PHASE = '/**_SHEETBASE_MODULE_VENDOR_CONTENT_HERE_*/';
         const npmExtraCompiled: string = ts2gas(
-            PLACEHOLDER_PHASE + npmExtra
+            PLACEHOLDER_PHASE + npmExtra,
         );
         const gasExtraCompiled: string = ts2gas(
-            PLACEHOLDER_PHASE + gasExtra
+            PLACEHOLDER_PHASE + gasExtra,
         );
         const npmExtraCompiledSplits = npmExtraCompiled.split(PLACEHOLDER_PHASE);
         const gasExtraCompiledSplits = gasExtraCompiled.split(PLACEHOLDER_PHASE);
@@ -162,7 +169,7 @@ export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: stri
     }
 
     // results
-    let result: any = {};
+    const result: any = {};
     result[`${dist}/${nameParamCase}.js`] = gasOutput;
     if (type !== 'app') {
         result[`${SHEETBASE_MODULE_FILE_NAME}`] = npmOutput;
@@ -171,11 +178,11 @@ export async function buildMain(buildData: IBuildCodeInput): Promise<{[key: stri
     return result;
 }
 
-export async function buildIndex(data: IBuildCodeInput): Promise<string> {
+export async function buildIndex(data: BuildCodeInput): Promise<string> {
     const { src, names } = data;
     const { nameSnakeCase } = names;
     // read "src/example.ts"
-    let exampleContent: string = '';
+    let exampleContent = '';
     try {
         exampleContent = await readFile(`${src}/example.ts`, 'utf-8');
         exampleContent = exampleContent.replace(/(export function\ )/g, `export function ${nameSnakeCase}_`);
@@ -195,9 +202,9 @@ export async function buildIndex(data: IBuildCodeInput): Promise<string> {
 }
 
 export async function buildDependenciesBundle(dependencies: string[]): Promise<string> {
-    let filesContent: string[] = [];
+    const filesContent: string[] = [];
     for (let i = 0; i < dependencies.length; i++) {
-        const path: string = `${dependencies[i]}`;
+        const path = `${dependencies[i]}`;
         const content: string = await readFile(path, 'utf-8');
         filesContent.push(content);
     }
@@ -209,7 +216,7 @@ export async function getPolyfill(): Promise<string> {
     return data;
 }
 
-export async function copyContent(data: IBuildCodeInput): Promise<void> {
+export async function copyContent(data: BuildCodeInput): Promise<void> {
     const { src, dist } = data;
     let { copies } = data;
     copies = copies.concat(DEFAULT_COPIES).filter(x => !!x);
@@ -220,5 +227,5 @@ export async function copyContent(data: IBuildCodeInput): Promise<void> {
         } catch (error) {
             /** no files or folders */
         }
-    } 
+    }
 }

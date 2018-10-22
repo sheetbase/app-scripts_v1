@@ -3,27 +3,30 @@ import { format } from 'prettier';
 import * as dedent from 'dedent';
 const stripIndent = require('strip-indent');
 
-import { IBuildReadmeInput } from './readme.type';
+import { BuildReadmeInput } from './readme.type';
 import { packageJson } from '../npm/npm.service';
 import { parseInterfaces } from '../typescript/typescript.service';
-import { extractString } from '../util/util.service';
+import { extractString } from '../utils/utils.service';
 
-export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
+export async function buildReadme(data: BuildReadmeInput): Promise<string> {
     const { names, docs } = data;
     const { namePascalCase } = names;
 
     // readme
-    let readmeBlockHeader: string = '';
-    let readmeBlockCenter: string = '';
-    let readmeBlockFooter: string = '';
+    let readmeBlockHeader = '';
+    let readmeBlockCenter = '';
+    let readmeBlockFooter = '';
     try {
         const readmeContent = await readFile('README.md', 'utf-8');
         // header
-        readmeBlockHeader = extractString(readmeContent, '<!-- <block:header> -->', '<!-- </block:header> -->');
-        // content        
-        readmeBlockCenter = extractString(readmeContent, '<!-- <block:center> -->', '<!-- </block:center> -->');
-        // footer        
-        readmeBlockFooter = extractString(readmeContent, '<!-- <block:footer> -->', '<!-- </block:footer> -->');        
+        readmeBlockHeader = extractString(readmeContent,
+            '<!-- <block:header> -->', '<!-- </block:header> -->');
+        // content
+        readmeBlockCenter = extractString(readmeContent,
+            '<!-- <block:center> -->', '<!-- </block:center> -->');
+        // footer
+        readmeBlockFooter = extractString(readmeContent,
+            '<!-- <block:footer> -->', '<!-- </block:footer> -->');
     } catch(error) {
         /* no file */
     }
@@ -32,39 +35,39 @@ export async function buildReadme(data: IBuildReadmeInput): Promise<string> {
     const { name, description, homepage, license, repository } = await packageJson();
     const gitUrl = (repository.url).replace('.git', '');
     // docs url
-	// need to setup a github page serves 'docs' folder)
+  // need to setup a github page serves 'docs' folder)
     const gitUrlSplit = gitUrl.split('/');
     const orgName: string = gitUrlSplit.splice(gitUrlSplit.length - 2, 1).pop();
-    let docsUrl: string = gitUrl.replace(orgName + '/', '')
+    const docsUrl: string = gitUrl.replace(orgName + '/', '')
                                 .replace('github.com', `${orgName}.github.io`);
 
     // .clasp.json
-    const { scriptId } = <{ scriptId?: string }> await readJson('.clasp.json');
+    const { scriptId } = await readJson('.clasp.json') as { scriptId?: string };
 
     // appsscript.json
-    const { oauthScopes } = <{ oauthScopes?: string[] }> await readJson('appsscript.json');
+    const { oauthScopes } = await readJson('appsscript.json') as { oauthScopes?: string[] };
 
     // example
-    let examples: string = '';
+    let examples = '';
     try {
         const exampleContent: string = await readFile('src/example.ts', 'utf-8');
         examples = exampleContent.substr(
             exampleContent.indexOf('function example'),
-            exampleContent.length
+            exampleContent.length,
         ).replace(/(export\ )/g, '');
     } catch(error) {
         /* no file */
     }
-    
+
     // api
-    let api: string = '';
+    let api = '';
     try {
         api = await buildApiContent(data);
-    } catch(error) {        
+    } catch(error) {
         /* no file or error */
     }
 
-    let output: string = dedent(`
+    const output: string = dedent(`
     # Sheetbase Module: ${name}
 
     ${description}
@@ -76,12 +79,13 @@ ${readmeBlockHeader}
     - Using npm: \`npm install --save ${name}\`
 
     - As a library: \`${scriptId}\`
-    
-        Set the _Indentifier_ to **${namePascalCase}** and select the lastest version, [view code](https://script.google.com/d/${scriptId}/edit?usp=sharing).
+
+        Set the _Indentifier_ to **${namePascalCase}** and select the lastest version,
+        [view code](https://script.google.com/d/${scriptId}/edit?usp=sharing).
 
     ${
     oauthScopes ?
-    '## Scopes' + '\r\n' + '\`' + oauthScopes.join('\`\r\n\r\n\`') + '\`':
+    '## Scopes' + '\r\n' + '\`' + oauthScopes.join('\`\r\n\r\n\`') + '\`' :
     ''
     }
 
@@ -92,14 +96,14 @@ ${readmeBlockCenter}
     \`\`\`ts
     ${examples}
     \`\`\`
-    
+
     ## Documentation
 
     ${
     docs ?
     `
     See the docs: ${docsUrl}
-    `:
+    ` :
     `
     Homepage: ${homepage}
     `
@@ -113,7 +117,7 @@ ${readmeBlockCenter}
     An overview of the API, for detail please refer [the documentation](${docsUrl}).
 
     ${api}
-    `:
+    ` :
     ''
     }
 
@@ -126,11 +130,11 @@ ${readmeBlockFooter}
     return format(output, { parser: 'markdown' });
 }
 
-async function buildApiContent(data: IBuildReadmeInput): Promise<string> {
+async function buildApiContent(data: BuildReadmeInput): Promise<string> {
     const { src, names } = data;
     const { namePascalCase } = names;
-    let output: string = '';
-    
+    let output = '';
+
     // parse interface
     const parsedInterfaces = await parseInterfaces(`${src}/types`);
 
@@ -161,7 +165,7 @@ async function buildApiContent(data: IBuildReadmeInput): Promise<string> {
         }
         \`\`\`
         `);
-    })
+    });
 
     // output
     return output;

@@ -1,4 +1,8 @@
-export function extractString(str: string, prefix: string, suffix: string, includePrefix: boolean = true, includeSuffix: boolean = true): string {
+export function extractString(
+    str: string,
+    prefix: string, suffix: string,
+    includePrefix = true, includeSuffix = true,
+): string {
     try {
         let prefixIndex: number = str.indexOf(prefix);
         let suffixIndex: number = str.lastIndexOf(suffix);

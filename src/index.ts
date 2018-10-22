@@ -5,11 +5,11 @@
  */
 
 import chalk from 'chalk';
-const program = require('commander');
+import * as program from 'commander';
 
-import buildCommand from './controllers/build.controller';
-import pushCommand from './controllers/push.controller';
-import readmeCommand from './controllers/readme.controller';
+import { buildCommand } from './commands/build/build';
+import { pushCommand } from './commands/push/push';
+import { readmeCommand } from './commands/readme/readme';
 
 /**
  * Set global CLI configurations
@@ -69,7 +69,7 @@ program
  * All other commands are given a help message.
  */
 program
-  .command('*', { isDefault: true })
+  .command('*')
   .description('Any other command is not supported.')
   .action((cmd) => {
     return console.log(chalk.red(`\nUnknown command '${cmd}'`));

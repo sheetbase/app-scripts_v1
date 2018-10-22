@@ -2,15 +2,15 @@ import { readFile } from 'fs-extra';
 const readDir = require('fs-readdir-recursive');
 const stripIndent = require('strip-indent');
 
-import { IInterfaceParsed, IMethod, IProperty, IMethodParsed, IPropertyParsed } from './typescript.type';
-import { extractString } from '../util/util.service';
+import { InterfaceParsed, Method, Property, MethodParsed, PropertyParsed } from './typescript.type';
+import { extractString } from '../utils/utils.service';
 
 export async function getInterfaces(path: string): Promise<{[name: string]: string}> {
     // read all typed files
-    let filesContent: string[] = [];
+    const filesContent: string[] = [];
     const files = readDir(path);
     for (let i = 0; i < files.length; i++) {
-        const filePath: string = `${path}/${files[i]}`;
+        const filePath = `${path}/${files[i]}`;
         const content: string = await readFile(filePath, 'utf-8');
         filesContent.push(content);
     }
@@ -23,12 +23,12 @@ export async function getInterfaces(path: string): Promise<{[name: string]: stri
                 .replace(/\/\*(.*)\*\//g, '');
 
     // interfaces
-    let interfaces: any = {};
+    const interfaces: any = {};
     const interfaceSplits = text.split('interface');
     for (let i = 0; i < interfaceSplits.length; i++) {
         const block = interfaceSplits[i].trim();
         const interfaceName: string = block.split('{')[0].trim();
-        let interfaceContent: string = extractString(block, '{', '}', false, false).trim();
+        const interfaceContent: string = extractString(block, '{', '}', false, false).trim();
 
         // return
         interfaces[interfaceName] = interfaceContent;
@@ -36,16 +36,16 @@ export async function getInterfaces(path: string): Promise<{[name: string]: stri
     return interfaces;
 }
 
-export async function parseInterfaces(path: string): Promise<{[key: string]: IInterfaceParsed}> {
+export async function parseInterfaces(path: string): Promise<{[key: string]: InterfaceParsed}> {
     // get interfaces
     const interfaces = await getInterfaces(path);
     // parse
-    let parsedInterfaces: any = {};
+    const parsedInterfaces: any = {};
     for (const key of Object.keys(interfaces)) {
         const interfaceContent = interfaces[key];
         // properties and methods
-        let properties: IProperty[] = [];
-        let methods: IMethod[] = [];
+        const properties: Property[] = [];
+        const methods: Method[] = [];
         (interfaceContent.split(';')).forEach(item => {
             if (item) {
                 item = stripIndent(item.replace(/\r|\n|\t/g, ''));
@@ -62,14 +62,14 @@ export async function parseInterfaces(path: string): Promise<{[key: string]: IIn
         parsedInterfaces[key] = {
             raw: interfaceContent,
             properties,
-            methods
+            methods,
         };
     }
     return parsedInterfaces;
 }
 
-function parseMethod(methodString: string): IMethod {
-    let parsedMethod: IMethodParsed = { name: null };
+function parseMethod(methodString: string): Method {
+    const parsedMethod: MethodParsed = { name: null };
     const methodStringSplit = methodString.split(':');
 
     // name
@@ -80,7 +80,7 @@ function parseMethod(methodString: string): IMethod {
         methodName = methodName.replace('?', '').trim();
     }
     if (/\<(.*)\>/.test(methodName)) {
-        let typeParams = extractString(methodName, '<', '>', false, false).trim();
+        const typeParams = extractString(methodName, '<', '>', false, false).trim();
         parsedMethod.typeParams = typeParams.split(',')
                                     .map(x => x.trim());
         methodName = methodName.replace(/\<(.*)\>/g, '').trim();
@@ -88,17 +88,17 @@ function parseMethod(methodString: string): IMethod {
     parsedMethod.name = methodName;
 
     // return type
-    let returnType: string = methodStringSplit.pop().trim();
+    const returnType: string = methodStringSplit.pop().trim();
     if (returnType && returnType.indexOf(')') < 0 && returnType.indexOf('}') < 0) {
         parsedMethod.returnType = returnType;
     }
 
     // params
-    let params: IPropertyParsed[] = [];
+    const params: PropertyParsed[] = [];
     const paramsString: string = extractString(methodString, '(', ')', false, false).trim();
 
-    (<string[]> paramsString.split(',')).forEach(paramString => {
-        let param: IPropertyParsed = { name: null };
+    (paramsString.split(',') as string[]).forEach(paramString => {
+        const param: PropertyParsed = { name: null };
         const paramSplit = paramString.trim().split(':');
         // name
         let [ paramName ] = paramSplit;
@@ -126,16 +126,16 @@ function parseMethod(methodString: string): IMethod {
     return {
         raw: methodString,
         parsed: parsedMethod,
-        formated: formatedMethod
+        formated: formatedMethod,
     };
 }
 
-function parseProperty(propertyString: string): IProperty {
-    let propertyParsed: IPropertyParsed = { name: null };
+function parseProperty(propertyString: string): Property {
+    const propertyParsed: PropertyParsed = { name: null };
     const propertyStringSplit = propertyString.split(':');
 
-    // name     
-    let [ propName ] = propertyStringSplit;    
+    // name
+    let [ propName ] = propertyStringSplit;
     if (propName.indexOf('?') > -1) {
         // is optional
         propertyParsed.optional = true;
@@ -148,7 +148,7 @@ function parseProperty(propertyString: string): IProperty {
     if (type) {
         type = '{' + type + '}';
     } else {
-        type = propertyStringSplit.pop().trim();    
+        type = propertyStringSplit.pop().trim();
         if (type.indexOf(')') > -1) {
             type = null;
         }
@@ -164,16 +164,16 @@ function parseProperty(propertyString: string): IProperty {
     return {
         raw: propertyString,
         parsed: propertyParsed,
-        formated: formatedProperty
+        formated: formatedProperty,
     };
 }
 
-function formatMethod(parsedMethod: IMethodParsed): string {
+function formatMethod(parsedMethod: MethodParsed): string {
     // TODO: TODO
     return JSON.stringify(parsedMethod);
 }
 
-function formatProperty(parsedProperty: IPropertyParsed): string {
+function formatProperty(parsedProperty: PropertyParsed): string {
     // TODO: TODO
     return JSON.stringify(parsedProperty);
 }

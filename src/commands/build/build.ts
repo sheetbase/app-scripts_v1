@@ -3,12 +3,15 @@ import { resolve, basename } from 'path';
 import { remove, copy, outputFile, readJson, readFile, pathExists } from 'fs-extra';
 import { snakeCase, paramCase, pascalCase, constantCase } from 'change-case';
 
-import { SHEETBASE_MODULE_FILE_NAME } from '../services/code/code.config';
-import { IBuildCodeInput } from '../services/code/code.type';
-import { buildMain, buildIndex, buildDependenciesBundle, getPolyfill, copyContent } from '../services/code/code.service';
-import { getSheetbaseDependencies } from '../services/npm/npm.service';
+import { SHEETBASE_MODULE_FILE_NAME } from '../../services/code/code.config';
+import { BuildCodeInput } from '../../services/code/code.type';
+import {
+    buildMain, buildIndex, buildDependenciesBundle,
+    getPolyfill, copyContent,
+} from '../../services/code/code.service';
+import { getSheetbaseDependencies } from '../../services/npm/npm.service';
 
-export interface IOptions {
+export interface Options {
     param?: string;
     app?: boolean;
     vendor?: boolean;
@@ -18,7 +21,7 @@ export interface IOptions {
     copy?: string;
 }
 
-export default async (nameExport: string = null, options: IOptions = {}) => {
+export async function buildCommand(nameExport?: string, options: Options = {}) {
     if (!nameExport) {
         const dotClaspDotJson = await readJson('.clasp.json');
         nameExport = dotClaspDotJson.exportName || basename(process.cwd());
@@ -28,32 +31,32 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
     const nameParamCase = paramCase(nameExport);
     const nameConstantCase = constantCase(nameExport);
 
-    const type = options.app ? 'app': 'module';
+    const type = options.app ? 'app' : 'module';
     const src = resolve('.', 'src');
     const dist = resolve('.', 'dist');
 
     // build params
-    const param: string = (options.param||'').split(',').map(x => x.trim()).join(', ');
+    const param: string = (options.param || '').split(',').map(x => x.trim()).join(', ');
 
     // build copy
-    const copies: string[] = (options.copy||'').split(',').map(x => x.trim());
+    const copies: string[] = (options.copy || '').split(',').map(x => x.trim());
 
-    const buildData: IBuildCodeInput = {
+    const buildData: BuildCodeInput = {
         src, dist,
         names: {
             namePascalCase,
             nameParamCase,
             nameSnakeCase,
-            nameConstantCase
+            nameConstantCase,
         },
         type,
         params: param,
         vendor: options.vendor,
         bundle: options.bundle,
         init: options.init,
-        copies
+        copies,
     };
-    
+
     // clean
     try {
         await remove(dist);
@@ -68,7 +71,7 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
     try {
         // main
         const mainCode = await buildMain(buildData);
-        for (const path in mainCode) {
+        for (const path of Object.keys(mainCode)) {
             const content = mainCode[path];
             await outputFile(path, content);
         }
@@ -92,14 +95,15 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
                 await copy(src, dist + '/' + dest);
             }
         }
-        
+
         // polyfill
         if (/*type === 'app' && */options.polyfill) {
-            const POLYFILL: string = await getPolyfill();            
+            const POLYFILL: string = await getPolyfill();
             if (options.bundle) {
                 let modulesContent: string = POLYFILL;
                 if (!! await pathExists(`${dist}/@modules.js`)) {
-                    modulesContent = modulesContent + '\r\n\r\n' + await readFile(`${dist}/@modules.js`, 'utf-8')
+                    modulesContent = modulesContent + '\r\n\r\n' +
+                    await readFile(`${dist}/@modules.js`, 'utf-8');
                 }
                 await outputFile(`${dist}/@modules.js`, modulesContent);
             } else {
@@ -115,7 +119,7 @@ export default async (nameExport: string = null, options: IOptions = {}) => {
         await copyContent(buildData);
     } catch (error) {
         console.log(chalk.red('Errors building project.\n'));
-        console.log(error);        
+        console.log(error);
         return process.exit(1);
     }
 

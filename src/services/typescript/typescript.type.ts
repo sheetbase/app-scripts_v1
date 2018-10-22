@@ -1,30 +1,30 @@
-export interface IInterfaceParsed {
+export interface InterfaceParsed {
     raw: string;
-    properties?: IProperty[];
-    methods?: IMethod[];
+    properties?: Property[];
+    methods?: Method[];
 }
-export interface IPropertyParsed {
+export interface PropertyParsed {
     name: string;
     type?: string;
     optional?: boolean;
 }
 
-export interface IProperty {
+export interface Property {
     raw: string;
     formated?: string;
-    parsed?: IPropertyParsed;
+    parsed?: PropertyParsed;
 }
 
-export interface IMethodParsed {
+export interface MethodParsed {
     name: string;
-    params?: IPropertyParsed[];
+    params?: PropertyParsed[];
     typeParams?: string[];
     optional?: boolean;
     returnType?: string;
 }
 
-export interface IMethod {
+export interface Method {
     raw: string;
     formated?: string;
-    parsed?: IMethodParsed;
+    parsed?: MethodParsed;
 }

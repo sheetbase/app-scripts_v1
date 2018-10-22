@@ -3,26 +3,26 @@ import { readJson, outputFile } from 'fs-extra';
 import { basename, resolve } from 'path';
 import { pascalCase } from 'change-case';
 
-import { buildReadme } from '../services/readme/readme.service';
-import { IBuildReadmeInput } from '../services/readme/readme.type';
+import { buildReadme } from '../../services/readme/readme.service';
+import { BuildReadmeInput } from '../../services/readme/readme.type';
 
-export interface IOption {
+export interface Options {
     docs?: boolean;
 }
 
-export default async (nameExport: string = null, options: IOption = {}) => {
+export async function readmeCommand(nameExport?: string, options: Options = {}) {
     if (!nameExport) {
         const dotClaspDotJson = await readJson('.clasp.json');
         nameExport = dotClaspDotJson.exportName || basename(process.cwd());
     }
     const namePascalCase = pascalCase(nameExport);
     const src = resolve('.', 'src');
-    const buildData: IBuildReadmeInput = {
+    const buildData: BuildReadmeInput = {
         src,
         names: {
-            namePascalCase
+            namePascalCase,
         },
-        docs: options.docs
+        docs: options.docs,
     };
 
     try {

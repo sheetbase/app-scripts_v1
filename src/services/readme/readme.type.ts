@@ -1,4 +1,4 @@
-export interface IBuildReadmeInput {
+export interface BuildReadmeInput {
     src?: string;
     names?: {
         namePascalCase?: string;

@@ -2,38 +2,42 @@
   "name": "@sheetbase/app-scripts",
   "version": "0.0.15",
   "description": "Scripts for Sheetbase modules and apps.",
-  "main": "index.js",
+  "main": "./src/index.js",
   "bin": {
-    "sheetbase-app-scripts": "./index.js"
+    "sheetbase-app-scripts": "./src/index.js"
   },
   "scripts": {
-    "clean": "node ./scripts/clean",
-    "tsc": "tsc",
-    "copy": "node ./scripts/copy",
-    "build": "npm run clean && npm run tsc && npm run copy"
+    "compile": "tsc --project tsconfig.json",
+    "build": "npm run compile",
+    "publish": "npm publish --access public",
+    "lint": "tslint --project tslint.json && echo 'No lint errors.'",
+    "test": "nyc --cache false mocha --timeout 100000 -- tests/*.js",
+    "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sheetbase/app-scripts.git"
+    "url": "https://github.com/sheetbase/app-scripts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sheetbase/app-scripts/issues"
   },
   "keywords": [
     "sheetbase",
     "build-tools",
     "google-apps-script"
   ],
+  "importSort": {
+    ".ts": {
+      "parser": "typescript",
+      "style": "module-compact"
+    },
+    "on-save": false
+  },
   "author": "Sheetbase",
   "homepage": "https://sheetbase.net",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/sheetbase/app-scripts/issues"
-  },
-  "devDependencies": {
-    "@types/fs-extra": "^5.0.4",
-    "@types/node": "^10.11.3",
-    "@types/prettier": "^1.13.2",
-    "typescript": "^3.1.1"
-  },
   "dependencies": {
+    "@google/clasp": "^1.6.3",
     "axios": "^0.18.0",
     "chalk": "^2.4.1",
     "change-case": "^3.0.2",
@@ -44,5 +48,18 @@
     "prettier": "^1.14.3",
     "strip-indent": "^2.0.0",
     "ts2gas": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.6",
+    "@types/fs-extra": "^5.0.4",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.11.3",
+    "@types/prettier": "^1.13.2",
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.2",
+    "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
+    "tslint": "^5.11.0",
+    "typescript": "^3.1.1"
   }
 }
