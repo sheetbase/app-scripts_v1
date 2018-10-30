@@ -65,27 +65,27 @@ describe('Test BUILD command', () => {
 
   const EXPECTED = 'Build success!';
 
-  it('should build module', () => expectResult(['build'], EXPECTED, MODULE_PATH));
+  it('should build module', () => expectError(['build'], EXPECTED, MODULE_PATH));
   it('should build module (--param)', () => {
-    expectResult(['build', '--param', 'param1'], EXPECTED, MODULE_PATH);
+    expectError(['build', '--param', 'param1'], EXPECTED, MODULE_PATH);
   });
   it('should build module (--vendor)', () => {
-    expectResult(['build', '--vendor'], EXPECTED, MODULE_PATH);
+    expectError(['build', '--vendor'], EXPECTED, MODULE_PATH);
   });
   it('should build module (--bundle)', () => {
-    expectResult(['build', '--bundle'], EXPECTED, MODULE_PATH);
+    expectError(['build', '--bundle'], EXPECTED, MODULE_PATH);
   });
   it('should build module (--no-init)', () => {
-    expectResult(['build', '--no-init'], EXPECTED, MODULE_PATH);
+    expectError(['build', '--no-init'], EXPECTED, MODULE_PATH);
   });
   it('should build app', () => {
-    expectResult(['build', '--app'], EXPECTED, APP_PATH);
+    expectError(['build', '--app'], EXPECTED, APP_PATH);
   });
   it('should build app (--polyfill)', () => {
-    expectResult(['build', '--app', '--polyfill'], EXPECTED, APP_PATH);
+    expectError(['build', '--app', '--polyfill'], EXPECTED, APP_PATH);
   });
   it('should build app (--polyfill)', () => {
-    expectResult(['build', '--app', '--copy', 'copyme.txt'], EXPECTED, APP_PATH);
+    expectError(['build', '--app', '--copy', 'copyme.txt'], EXPECTED, APP_PATH);
   });
 });
 
