@@ -2,7 +2,7 @@
 node_modules/
 .nyc_output
 
-# 
+# test
 tests/app/dist/
 tests/module/dist/
 tests/module/README.md

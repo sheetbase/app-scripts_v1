@@ -1,5 +1,6 @@
 import * as os from 'os';
 import { resolve } from 'path';
+import { ensureDirSync } from 'fs-extra';
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { spawnSync } from 'child_process';
@@ -57,6 +58,12 @@ describe('Test README command', () => {
 });
 
 describe('Test BUILD command', () => {
+  before(() => {
+    // .gitignore ignores node_modules in test folders
+    ensureDirSync(MODULE_PATH + '/node_modules');
+    ensureDirSync(APP_PATH + '/node_modules');
+  });
+
   const EXPECTED = 'Build success!';
 
   it('should build module', () => expectResult(['build'], EXPECTED, MODULE_PATH));

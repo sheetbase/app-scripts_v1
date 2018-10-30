@@ -1,7 +1,7 @@
 export class Test {
 
-	constructor() { }
-	
-	test() {}
+  constructor() { }
+
+  test() {}
 
 }
