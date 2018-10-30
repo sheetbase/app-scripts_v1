@@ -1,3 +1,9 @@
 *.js
 node_modules/
 .nyc_output
+
+# 
+tests/app/dist/
+tests/module/dist/
+tests/module/README.md
+tests/module/sheetbase.module.js

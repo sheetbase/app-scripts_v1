@@ -8,8 +8,9 @@
   },
   "scripts": {
     "compile": "tsc --project tsconfig.json",
-    "build": "npm run compile",
-    "publish": "npm publish --access public",
+    "build": "npm run compile && npm i -g --loglevel=error",
+    "build-fresh": "npm cache clean --force && npm i && npm run build",
+    "docs": "npm i --save-dev ucfirst extract-comments parse-comments && tsc src/usage.ts && node src/usage.js && npm un --save-dev ucfirst extract-comments parse-comments",
     "lint": "tslint --project tslint.json && echo 'No lint errors.'",
     "test": "nyc --cache false mocha --timeout 100000 -- tests/*.js",
     "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"
@@ -37,7 +38,6 @@
   "homepage": "https://sheetbase.net",
   "license": "MIT",
   "dependencies": {
-    "@google/clasp": "^1.6.3",
     "axios": "^0.18.0",
     "chalk": "^2.4.1",
     "change-case": "^3.0.2",
@@ -53,7 +53,7 @@
     "@types/chai": "^4.1.6",
     "@types/fs-extra": "^5.0.4",
     "@types/mocha": "^5.2.5",
-    "@types/node": "^10.11.3",
+    "@types/node": "^10.12.1",
     "@types/prettier": "^1.13.2",
     "chai": "^4.2.0",
     "coveralls": "^3.0.2",

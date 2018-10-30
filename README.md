@@ -2,7 +2,11 @@
 
 Scripts for Sheetbase backend modules and apps.
 
-[![License][license_badge]][license_url] [![Support me on Patreon][patreon_badge]][patreon_url] [![PayPal][paypal_donate_badge]][paypal_donate_url] [![Ask me anything][ask_me_badge]][ask_me_url]
+<!-- <block:header> -->
+
+[![Build Status](https://travis-ci.com/Sheetbase/app-scripts.svg?branch=master)](https://travis-ci.com/Sheetbase/app-scripts) [![Coverage Status](https://coveralls.io/repos/github/Sheetbase/app-scripts/badge.svg?branch=master)](https://coveralls.io/github/Sheetbase/app-scripts?branch=master) [![NPM](https://img.shields.io/npm/v/@sheetbase/app-scripts.svg)](https://www.npmjs.com/package/@sheetbase/app-scripts) [![License][license_badge]][license_url] [![Support me on Patreon][patreon_badge]][patreon_url] [![PayPal][paypal_donate_badge]][paypal_donate_url] [![Ask me anything][ask_me_badge]][ask_me_url]
+
+<!-- </block:header> -->
 
 ## Install
 
@@ -29,13 +33,14 @@ Build module or app for GAS deployment.
 
 #### Options
 
-- `exportName`: Optional export name or use the folder name.
-- `--param`: Module params, seperated by commas.
+- `exportName`: Module name.
+- `--param`: Module params, comma-seperated.
 - `--app`: Build an app, else a module.
-- `--vendor`: A vendor module.
+- `--vendor`: Build a vendor module.
 - `--bundle`: Merge dependencies with the module.
-- `--no-polyfill`: Not include polyfill for build --app.
+- `--polyfill`: Include polyfill.
 - `--no-init`: Not init the default instance of the module.
+- `--copy`: Files or folders will be copied, comma-seperated.
 
 ### Push
 
@@ -43,12 +48,20 @@ Push module or app to GAS using @google/clasp.
 
 ### Readme
 
-Generate README file.
+Generate README.md.
 
 #### Options
 
-- `exportName`: Optional export name or use the folder name.
+- `exportName`: Module name.
 - `--no-docs`: No docs link.
+
+### Help
+
+Display help.
+
+### *
+
+Any other command is not supported.
 
 ## How?
 
@@ -274,7 +287,9 @@ Module compiled code for using with npm, generated when build code without *--ap
 
 ## License
 
-[MIT][license_url]
+@sheetbase/app-scripts is released under the [MIT][license_url] license.
+
+<!-- <block:footer> -->
 
 [license_badge]: https://img.shields.io/github/license/mashape/apistatus.svg
 [license_url]: https://github.com/sheetbase/app-scripts/blob/master/LICENSE
@@ -287,3 +302,5 @@ Module compiled code for using with npm, generated when build code without *--ap
 
 [ask_me_badge]: https://img.shields.io/badge/ask/me-anything-1abc9c.svg
 [ask_me_url]: https://m.me/sheetbase
+
+<!-- </block:footer> -->

@@ -2,8 +2,8 @@
   "compileOnSave": true,
   "compilerOptions": {
     "target": "es5",
-	"noImplicitAny": false,
-	"strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
     "lib": [
       "es2015",
       "es5",

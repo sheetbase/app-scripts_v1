@@ -5,7 +5,7 @@ export async function pushCommand() {
     try {
         await execSync('clasp push', {cwd: './dist', stdio: 'inherit'});
     } catch (error) {
-        console.log(chalk.red('\nErrors pushing project, please try again.'));
+        console.error(chalk.red('\nErrors pushing project, please try again.'));
         return process.exit(1);
     }
     return process.exit();

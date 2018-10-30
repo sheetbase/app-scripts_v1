@@ -29,8 +29,8 @@ export async function readmeCommand(nameExport?: string, options: Options = {}) 
         const readmeContent = await buildReadme(buildData);
         await outputFile('README.md', readmeContent);
     } catch (error) {
-        console.log(chalk.red('Errors building README.md content.\n'));
-        console.log(error);
+        console.error(chalk.red('Errors building README.md content.\n'));
+        console.error(error);
         return process.exit(1);
     }
     console.log(chalk.green('README.md ... saved!'));

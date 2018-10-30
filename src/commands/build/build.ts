@@ -62,8 +62,8 @@ export async function buildCommand(nameExport?: string, options: Options = {}) {
         await remove(dist);
         await remove(SHEETBASE_MODULE_FILE_NAME);
     } catch (error) {
-        console.log(chalk.red('Errors prepearing project.\n'));
-        console.log(error);
+        console.error(chalk.red('Errors prepearing project.\n'));
+        console.error(error);
         return process.exit(1);
     }
 
@@ -118,8 +118,8 @@ export async function buildCommand(nameExport?: string, options: Options = {}) {
         // copy
         await copyContent(buildData);
     } catch (error) {
-        console.log(chalk.red('Errors building project.\n'));
-        console.log(error);
+        console.error(chalk.red('Errors building project.\n'));
+        console.error(error);
         return process.exit(1);
     }
 

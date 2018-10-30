@@ -1,0 +1,17 @@
+{
+	"name": "test",
+	"version": "0.0.0",
+	"description": "Test test test",
+	"author": "Sheetbase",
+	"homepage": "https://sheetbase.net",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/sheetbase/test.git"
+	},
+	"bugs": {
+		"url": "https://github.com/sheetbase/test/issues"
+	},
+	"dependencies": {},
+	"devDependencies": {}
+}
