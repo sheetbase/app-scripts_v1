@@ -89,7 +89,7 @@ export async function buildMain(buildData: BuildCodeInput): Promise<{[key: strin
         return !ignore.test(path);
     });
     for (let i = 0; i < files.length; i++) {
-        const path = `${src}\\${files[i]}`;
+        const path = `${src}/${files[i]}`;
         const content: string = await readFile(path, 'utf-8');
         filesContent.push(content);
     }

@@ -14,7 +14,7 @@ function expectResult(args: string[], expected: string, cwd = '.') {
   const result = spawnSync(
     SHEETBASE, args, { cwd, encoding : 'utf8' },
   );
-  // expect(result.status).to.equal(0);
+  expect(result.status).to.equal(0);
   expect(result.stdout).to.contain(expected);
 }
 
@@ -65,27 +65,27 @@ describe('Test BUILD command', () => {
 
   const EXPECTED = 'Build success!';
 
-  it('should build module', () => expectError(['build'], EXPECTED, MODULE_PATH));
+  it('should build module', () => expectResult(['build'], EXPECTED, MODULE_PATH));
   it('should build module (--param)', () => {
-    expectError(['build', '--param', 'param1'], EXPECTED, MODULE_PATH);
+    expectResult(['build', '--param', 'param1'], EXPECTED, MODULE_PATH);
   });
   it('should build module (--vendor)', () => {
-    expectError(['build', '--vendor'], EXPECTED, MODULE_PATH);
+    expectResult(['build', '--vendor'], EXPECTED, MODULE_PATH);
   });
   it('should build module (--bundle)', () => {
-    expectError(['build', '--bundle'], EXPECTED, MODULE_PATH);
+    expectResult(['build', '--bundle'], EXPECTED, MODULE_PATH);
   });
   it('should build module (--no-init)', () => {
-    expectError(['build', '--no-init'], EXPECTED, MODULE_PATH);
+    expectResult(['build', '--no-init'], EXPECTED, MODULE_PATH);
   });
   it('should build app', () => {
-    expectError(['build', '--app'], EXPECTED, APP_PATH);
+    expectResult(['build', '--app'], EXPECTED, APP_PATH);
   });
   it('should build app (--polyfill)', () => {
-    expectError(['build', '--app', '--polyfill'], EXPECTED, APP_PATH);
+    expectResult(['build', '--app', '--polyfill'], EXPECTED, APP_PATH);
   });
   it('should build app (--polyfill)', () => {
-    expectError(['build', '--app', '--copy', 'copyme.txt'], EXPECTED, APP_PATH);
+    expectResult(['build', '--app', '--copy', 'copyme.txt'], EXPECTED, APP_PATH);
   });
 });
 
