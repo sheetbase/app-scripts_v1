@@ -60,8 +60,8 @@ describe('Test README command', () => {
 describe('Test BUILD command', () => {
   before(() => {
     // .gitignore ignores node_modules in test folders
-    ensureDirSync(MODULE_PATH + '/node_modules');
-    ensureDirSync(APP_PATH + '/node_modules');
+    ensureDirSync(resolve(MODULE_PATH, 'node_modules'));
+    ensureDirSync(resolve(APP_PATH, 'node_modules'));
   });
 
   const EXPECTED = 'Build success!';
