@@ -4,7 +4,7 @@ Scripts for Sheetbase backend modules and apps.
 
 <!-- <block:header> -->
 
-[![Build Status](https://travis-ci.com/Sheetbase/app-scripts.svg?branch=master)](https://travis-ci.com/Sheetbase/app-scripts) [![Coverage Status](https://coveralls.io/repos/github/Sheetbase/app-scripts/badge.svg?branch=master)](https://coveralls.io/github/Sheetbase/app-scripts?branch=master) [![NPM](https://img.shields.io/npm/v/@sheetbase/app-scripts.svg)](https://www.npmjs.com/package/@sheetbase/app-scripts) [![License][license_badge]][license_url] [![Support me on Patreon][patreon_badge]][patreon_url] [![PayPal][paypal_donate_badge]][paypal_donate_url] [![Ask me anything][ask_me_badge]][ask_me_url]
+[![Build Status](https://travis-ci.com/sheetbase/app-scripts.svg?branch=master)](https://travis-ci.com/sheetbase/app-scripts) [![Coverage Status](https://coveralls.io/repos/github/sheetbase/app-scripts/badge.svg?branch=master)](https://coveralls.io/github/sheetbase/app-scripts?branch=master) [![NPM](https://img.shields.io/npm/v/@sheetbase/app-scripts.svg)](https://www.npmjs.com/package/@sheetbase/app-scripts) [![License][license_badge]][license_url] [![Support me on Patreon][patreon_badge]][patreon_url] [![PayPal][paypal_donate_badge]][paypal_donate_url] [![Ask me anything][ask_me_badge]][ask_me_url]
 
 <!-- </block:header> -->
 
