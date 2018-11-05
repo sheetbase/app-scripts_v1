@@ -4,13 +4,18 @@
   "description": "Scripts for Sheetbase modules and apps.",
   "main": "./src/index.js",
   "bin": {
-    "sheetbase-app-scripts": "./src/index.js"
+    "sheetbase-app-scripts": "./src/index.js",
+    "sheetbase-app-scripts-legacy": "./src-legacy/index.js"
   },
   "scripts": {
-    "compile": "tsc --project tsconfig.json",
-    "build": "npm run compile && npm i -g --loglevel=error",
+    "transpile": "tsc --project tsconfig.json",
+    "build": "npm run transpile && npm i -g --loglevel=error",
     "build-fresh": "npm cache clean --force && npm i && npm run build",
-    "docs": "npm i --save-dev ucfirst extract-comments parse-comments && tsc src/usage.ts && node src/usage.js && npm un --save-dev ucfirst extract-comments parse-comments",
+    "docs-before": "npm i --save-dev ucfirst extract-comments parse-comments",
+    "docs-after": "npm un --save-dev ucfirst extract-comments parse-comments",
+    "usage": "tsc src/usage.ts && node src/usage.js",
+    "usage-legacy": "tsc src-legacy/usage.ts && node src-legacy/usage.js",
+    "docs": "npm run docs-before && npm run usage && npm run usage-legacy && npm run docs-after",
     "lint": "tslint --project tslint.json && echo 'No lint errors.'",
     "test": "nyc --cache false mocha --timeout 100000 -- tests/*.js",
     "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"

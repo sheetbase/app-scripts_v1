@@ -1,7 +1,8 @@
 {
-  "compileOnSave": true,
+  "compileOnSave": false,
   "compilerOptions": {
     "target": "es5",
+    "strict": true,
     "noImplicitAny": false,
     "strictNullChecks": false,
     "lib": [
@@ -9,12 +10,13 @@
       "es5",
       "es6",
       "es2017"
-    ],
-    "strict": true,
+    ]
   },
   "moduleResolution": "node",
   "files": [
     "src/index.ts",
-    "tests/test.ts"
+    "tests/test.ts",
+    "src-legacy/index.ts",
+    "tests/test-legacy.ts"
   ]
 }
