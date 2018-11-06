@@ -1,6 +1,6 @@
 import * as os from 'os';
 import { resolve } from 'path';
-import { ensureDirSync } from 'fs-extra';
+import { ensureDirSync, removeSync } from 'fs-extra';
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { spawnSync } from 'child_process';
@@ -10,6 +10,13 @@ const SHEETBASE = (os.type() === 'Windows_NT') ?
 
 const APP_PATH = resolve('./tests/resources-legacy/app');
 const MODULE_PATH = resolve('./tests/resources-legacy/module');
+
+function cleanup() {
+  removeSync(APP_PATH + '/dist');
+  removeSync(MODULE_PATH + '/dist');
+  removeSync(MODULE_PATH + '/README.md');
+  removeSync(MODULE_PATH + '/sheetbase.module.js');
+}
 
 function expectResult(args: string[], expected: string, cwd = '.') {
   const result = spawnSync(
@@ -49,6 +56,10 @@ describe('(LEGACY) Test sheetbase-app-scripts-legacy', () => {
   });
 
   describe('Test README command', () => {
+    afterEach(() => {
+      cleanup();
+    });
+
     const EXPECTED = 'README.md ... saved!';
 
     it('should generate readme', () => expectResult(['readme'], EXPECTED, MODULE_PATH));
@@ -64,6 +75,10 @@ describe('(LEGACY) Test sheetbase-app-scripts-legacy', () => {
     before(() => {
       ensureDirSync(MODULE_PATH + '/node_modules');
       ensureDirSync(APP_PATH + '/node_modules');
+    });
+
+    afterEach(() => {
+      cleanup();
     });
 
     const EXPECTED = 'Build success!';

@@ -1,9 +1,6 @@
-*.js
+.nyc_output/
 node_modules/
-.nyc_output
-
-# test
-tests/app/dist/
-tests/module/dist/
-tests/module/README.md
-tests/module/sheetbase.module.js
+coverage/
+src/**/*.js
+src-legacy/**/*.js
+tests/**/*.js

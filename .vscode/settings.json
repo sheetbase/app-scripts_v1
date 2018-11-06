@@ -1,5 +1,9 @@
 {
     "files.exclude": {
-        "**/*.js": true,
+        "**/.nyc_output": true,
+        "**/coverage": true,
+        "**/src/**/*.js": true,
+        "**/src-legacy/**/*.js": true,
+        "**/tests/**/*.js": true
     }
 }

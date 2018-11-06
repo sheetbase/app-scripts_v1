@@ -17,15 +17,25 @@ Add these lines to the project *package.json*.
 ```json
 {
 	"scripts": {
-		"build:code": "sheetbase-app-scripts build",
-		"build:readme": "sheetbase-app-scripts readme",
-		"build": "npm run build:code && npm run build:readme",
-		"push": "sheetbase-app-scripts push"
+		"code": "sheetbase-app-scripts build",
+		"readme": "sheetbase-app-scripts readme",
+		"docs": "sheetbase-app-scripts api",
+		"build": "npm run code && npm run readme",
+		"deploy": "sheetbase-app-scripts deploy"
 	}
 }
 ```
 
 ## Usage
+
+### Deploy
+
+Deploy code to GAS using @google/clasp.
+Must have @google/clasp installed and logged in.
+
+#### Options
+
+- `dir`: GAS code folder.
 
 ### Build
 
@@ -33,18 +43,11 @@ Build module or app for GAS deployment.
 
 #### Options
 
-- `exportName`: Module name.
-- `--param`: Module params, comma-seperated.
-- `--app`: Build an app, else a module.
-- `--vendor`: Build a vendor module.
-- `--bundle`: Merge dependencies with the module.
-- `--polyfill`: Include polyfill.
-- `--no-init`: Not init the default instance of the module.
-- `--copy`: Files or folders will be copied, comma-seperated.
-
-### Push
-
-Push module or app to GAS using @google/clasp.
+- `--no-transpile`: Do not run tsc.
+- `--no-bundle`: Do not run rollup.
+- `--tsc`: Custom tsc params.
+- `--rollup`: Custom rollup params.
+- `--copy`: Resources to be copied, comma-seperated.
 
 ### Readme
 
@@ -52,8 +55,15 @@ Generate README.md.
 
 #### Options
 
-- `exportName`: Module name.
 - `--no-docs`: No docs link.
+
+### Api
+
+Generate API reference.
+
+#### Options
+
+- `--typedoc`: Custom typedoc params.
 
 ### Help
 
@@ -62,6 +72,7 @@ Display help.
 ### *
 
 Any other command is not supported.
+
 
 ## How?
 

@@ -35,6 +35,9 @@ describe('Test --help for each command', () => {
     it('should readme --help', () => {
       expectResult(['readme', '--help'], 'Generate README.md.');
     });
+    it('should api --help', () => {
+      expectResult(['api', '--help'], 'Generate API reference.');
+    });
     it('should help --help', () => {
       expectResult(['help', '--help'], 'Display help.');
     });
@@ -46,6 +49,10 @@ describe('Test --help for each command', () => {
 
   describe('Test README command', () => {
     it.skip('should generate readme');
+  });
+
+  describe('Test API command', () => {
+    it.skip('should generate docs');
   });
 
   describe('Test BUILD command', () => {

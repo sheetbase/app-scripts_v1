@@ -1,4 +1,4 @@
-## Usage
+## Usage (LEGACY)
 
 ### Build
 
@@ -15,10 +15,6 @@ Build module or app for GAS deployment.
 - `--no-init`: Not init the default instance of the module.
 - `--copy`: Files or folders will be copied, comma-seperated.
 
-### Push
-
-Push module or app to GAS using @google/clasp.
-
 ### Readme
 
 Generate README.md.
@@ -27,6 +23,15 @@ Generate README.md.
 
 - `exportName`: Module name.
 - `--no-docs`: No docs link.
+
+### Push
+
+Push module or app to GAS using @google/clasp.
+Must have @google/clasp installed and logged in.
+
+#### Options
+
+- `dir`: GAS code folder.
 
 ### Help
 
