@@ -15,6 +15,7 @@ Build module or app for GAS deployment.
 
 #### Options
 
+- `--app`: Build an app.
 - `--no-transpile`: Do not run tsc.
 - `--no-bundle`: Do not run rollup.
 - `--tsc`: Custom tsc params.
@@ -29,12 +30,13 @@ Generate README.md.
 
 - `--no-docs`: No docs link.
 
-### Api
+### Docs
 
-Generate API reference.
+Generate the documentation.
 
 #### Options
 
+- `--no-api`: Do not run typedoc.
 - `--typedoc`: Custom typedoc params.
 
 ### Help

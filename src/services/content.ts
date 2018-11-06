@@ -1,10 +1,14 @@
+import { EOL } from 'os';
 import { resolve } from 'path';
-import { readJson, readFile, pathExists } from 'fs-extra';
+import { readdirSync, readJson, readFile, pathExists } from 'fs-extra';
 import { rollup, RollupFileOptions } from 'rollup';
 import { format } from 'prettier';
+import { paramCase, sentenceCase } from 'change-case';
 import * as requireFromString from 'require-from-string';
 import * as matchAll from 'match-all';
 import * as ts2gas from 'ts2gas';
+import { Converter } from 'showdown';
+const converter = new Converter();
 
 import { extractString } from './utils';
 
@@ -12,6 +16,7 @@ export interface PackageJson {
     name?: string;
     version?: string;
     description?: string;
+    main?: string;
     author?: string;
     homepage?: string;
     license?: string;
@@ -81,22 +86,22 @@ export async function buildDescription(): Promise<string> {
     const { name, description, version, author, homepage, license, repository } = await getPackageJson();
     const { output: rollupConfigOutput } = await getRollupConfig();
     const exportName = rollupConfigOutput.name;
-    let content = '\r\n';
+    let content = EOL;
     content += '/**';
-    content += `\r\n* Sheetbase module`;
-    if (name) { content += `\r\n* Name: ${name}`; }
-    if (exportName) { content += `\r\n* Export name: ${exportName}`; }
-    if (description) { content += `\r\n* Description: ${description}`; }
-    if (version) { content += `\r\n* Version: ${version}`; }
-    if (author) { content += `\r\n* Author: ${author}`; }
-    if (homepage || repository) { content += `\r\n* Homepage: ${homepage || repository.url}`; }
-    if (license) { content += `\r\n* License: ${license}`; }
-    if (repository) { content += `\r\n* Repo: ${repository.url}`; }
-    content += '\r\n*/';
+    content += EOL + `* Sheetbase module`;
+    if (name) { content += EOL + `* Name: ${name}`; }
+    if (exportName) { content += EOL + `* Export name: ${exportName}`; }
+    if (description) { content += EOL + `* Description: ${description}`; }
+    if (version) { content += EOL + `* Version: ${version}`; }
+    if (author) { content += EOL + `* Author: ${author}`; }
+    if (homepage || repository) { content += EOL + `* Homepage: ${homepage || repository.url}`; }
+    if (license) { content += EOL + `* License: ${license}`; }
+    if (repository) { content += EOL + `* Repo: ${repository.url}`; }
+    content += EOL + '*/';
     return format(content, { parser: 'typescript' });
 }
 
-export async function getReadmeBlocks(path = '.') {
+export async function getReadmeBlocks(path = '.'): Promise<{[name: string]: string;}> {
     const blocks = {};
     const content = await readFile(resolve('.', path, 'README.md'), 'utf-8');
     const names = matchAll(content, /\<block\:([a-zA-Z0-9]+)\>/gi).toArray();
@@ -109,7 +114,7 @@ export async function getReadmeBlocks(path = '.') {
     return blocks;
 }
 
-export async function getCodeExamples(path = '.') {
+export async function getCodeExamples(path = '.'): Promise<string> {
     let content = '';
     const exPath = resolve('.', path, 'src', 'example.ts');
     if (!! await pathExists(exPath)) {
@@ -118,8 +123,66 @@ export async function getCodeExamples(path = '.') {
     return content;
 }
 
-export async function buildCodeExamples(path = '.') {
+export async function buildCodeExamples(path = '.'): Promise<string> {
     let content = await getCodeExamples(path);
     content = !!content ? ts2gas(content) : '';
     return content;
+}
+
+export async function buildDocsMd(path = '.'): Promise<string> {
+    const ARTICLES = resolve('.', path, 'articles');
+    const EOL2X = EOL.repeat(2);
+    // content
+    let title = '';
+    let toc = '';
+    let article = '';
+    // load files
+    if (!!await pathExists(ARTICLES)) {
+        const files = readdirSync(ARTICLES, { encoding: 'utf8' });
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (file.indexOf('.md') > -1) {
+                const name = file.replace('.md', '');
+                toc += EOL2X + `- [${sentenceCase(name)}](#${paramCase(name)})`;
+                article += EOL2X + (
+                    await readFile(resolve(ARTICLES, `${name}.md`), 'utf-8')
+                ).replace(
+                    /\#\ /g, '## ',
+                );
+            }
+        }
+    }
+    // final touches
+    const { name, pageUrl: docsUrl } = await getPackageJson();
+    title = `# Documentation: ${name}`;
+    toc = `- [API Reference](${docsUrl}/api)` + EOL2X + toc;
+    return title + EOL2X + toc + EOL2X + article;
+}
+
+export async function buildDocsHtml(path = '.'): Promise<string> {
+    const mdContent = await buildDocsMd(path);
+    const content = converter.makeHtml(mdContent);
+    const output = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" \
+    href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                ${content}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+    `;
+    return output;
 }

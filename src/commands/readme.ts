@@ -60,15 +60,19 @@ ${oauthScopes ? '## Scopes' + '\r\n' + '\`' + oauthScopes.join('\`\r\n\r\n\`') +
 
 ${blockCenter}
 
-## Examples
+## Documentation
+
+${!options.docs ? `- Homepage: ${homepage}` : `
+- Docs homepage: ${docsUrl}
+
+- API reference: ${docsUrl}/api
+`}
+
+### Examples
 
 \`\`\`ts
 ${examples}
 \`\`\`
-
-## Documentation
-
-${options.docs ? `See the docs: ${docsUrl}` : `Homepage: ${homepage}`}
 
 ## License
 
@@ -81,6 +85,6 @@ ${blockFooter}
     } catch (error) {
         return logError(error);
     }
-    console.log('Save README.md.');
+    console.log('README.md saved.');
     return process.exit();
 }

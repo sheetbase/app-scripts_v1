@@ -1,11 +1,12 @@
 import { execSync } from 'child_process';
 import { resolve } from 'path';
-import { copy, pathExists, remove, outputFile } from 'fs-extra';
+import { copy, pathExists, remove, outputFile, writeJson } from 'fs-extra';
 
-import { getRollupConfig, buildCodeExamples, buildDescription } from '../services/content';
+import { getRollupConfig, buildCodeExamples, buildDescription, getPackageJson } from '../services/content';
 import { logError } from '../services/message';
 
 interface Options {
+    app?: boolean;
     transpile?: boolean;
     bundle?: boolean;
     tsc?: string;
@@ -20,25 +21,19 @@ export async function buildCommand(options: Options) {
     const DEPLOY = resolve('.', 'deploy');
 
     try {
-        /**
-         * cleanup
-         */
+        // cleanup
         if (options.transpile || options.bundle) {
             await remove(DIST);
         }
         await remove(DEPLOY);
 
-        /**
-         * transpile
-         */
+        // transpile
         if (options.transpile) {
             const tsc = options.tsc || '-p tsconfig.json';
             execSync('tsc ' + tsc, { cwd: ROOT, stdio: 'inherit' });
         }
 
-        /**
-         * bundle
-         */
+        // bundle
         if (options.bundle) {
             const rollup = options.rollup || '-c';
             execSync('rollup ' + rollup, { cwd: ROOT, stdio: 'inherit' });
@@ -51,12 +46,13 @@ export async function buildCommand(options: Options) {
             '.clasp.json': ROOT,
             'appsscript.json': ROOT,
         };
-        // main
+        // main, rollup output
         const { output: rollupConfigOutput } = await getRollupConfig(ROOT);
-        const outputPathSplit = rollupConfigOutput.file.split('/').filter(
+        const { file: rollupOutputFile } = rollupConfigOutput;
+        const outputFileSplit = rollupOutputFile.split('/').filter(
             item => (!!item && item !== '.' && item !== '..'),
         );
-        copies[outputPathSplit.pop()] = resolve(ROOT, ... outputPathSplit);
+        copies[outputFileSplit.pop()] = resolve(ROOT, ... outputFileSplit);
         // --copy
         let copyItems = (options.copy || '').split(',').map(item => item.trim());
         copyItems = [... copyItems, 'views'].filter(x => !!x);
@@ -71,12 +67,23 @@ export async function buildCommand(options: Options) {
                 await copy(src, dest);
             }
         }
-        // example.js
-        const examples = await buildCodeExamples();
-        await outputFile(resolve(DEPLOY, 'example.js'), examples);
         // @index.js
         const description = await buildDescription();
-        await outputFile(resolve(DEPLOY, '@index.js'), description);
+        const examples = await buildCodeExamples();
+        await outputFile(resolve(DEPLOY, '@index.js'), description + '\r\n' + examples);
+
+        // final touches
+        if (options.app) {
+            await remove(DIST);
+        } else {
+            const packageJson = await getPackageJson();
+            packageJson.main = './' + rollupOutputFile.replace('./', '');
+            delete packageJson.gitUrl;
+            delete packageJson.pageUrl;
+            await writeJson(resolve(ROOT, 'package.json'), packageJson, { spaces: 3 });
+        }
+
+        console.log('\n');
     } catch (error) {
         return logError(error);
     }

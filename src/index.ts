@@ -10,7 +10,7 @@ import * as program from 'commander';
 import { buildCommand } from './commands/build';
 import { readmeCommand } from './commands/readme';
 import { deployCommand } from './commands/deploy';
-import { apiCommand } from './commands/api';
+import { docsCommand } from './commands/docs';
 
 /**
  * Set global CLI configurations
@@ -34,6 +34,7 @@ program
 /**
  * Build module or app for GAS deployment.
  * @name build
+ * @param {boolean?} [--app] Build an app.
  * @param {boolean?} [--no-transpile] Do not run tsc.
  * @param {boolean?} [--no-bundle] Do not run rollup.
  * @param {string?} [--tsc] Custom tsc params.
@@ -42,6 +43,7 @@ program
  */
 program
   .command('build')
+  .option('--app', 'Build an app.')
   .option('--no-transpile', 'Do not run tsc.')
   .option('--no-bundle', 'Do not run rollup.')
   .option('--tsc [params]', 'Custom tsc params.')
@@ -62,15 +64,17 @@ program
   .action(async (options) => await readmeCommand(options));
 
 /**
- * Generate API reference.
- * @name api
+ * Generate the documentation.
+ * @name docs
+ * @param {boolean?} [--no-api] Do not run typedoc.
  * @param {string?} [--typedoc] Custom typedoc params.
  */
 program
-  .command('api')
-  .description('Generate API reference.')
+  .command('docs')
+  .option('--no-api', 'Do not run typedoc.')
   .option('--typedoc [params]', 'Custom typedoc params.')
-  .action(async (options) => await apiCommand(options));
+  .description('Generate the documentation.')
+  .action(async (options) => await docsCommand(options));
 
 /**
  * Display help.
