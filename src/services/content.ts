@@ -126,7 +126,14 @@ export async function getCodeExamples(path = '.'): Promise<string> {
 export async function buildCodeExamples(path = '.'): Promise<string> {
     let content = await getCodeExamples(path);
     content = !!content ? ts2gas(content) : '';
-    return content;
+    // remove ES6 import lines (commented out)
+    content = content.replace(/\/\/ import [^\n]*/g, '');
+    // remove CommonJS related lines
+    content = content.replace(/var exports = [^\n]*/g, '')
+        .replace(/var module = [^\n]*/g, '')
+        .replace(/exports\.[^\n]*/g, '')
+        .replace(/module\.exports\.[^\n]*/g, '');
+    return format(content, { parser: 'flow' });
 }
 
 export async function buildDocsMd(path = '.'): Promise<string> {
