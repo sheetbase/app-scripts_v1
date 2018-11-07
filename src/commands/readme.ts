@@ -1,3 +1,4 @@
+import { EOL } from 'os';
 import { resolve } from 'path';
 import { outputFile } from 'fs-extra';
 import { format } from 'prettier';
@@ -49,18 +50,27 @@ ${blockHeader}
 
 ## Install
 
-- Using npm: \`npm install --save ${name}\`
+Using npm: \`npm install --save ${name}\`
 
-- As a library: \`${scriptId}\`
+\`\`\`ts
+import * as ${exportName} from '${name}';
+\`\`\`
 
-    Set the _Indentifier_ to **${exportName}Module** and select the lastest version,
-    [view code](https://script.google.com/d/${scriptId}/edit?usp=sharing).
+As a library: \`${scriptId}\`
 
-${oauthScopes ? '## Scopes' + '\r\n' + '\`' + oauthScopes.join('\`\r\n\r\n\`') + '\`' : ''}
+Set the _Indentifier_ to **${exportName}Module** and select the lastest version, \
+[view code](https://script.google.com/d/${scriptId}/edit?usp=sharing).
+
+\`\`\`ts
+declare const ${exportName}Module: { ${exportName}: any };
+const ${exportName} = ${exportName}Module.${exportName};
+\`\`\`
+
+${oauthScopes ? '## Scopes' + EOL + '\`' + oauthScopes.join(EOL.repeat(2)) + '\`' : ''}
 
 ${blockCenter}
 
-## Documentation
+## Usage
 
 ${!options.docs ? `- Homepage: ${homepage}` : `
 - Docs homepage: ${docsUrl}
@@ -68,11 +78,13 @@ ${!options.docs ? `- Homepage: ${homepage}` : `
 - API reference: ${docsUrl}/api
 `}
 
+${!examples ? '' : `
 ### Examples
 
 \`\`\`ts
 ${examples}
 \`\`\`
+`}
 
 ## License
 

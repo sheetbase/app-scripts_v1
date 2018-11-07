@@ -10,18 +10,26 @@ Scripts for Sheetbase backend modules and apps.
 
 ## Install
 
-``$ npm install --save-dev @sheetbase/app-scripts``
+### Global
+
+`$ npm install -g @sheetbase/app-scripts`
+
+Command: `sheetbase-app-scripts`
+
+### Local
+
+`$ npm install --save-dev @sheetbase/app-scripts`
 
 Add these lines to the project *package.json*.
 
 ```json
 {
-	"scripts": {
-		"build": "sheetbase-app-scripts build",
-		"readme": "sheetbase-app-scripts readme",
-		"docs": "sheetbase-app-scripts docs",
-		"deploy": "sheetbase-app-scripts deploy"
-	}
+   "scripts": {
+      "build": "sheetbase-app-scripts build",
+      "readme": "sheetbase-app-scripts readme",
+      "docs": "sheetbase-app-scripts docs",
+      "deploy": "sheetbase-app-scripts deploy"
+   }
 }
 ```
 
