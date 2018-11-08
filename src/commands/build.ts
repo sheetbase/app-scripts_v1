@@ -1,6 +1,7 @@
 import { execSync } from 'child_process';
 import { resolve } from 'path';
 import { copy, pathExists, remove, outputFile, writeJson } from 'fs-extra';
+import * as readDir from 'fs-readdir-recursive';
 
 import { getRollupConfig, buildCodeExamples, buildDescription, getPackageJson } from '../services/content';
 import { logError } from '../services/message';
@@ -76,8 +77,31 @@ export async function buildCommand(options: Options) {
         if (options.app) {
             await remove(DIST);
         } else {
+            // remove transpiled .js
+            const files: string[] = readDir(DIST);
+            for (let i = 0; i < files.length; i++) {
+                const path = resolve(DIST, files[i]);
+                if (
+                    path.includes('.js') && !path.includes('bundles')
+                ) {
+                    await remove(path);
+                }
+            }
+
+            // save .d.ts file
+            const declarationFile = rollupOutputFile
+                .replace('bundles/', '')
+                .replace(
+                    '.umd.js', '.d.ts',
+                );
+            await outputFile(resolve(ROOT, declarationFile),
+                `export * from './public_api';`,
+            );
+
+            // add 'main' and 'typings' to package.json
             const packageJson = await getPackageJson();
-            packageJson.main = './' + rollupOutputFile.replace('./', '');
+            packageJson.main = rollupOutputFile;
+            packageJson.typings = declarationFile;
             delete packageJson.gitUrl;
             delete packageJson.pageUrl;
             await writeJson(resolve(ROOT, 'package.json'), packageJson, { spaces: 3 });
