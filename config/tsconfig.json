@@ -1,18 +1,20 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "./dist",
     "target": "es3",
     "module": "es2015",
-    "outDir": "./dist",
     "declaration": true,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,    
     "noImplicitUseStrict": true,
     "strictNullChecks": false,
-		"noImplicitAny": false,
-    "experimentalDecorators": true,
+    "noImplicitAny": false,
     "lib": [
       "es2015"
     ]
   },
-  "moduleResolution": "node",
   "files": [
     "./src/public_api.ts"
   ]
