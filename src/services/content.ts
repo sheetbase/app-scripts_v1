@@ -117,7 +117,7 @@ export async function buildDescription(): Promise<string> {
     const exportName = umd.name;
     let content = EOL;
     content += '/**';
-    content += EOL + `* Sheetbase module`;
+    content += EOL + `* A Sheetbase Module`;
     if (name) { content += EOL + `* Name: ${name}`; }
     if (exportName) { content += EOL + `* Export name: ${exportName}`; }
     if (description) { content += EOL + `* Description: ${description}`; }
