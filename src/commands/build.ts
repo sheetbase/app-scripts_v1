@@ -78,12 +78,7 @@ export async function buildCommand(options: Options) {
         // @index.js
         let indexContent = '';
         if (options.app) {
-            const { scriptId } = await getDotClaspJson();
-            indexContent = '' +
-                '/**' + EOL +
-                ' * A Sheetbase Application' + EOL +
-                ` * + Dev url: https://script.google.com/macros/s/${scriptId}/dev` + EOL +
-                ' */';
+            indexContent = '// A Sheetbase Application';
         } else {
             const description = await buildDescription();
             const examples = await buildCodeExamples();
