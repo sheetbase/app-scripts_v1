@@ -1,7 +1,7 @@
 import { EOL } from 'os';
 import { resolve } from 'path';
 import { readdirSync, readJson, readFile, pathExists } from 'fs-extra';
-import { rollup, RollupFileOptions } from 'rollup';
+import { rollup, OutputOptions } from 'rollup';
 import { format } from 'prettier';
 import { paramCase, sentenceCase } from 'change-case';
 import * as requireFromString from 'require-from-string';
@@ -12,11 +12,14 @@ const converter = new Converter();
 
 import { extractString } from './utils';
 
+const EOL2X = EOL.repeat(2);
+
 export interface PackageJson {
     name?: string;
     version?: string;
     description?: string;
     main?: string;
+    module?: string;
     typings?: string;
     author?: string;
     homepage?: string;
@@ -53,18 +56,28 @@ export interface AppsscriptJson {
     oauthScopes?: string[];
 }
 
+export interface RollupConfig {
+    input: string;
+    output: OutputOptions[];
+    external?: string[];
+}
+
 export async function getPackageJson(path = '.'): Promise<PackageJson & {
     gitUrl?: string;
     pageUrl?: string;
 }> {
-    const data = await readJson(resolve('.', path, 'package.json'));
-    const gitUrl = (data.repository.url).replace('.git', '');
-    const gitUrlSplit = gitUrl.split('/');
-    const accountName: string = gitUrlSplit.splice(gitUrlSplit.length - 2, 1).pop();
-    const pageUrl: string = gitUrl.replace(accountName + '/', '').replace(
-        'github.com', `${accountName}.github.io`,
-    );
-    return { ... data, gitUrl, pageUrl };
+    const data: PackageJson = await readJson(resolve('.', path, 'package.json'));
+    if (data.repository && data.repository.url) {
+        const gitUrl = (data.repository.url).replace('.git', '');
+        const gitUrlSplit = gitUrl.split('/');
+        const accountName: string = gitUrlSplit.splice(gitUrlSplit.length - 2, 1).pop();
+        const pageUrl: string = gitUrl.replace(accountName + '/', '').replace(
+            'github.com', `${accountName}.github.io`,
+        );
+        data['gitUrl'] = gitUrl;
+        data['pageUrl'] = pageUrl;
+    }
+    return data;
 }
 
 export async function getDotClaspJson(path = '.'): Promise<DotClaspJson> {
@@ -75,18 +88,33 @@ export async function getAppsscriptJson(path = '.'): Promise<AppsscriptJson> {
     return await readJson(resolve('.', path, 'appsscript.json'));
 }
 
-export async function getRollupConfig(rootPath = '.'): Promise<RollupFileOptions> {
+export async function getRollupConfig(path = '.'): Promise<RollupConfig> {
     const bundle = await rollup({
-        input: resolve(rootPath, 'rollup.config.js'),
+        input: resolve(path, 'rollup.config.js'),
     });
     const { code } = await bundle.generate({ format: 'cjs' });
     return requireFromString(code);
 }
 
+export async function getRollupOutputs(path = '.'): Promise<{
+    [format: string]: OutputOptions;
+}> {
+    const result = {};
+    let { output } = await getRollupConfig(path);
+    if (!(output instanceof Array)) {
+        output = [output];
+    }
+    for (let i = 0; i < output.length; i++) {
+        const out = output[i];
+        result[out.format] = out;
+    }
+    return result;
+}
+
 export async function buildDescription(): Promise<string> {
     const { name, description, version, author, homepage, license, repository } = await getPackageJson();
-    const { output: rollupConfigOutput } = await getRollupConfig();
-    const exportName = rollupConfigOutput.name;
+    const { umd } = await getRollupOutputs();
+    const exportName = umd.name;
     let content = EOL;
     content += '/**';
     content += EOL + `* Sheetbase module`;
@@ -137,11 +165,14 @@ export async function buildCodeExamples(path = '.'): Promise<string> {
     return format(content, { parser: 'flow' });
 }
 
-export async function buildDocsMd(path = '.'): Promise<string> {
-    const ARTICLES = resolve('.', path, 'articles');
-    const EOL2X = EOL.repeat(2);
+export async function buildDocs(path = '.', title?: string, description?: string): Promise<{
+    title?: string;
+    description?: string;
+    toc?: string;
+    article?: string;
+}> {
+    const ARTICLES = resolve('.', path, 'docs');
     // content
-    let title = '';
     let toc = '';
     let article = '';
     // load files
@@ -149,7 +180,7 @@ export async function buildDocsMd(path = '.'): Promise<string> {
         const files = readdirSync(ARTICLES, { encoding: 'utf8' });
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
-            if (file.indexOf('.md') > -1) {
+            if (file.indexOf('.md') > -1 && file !== 'index.md') {
                 const name = file.replace('.md', '');
                 toc += EOL2X + `- [${sentenceCase(name)}](#${paramCase(name)})`;
                 article += EOL2X + (
@@ -162,35 +193,15 @@ export async function buildDocsMd(path = '.'): Promise<string> {
     }
     // final touches
     const { name, pageUrl: docsUrl } = await getPackageJson();
-    title = `# Documentation: ${name}`;
-    toc = `- [API Reference](${docsUrl}/api)` + EOL2X + toc;
-    return title + EOL2X + toc + EOL2X + article;
+    title = title ? '#' + title : `# ${name}`;
+    description = description || '';
+    toc = toc + EOL2X + `- [API Reference](${docsUrl}/api)`;
+    return { title, description, toc, article };
 }
 
-export async function buildDocsHtml(path = '.'): Promise<string> {
-    const mdContent = await buildDocsMd(path);
-    const content = converter.makeHtml(mdContent);
-    const output = `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <link rel="stylesheet" \
-    href="https://cdnjs.cloudflare.com/ajax/libs/mini.css/3.0.1/mini-default.min.css" />
-</head>
-<body>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                ${content}
-            </div>
-        </div>
-    </div>
-</body>
-</html>
-    `;
-    return output;
+export async function buildDocsMd(path = '.'): Promise<string> {
+    const { title, description, toc, article } = await buildDocs(path);
+    const content = title + EOL2X + description + EOL2X + toc + EOL2X + article;
+    return format(content, { parser: 'markdown' });
+
 }

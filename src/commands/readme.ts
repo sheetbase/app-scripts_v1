@@ -5,13 +5,13 @@ import { format } from 'prettier';
 
 import {
     getPackageJson,
-    getRollupConfig,
     getDotClaspJson,
     getAppsscriptJson,
     getReadmeBlocks,
     getCodeExamples,
+    getRollupOutputs,
 } from '../services/content';
-import { logError } from '../services/message';
+import { logError, logSucceed } from '../services/message';
 
 interface Options {
     docs?: string;
@@ -22,8 +22,8 @@ export async function readmeCommand(options: Options) {
 
         const { name, description, homepage, license, gitUrl, pageUrl: docsUrl} = await getPackageJson();
 
-        const { output: rollupConfigOutput } = await getRollupConfig();
-        const exportName = rollupConfigOutput.name;
+        const { umd } = await getRollupOutputs();
+        const exportName = umd.name;
 
         const { scriptId } = await getDotClaspJson();
 
@@ -97,6 +97,5 @@ ${blockFooter}
     } catch (error) {
         return logError(error);
     }
-    console.log('README.md saved.');
-    return process.exit();
+    return logSucceed('README.md saved.');
 }

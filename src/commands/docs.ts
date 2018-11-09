@@ -1,9 +1,9 @@
-import { outputFile, remove } from 'fs-extra';
+import { outputFile } from 'fs-extra';
 import { execSync } from 'child_process';
 import { resolve } from 'path';
 
-import { buildDocsHtml } from '../services/content';
-import { logError } from '../services/message';
+import { buildDocsMd } from '../services/content';
+import { logError, logSucceed } from '../services/message';
 
 interface Options {
     api?: boolean;
@@ -13,12 +13,10 @@ interface Options {
 export async function docsCommand(options: Options) {
     const DOCS = resolve('.', 'docs');
     try {
-        // cleanup
-        await remove(DOCS);
 
-        // index.html
-        const content = await buildDocsHtml();
-        await outputFile(resolve(DOCS, 'index.html'), content);
+        // index
+        const content = await buildDocsMd();
+        await outputFile(resolve(DOCS, 'index.md'), content);
 
         // api reference
         if (options.api) {
@@ -29,10 +27,10 @@ export async function docsCommand(options: Options) {
                 '--exclude \"**/src/example.ts\" ' +
                 '--excludeExternals --excludeNotExported --ignoreCompilerErrors'
             );
-            execSync('typedoc ' + typedoc, { cwd: resolve('.'), stdio: 'inherit' });
+            execSync('typedoc ' + typedoc, { cwd: resolve('.'), stdio: 'ignore' });
         }
     } catch (error) {
         return logError(error);
     }
-    return process.exit();
+    return logSucceed('Docs generated.');
 }
