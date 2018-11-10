@@ -54,7 +54,8 @@ export async function buildCommand(options: Options) {
             'appsscript.json': ROOT,
         };
         // main, rollup output
-        const { umd } = await getRollupOutputs(ROOT);
+        const { esm, umd } = await getRollupOutputs(ROOT);
+        const esmFile = esm.file;
         const umdFile = umd.file;
         const umdFileSplit = umdFile.split('/').filter(
             item => (!!item && item !== '.' && item !== '..'),
@@ -101,19 +102,18 @@ export async function buildCommand(options: Options) {
             await outputFile(bundlePath, content);
         } else {
             const moduleFileName = umdFileName.replace('.umd.js', '');
-            const mainFile = umdFile.replace('./', '');
-            const moduleFile = 'dist/fesm3/' + moduleFileName + '.js';
             const typingsFile = 'dist/' + moduleFileName + '.d.ts';
+            const moduleTypingsFile = 'dist/esm3/' + moduleFileName + '.js';
 
             // save proxy files
-            const proxyContent =  `export * from './public_api';`;
-            await outputFile(resolve(ROOT, moduleFile), proxyContent);
-            await outputFile(resolve(ROOT, typingsFile), proxyContent);
+            const typingsProxyContent =  `export * from './public_api';`;
+            await outputFile(resolve(ROOT, moduleTypingsFile), typingsProxyContent);
+            await outputFile(resolve(ROOT, typingsFile), typingsProxyContent);
 
             // add 'main', 'module' and 'typings' to package.json
             const packageJson = await getPackageJson();
-            packageJson.main = mainFile;
-            packageJson.module = moduleFile;
+            packageJson.main = umdFile.replace('./', '');
+            packageJson.module = esmFile.replace('./', '');
             packageJson.typings = typingsFile;
             delete packageJson.gitUrl;
             delete packageJson.pageUrl;
