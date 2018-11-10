@@ -102,7 +102,7 @@ export async function buildCommand(options: Options) {
         } else {
             const moduleFileName = umdFileName.replace('.umd.js', '');
             const mainFile = umdFile.replace('./', '');
-            const moduleFile = 'dist/esm3/' + moduleFileName + '.js';
+            const moduleFile = 'dist/fesm3/' + moduleFileName + '.js';
             const typingsFile = 'dist/' + moduleFileName + '.d.ts';
 
             // save proxy files
