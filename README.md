@@ -91,10 +91,10 @@ Any other command is not supported.
 [license_badge]: https://img.shields.io/github/license/mashape/apistatus.svg
 [license_url]: https://github.com/sheetbase/app-scripts/blob/master/LICENSE
 
-[patreon_badge]: https://ionicabizau.github.io/badges/patreon.svg
+[patreon_badge]: https://lamnhan.github.io/assets/images/badges/patreon.svg
 [patreon_url]: https://www.patreon.com/lamnhan
 
-[paypal_donate_badge]: https://ionicabizau.github.io/badges/paypal_donate.svg
+[paypal_donate_badge]: https://lamnhan.github.io/assets/images/badges/paypal_donate.svg
 [paypal_donate_url]: https://www.paypal.me/lamnhan
 
 [ask_me_badge]: https://img.shields.io/badge/ask/me-anything-1abc9c.svg

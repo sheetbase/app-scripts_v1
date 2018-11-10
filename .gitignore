@@ -1,6 +1,9 @@
-.nyc_output/
 node_modules/
-coverage/
+
+# src
 src/**/*.js
-src-legacy/**/*.js
+
+# test
+.nyc_output/
+coverage/
 tests/**/*.js

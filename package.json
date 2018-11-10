@@ -1,11 +1,10 @@
 {
   "name": "@sheetbase/app-scripts",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "Scripts for Sheetbase modules and apps.",
   "main": "./src/index.js",
   "bin": {
-    "sheetbase-app-scripts": "./src/index.js",
-    "sheetbase-app-scripts-legacy": "./src-legacy/index.js"
+    "sheetbase-app-scripts": "./src/index.js"
   },
   "scripts": {
     "transpile": "tsc --project tsconfig.json",
@@ -14,8 +13,7 @@
     "docs-before": "npm i --save-dev ucfirst extract-comments parse-comments",
     "docs-after": "npm un --save-dev ucfirst extract-comments parse-comments",
     "usage": "tsc src/usage.ts && node src/usage.js",
-    "usage-legacy": "tsc src-legacy/usage.ts && node src-legacy/usage.js",
-    "docs": "npm run docs-before && npm run usage && npm run usage-legacy && npm run docs-after",
+    "docs": "npm run docs-before && npm run usage && npm run docs-after",
     "lint": "tslint --project tslint.json && echo 'No lint errors.'",
     "test": "nyc --cache false mocha --timeout 100000 -- tests/*.js",
     "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"
@@ -43,19 +41,15 @@
   "homepage": "https://sheetbase.net",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.18.0",
     "chalk": "^2.4.1",
     "change-case": "^3.0.2",
     "commander": "^2.18.0",
-    "dedent": "^0.7.0",
     "fs-extra": "^7.0.1",
-    "fs-readdir-recursive": "^1.1.0",
     "match-all": "^1.2.4",
     "prettier": "^1.14.3",
     "require-from-string": "^2.0.2",
     "rollup": "^0.67.0",
     "showdown": "^1.8.7",
-    "strip-indent": "^2.0.0",
     "ts2gas": "^1.2.0",
     "typedoc": "^0.13.0"
   },
