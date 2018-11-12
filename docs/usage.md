@@ -17,10 +17,14 @@ Build module or app for GAS deployment.
 
 - `--app`: Build an app.
 - `--no-transpile`: Do not run tsc.
-- `--no-bundle`: Do not run rollup.
 - `--tsc`: Custom tsc params.
+- `--no-bundle`: Do not run rollup.
 - `--rollup`: Custom rollup params.
+- `--no-minify`: Do not run uglifyjs.
+- `--uglifyjs`: Custom uglifyjs params.
 - `--copy`: Resources to be copied, comma-seperated.
+- `--min`: Use the minified version for deployment.
+- `--rename`: Rename bundled deployment file.
 
 ### Readme
 

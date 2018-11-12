@@ -36,24 +36,26 @@ program
  * @name build
  * @param {boolean?} [--app] Build an app.
  * @param {boolean?} [--no-transpile] Do not run tsc.
- * @param {boolean?} [--no-bundle] Do not run rollup.
- * @param {boolean?} [--no-minify] Do not run uglifyjs.
  * @param {string?} [--tsc] Custom tsc params.
+ * @param {boolean?} [--no-bundle] Do not run rollup.
  * @param {string?} [--rollup] Custom rollup params.
+ * @param {boolean?} [--no-minify] Do not run uglifyjs.
  * @param {string?} [--uglifyjs] Custom uglifyjs params.
  * @param {string?} [--copy] Resources to be copied, comma-seperated.
  * @param {string?} [--min] Use the minified version for deployment.
+ * @param {string?} [--rename] Rename bundled deployment file.
  */
 program
   .command('build')
   .option('--app', 'Build an app.')
   .option('--no-transpile', 'Do not run tsc.')
-  .option('--no-bundle', 'Do not run rollup.')
-  .option('--no-minify', 'Do not run uglifyjs.')
   .option('--tsc [params]', 'Custom tsc params.')
+  .option('--no-bundle', 'Do not run rollup.')
   .option('--rollup [params]', 'Custom rollup params.')
+  .option('--no-minify', 'Do not run uglifyjs.')
   .option('--uglifyjs [params]', 'Custom uglifyjs params.')
   .option('--copy [value]', 'Resources to be copied, comma-seperated.')
+  .option('--rename [value]', 'Rename bundled deployment file.')
   .option('--min', 'Use the minified version for deployment.')
   .description('Build module or app for GAS deployment.')
   .action(async (options) => await buildCommand(options));

@@ -1,7 +1,7 @@
 import { EOL } from 'os';
 import { execSync } from 'child_process';
 import { resolve } from 'path';
-import { copy, pathExists, remove, readFile, outputFile, writeJson } from 'fs-extra';
+import { copy, pathExists, remove, readFile, outputFile, writeJson, renameSync } from 'fs-extra';
 
 import {
     getPackageJson,
@@ -20,6 +20,7 @@ interface Options {
     rollup?: string;
     uglifyjs?: string;
     copy?: string;
+    rename?: string;
     min?: boolean;
 }
 
@@ -33,6 +34,14 @@ export async function buildCommand(options: Options) {
         const { esm, umd } = await getRollupOutputs(ROOT);
         const esmFile = esm.file;
         const umdFile = umd.file;
+        const umdFileSplit = umdFile.split('/').filter(
+            item => (!!item && item !== '.' && item !== '..'),
+        );
+        const umdFileName = umdFileSplit.pop();
+        const moduleFileName = umdFileName.replace('.umd.js', '');
+        const deploymentFile = resolve(DEPLOY,
+            !options.min ? umdFileName : umdFileName.replace('.js', '.min.js'),
+        );
 
         // cleanup
         if (options.transpile || options.bundle) {
@@ -67,10 +76,6 @@ export async function buildCommand(options: Options) {
             'appsscript.json': ROOT,
         };
         // main, rollup output
-        const umdFileSplit = umdFile.split('/').filter(
-            item => (!!item && item !== '.' && item !== '..'),
-        );
-        const umdFileName = umdFileSplit.pop();
         if (options.min) {
             copies[umdFileName.replace('.js', '.min.js')] = resolve(ROOT, ... umdFileSplit);
         } else {
@@ -108,14 +113,12 @@ export async function buildCommand(options: Options) {
             await remove(DIST);
 
             // add www snipet
-            const bundlePath = resolve(DEPLOY, 'app.js');
             const www = '' +
                 'function doGet(e) { return App.Sheetbase.HTTP.get(e); }' + EOL +
                 'function doPost(e) { return App.Sheetbase.HTTP.post(e); }';
-            const content = (await readFile(bundlePath, 'utf-8')) + EOL + www;
-            await outputFile(bundlePath, content);
+            const content = (await readFile(deploymentFile, 'utf-8')) + EOL + www;
+            await outputFile(deploymentFile, content);
         } else {
-            const moduleFileName = umdFileName.replace('.umd.js', '');
             const typingsFile = 'dist/' + moduleFileName + '.d.ts';
             const moduleTypingsFile = 'dist/esm3/' + moduleFileName + '.js';
 
@@ -134,6 +137,13 @@ export async function buildCommand(options: Options) {
             await writeJson(resolve(ROOT, 'package.json'), packageJson, { spaces: 3 });
         }
 
+        // rename
+        if (!!options.rename) {
+            let newName = (typeof options.rename === 'string') ? options.rename :
+                (options.app ? 'app' : 'module');
+            newName = newName.replace('.js', '') + '.js';
+            renameSync(deploymentFile, resolve(DEPLOY, newName));
+        }
     } catch (error) {
         return logError(error);
     }
