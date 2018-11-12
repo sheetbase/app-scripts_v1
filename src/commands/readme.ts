@@ -66,7 +66,7 @@ declare const ${exportName}Module: { ${exportName}: any };
 const ${exportName} = ${exportName}Module.${exportName};
 \`\`\`
 
-${oauthScopes ? '## Scopes' + EOL + '\`' + oauthScopes.join('\`' + EOL.repeat(2)) + '\`' : ''}
+${oauthScopes ? '## Scopes' + EOL + '\`' + oauthScopes.join('\`' + EOL.repeat(2) + '\`') + '\`' : ''}
 
 ${blockCenter}
 
