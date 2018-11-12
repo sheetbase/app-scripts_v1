@@ -1,11 +1,15 @@
 {
   "name": "@sheetbase/app-scripts",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "description": "Scripts for Sheetbase modules and apps.",
   "main": "./src/index.js",
   "bin": {
     "sheetbase-app-scripts": "./src/index.js"
   },
+  "files": [
+    "config",
+    "src"
+  ],
   "scripts": {
     "transpile": "tsc --project tsconfig.json",
     "build": "npm run transpile && npm i -g --loglevel=error",
