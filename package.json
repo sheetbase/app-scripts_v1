@@ -55,7 +55,8 @@
     "rollup": "^0.67.0",
     "showdown": "^1.8.7",
     "ts2gas": "^1.2.0",
-    "typedoc": "^0.13.0"
+    "typedoc": "^0.13.0",
+    "uglify-js": "^3.4.9"
   },
   "devDependencies": {
     "@types/chai": "^4.1.6",

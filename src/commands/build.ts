@@ -8,7 +8,6 @@ import {
     getRollupOutputs,
     buildDescription,
     buildCodeExamples,
-    getDotClaspJson,
 } from '../services/content';
 import { logError, logSucceed } from '../services/message';
 
@@ -16,9 +15,12 @@ interface Options {
     app?: boolean;
     transpile?: boolean;
     bundle?: boolean;
+    minify?: boolean;
     tsc?: string;
     rollup?: string;
+    uglifyjs?: string;
     copy?: string;
+    min?: boolean;
 }
 
 export async function buildCommand(options: Options) {
@@ -28,6 +30,10 @@ export async function buildCommand(options: Options) {
     const DEPLOY = resolve(ROOT, 'deploy');
 
     try {
+        const { esm, umd } = await getRollupOutputs(ROOT);
+        const esmFile = esm.file;
+        const umdFile = umd.file;
+
         // cleanup
         if (options.transpile || options.bundle) {
             await remove(DIST);
@@ -46,6 +52,13 @@ export async function buildCommand(options: Options) {
             execSync('rollup ' + rollup, { cwd: ROOT, stdio: 'ignore' });
         }
 
+        // minify
+        if (options.minify) {
+            // tslint:disable-next-line:max-line-length
+            const uglifyjs = options.uglifyjs || `${umdFile} --compress --mangle --comments --source-map -o ${umdFile.replace('.js', '.min.js')}`;
+            execSync('uglifyjs ' + uglifyjs, { cwd: ROOT, stdio: 'ignore' });
+        }
+
         /**
          * gas distribution
          */
@@ -54,14 +67,15 @@ export async function buildCommand(options: Options) {
             'appsscript.json': ROOT,
         };
         // main, rollup output
-        const { esm, umd } = await getRollupOutputs(ROOT);
-        const esmFile = esm.file;
-        const umdFile = umd.file;
         const umdFileSplit = umdFile.split('/').filter(
             item => (!!item && item !== '.' && item !== '..'),
         );
         const umdFileName = umdFileSplit.pop();
-        copies[umdFileName] = resolve(ROOT, ... umdFileSplit);
+        if (options.min) {
+            copies[umdFileName.replace('.js', '.min.js')] = resolve(ROOT, ... umdFileSplit);
+        } else {
+            copies[umdFileName] = resolve(ROOT, ... umdFileSplit);
+        }
         // --copy
         let copyItems = (options.copy || '').split(',').map(item => item.trim());
         copyItems = [... copyItems, 'views'].filter(x => !!x);
