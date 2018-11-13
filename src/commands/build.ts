@@ -31,7 +31,7 @@ export async function buildCommand(options: Options) {
     const DEPLOY = resolve(ROOT, 'deploy');
 
     try {
-        const { esm, umd } = await getRollupOutputs(ROOT);
+        const { esm = {}, umd = {} } = await getRollupOutputs(ROOT);
         const esmFile = esm.file;
         const umdFile = umd.file;
         const umdFileSplit = umdFile.split('/').filter(
