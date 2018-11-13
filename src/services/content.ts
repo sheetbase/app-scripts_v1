@@ -7,8 +7,6 @@ import { paramCase, sentenceCase } from 'change-case';
 import * as requireFromString from 'require-from-string';
 import * as matchAll from 'match-all';
 import * as ts2gas from 'ts2gas';
-import { Converter } from 'showdown';
-const converter = new Converter();
 
 import { extractString } from './utils';
 

@@ -1,6 +1,6 @@
 {
   "name": "@sheetbase/app-scripts",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "description": "Scripts for Sheetbase modules and apps.",
   "main": "./src/index.js",
   "bin": {
@@ -53,7 +53,6 @@
     "prettier": "^1.14.3",
     "require-from-string": "^2.0.2",
     "rollup": "^0.67.0",
-    "showdown": "^1.8.7",
     "ts2gas": "^1.2.0",
     "typedoc": "^0.13.0",
     "uglify-js": "^3.4.9"
@@ -65,7 +64,6 @@
     "@types/node": "^10.12.1",
     "@types/prettier": "^1.13.2",
     "@types/require-from-string": "^1.2.0",
-    "@types/showdown": "^1.7.5",
     "chai": "^4.2.0",
     "coveralls": "^3.0.2",
     "mocha": "^5.2.0",

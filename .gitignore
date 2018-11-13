@@ -1,9 +1,9 @@
 node_modules/
 
-# src
+# compiled js
 src/**/*.js
+tests/**/*.js
 
 # test
 .nyc_output/
 coverage/
-tests/**/*.js
