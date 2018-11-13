@@ -3,7 +3,11 @@ import { resolve } from 'path';
 
 import { logError } from '../services/message';
 
-export async function deployCommand(dir = 'deploy') {
+interface Options {
+    version?: boolean;
+}
+
+export async function deployCommand(dir = 'deploy', options: Options) {
     try {
         await execSync('clasp push', {cwd: resolve('.', dir), stdio: 'inherit'});
     } catch (error) {

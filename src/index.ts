@@ -25,16 +25,20 @@ program
  * Must have @google/clasp installed and logged in.
  * @name deploy
  * @param {string?} [dir] GAS code folder.
+ * @param {boolean?} [--version] Also saving a new version.
  */
 program
   .command('deploy [dir]')
+  .option('--version', 'Also saving a new version.')
   .description('Deploy code to GAS using @google/clasp.')
-  .action(async (dir) => await deployCommand(dir));
+  .action(async (dir, options) => await deployCommand(dir, options));
 
 /**
  * Build module or app for GAS deployment.
  * @name build
  * @param {boolean?} [--app] Build an app.
+ * @param {string?} [--vendor] List of files to put into @vendor.js.
+ * @param {boolean?} [--min] Use the minified version for deployment.
  * @param {boolean?} [--no-transpile] Do not run tsc.
  * @param {string?} [--tsc] Custom tsc params.
  * @param {boolean?} [--no-bundle] Do not run rollup.
@@ -42,12 +46,13 @@ program
  * @param {boolean?} [--no-minify] Do not run uglifyjs.
  * @param {string?} [--uglifyjs] Custom uglifyjs params.
  * @param {string?} [--copy] Resources to be copied, comma-seperated.
- * @param {string?} [--min] Use the minified version for deployment.
  * @param {string?} [--rename] Rename bundled deployment file.
  */
 program
   .command('build')
   .option('--app', 'Build an app.')
+  .option('--vendor [params...]', 'List of files to put into @vendor.js.')
+  .option('--min', 'Use the minified version for deployment.')
   .option('--no-transpile', 'Do not run tsc.')
   .option('--tsc [params]', 'Custom tsc params.')
   .option('--no-bundle', 'Do not run rollup.')
@@ -56,7 +61,6 @@ program
   .option('--uglifyjs [params]', 'Custom uglifyjs params.')
   .option('--copy [value]', 'Resources to be copied, comma-seperated.')
   .option('--rename [value]', 'Rename bundled deployment file.')
-  .option('--min', 'Use the minified version for deployment.')
   .description('Build module or app for GAS deployment.')
   .action(async (options) => await buildCommand(options));
 
