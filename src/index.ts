@@ -37,8 +37,8 @@ program
  * Build module or app for GAS deployment.
  * @name build
  * @param {boolean?} [--app] Build an app.
- * @param {string?} [--vendor] List of files to put into @vendor.js.
  * @param {boolean?} [--min] Use the minified version for deployment.
+ * @param {string?} [--vendor] List of files to put into @vendor.js.
  * @param {boolean?} [--no-transpile] Do not run tsc.
  * @param {string?} [--tsc] Custom tsc params.
  * @param {boolean?} [--no-bundle] Do not run rollup.
@@ -51,8 +51,8 @@ program
 program
   .command('build')
   .option('--app', 'Build an app.')
-  .option('--vendor [params...]', 'List of files to put into @vendor.js.')
   .option('--min', 'Use the minified version for deployment.')
+  .option('--vendor [params...]', 'List of files to put into @vendor.js.')
   .option('--no-transpile', 'Do not run tsc.')
   .option('--tsc [params]', 'Custom tsc params.')
   .option('--no-bundle', 'Do not run rollup.')
