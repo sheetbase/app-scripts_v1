@@ -25,11 +25,11 @@ program
  * Must have @google/clasp installed and logged in.
  * @name deploy
  * @param {string?} [dir] GAS code folder.
- * @param {boolean?} [--version] Also saving a new version.
+ * @param {string?} [--version] Also saving a new version.
  */
 program
   .command('deploy [dir]')
-  .option('--version', 'Also saving a new version.')
+  .option('--version [description]', 'Also saving a new version.')
   .description('Deploy code to GAS using @google/clasp.')
   .action(async (dir, options) => await deployCommand(dir, options));
 

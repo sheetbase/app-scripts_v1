@@ -43,6 +43,7 @@ Must have @google/clasp installed and logged in.
 #### Options
 
 - `dir`: GAS code folder.
+- `--version`: Also saving a new version.
 
 ### Build
 
@@ -51,6 +52,8 @@ Build module or app for GAS deployment.
 #### Options
 
 - `--app`: Build an app.
+- `--min`: Use the minified version for deployment.
+- `--vendor`: List of files to put into @vendor.js.
 - `--no-transpile`: Do not run tsc.
 - `--tsc`: Custom tsc params.
 - `--no-bundle`: Do not run rollup.
@@ -58,7 +61,6 @@ Build module or app for GAS deployment.
 - `--no-minify`: Do not run uglifyjs.
 - `--uglifyjs`: Custom uglifyjs params.
 - `--copy`: Resources to be copied, comma-seperated.
-- `--min`: Use the minified version for deployment.
 - `--rename`: Rename bundled deployment file.
 
 ### Readme
