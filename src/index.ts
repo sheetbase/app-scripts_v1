@@ -52,7 +52,7 @@ program
   .command('build')
   .option('--app', 'Build an app.')
   .option('--min', 'Use the minified version for deployment.')
-  .option('--vendor [params...]', 'List of files to put into @vendor.js.')
+  .option('--vendor [value]', 'List of files for @vendor.js, comma-seperated.')
   .option('--no-transpile', 'Do not run tsc.')
   .option('--tsc [params]', 'Custom tsc params.')
   .option('--no-bundle', 'Do not run rollup.')

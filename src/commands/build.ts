@@ -13,15 +13,16 @@ import { logError, logSucceed } from '../services/message';
 
 interface Options {
     app?: boolean;
+    min?: boolean;
+    vendor?: string;
     transpile?: boolean;
-    bundle?: boolean;
-    minify?: boolean;
     tsc?: string;
+    bundle?: boolean;
     rollup?: string;
+    minify?: boolean;
     uglifyjs?: string;
     copy?: string;
     rename?: string;
-    min?: boolean;
 }
 
 export async function buildCommand(options: Options) {
@@ -32,8 +33,8 @@ export async function buildCommand(options: Options) {
 
     try {
         const { esm = {}, umd = {} } = await getRollupOutputs(ROOT);
-        const esmFile = esm.file;
-        const umdFile = umd.file;
+        const esmFile = esm.file || '';
+        const umdFile = umd.file || '';
         const umdFileSplit = umdFile.split('/').filter(
             item => (!!item && item !== '.' && item !== '..'),
         );
@@ -143,6 +144,18 @@ export async function buildCommand(options: Options) {
                 (options.app ? 'app' : 'module');
             newName = newName.replace('.js', '') + '.js';
             renameSync(deploymentFile, resolve(DEPLOY, newName));
+        }
+
+        // vendor
+        if (options.vendor && typeof options.vendor === 'string') {
+            const vendorItems = options.vendor.split(',').map(item => item.trim());
+            let vendorContent = '';
+            for (let i = 0; i < vendorItems.length; i++) {
+                const file = vendorItems[i].replace('~', 'node_modules').replace('!', 'src');
+                const content = await readFile(file, 'utf-8');
+                vendorContent += (`// ${file}` + EOL + content + EOL.repeat(2));
+            }
+            await outputFile(resolve(DEPLOY, '@vendor.js'), vendorContent);
         }
     } catch (error) {
         return logError(error);
