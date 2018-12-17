@@ -36,7 +36,7 @@ program
 /**
  * Build module or app for GAS deployment.
  * @name build
- * @param {boolean?} [--app] Build an app.
+ * @param {boolean?} [--module] Build a module.
  * @param {boolean?} [--min] Use the minified version for deployment.
  * @param {string?} [--vendor] List of files to put into @vendor.js.
  * @param {boolean?} [--no-transpile] Do not run tsc.
@@ -50,7 +50,7 @@ program
  */
 program
   .command('build')
-  .option('--app', 'Build an app.')
+  .option('--module', 'Build a module.')
   .option('--min', 'Use the minified version for deployment.')
   .option('--vendor [value]', 'List of files for @vendor.js, comma-seperated.')
   .option('--no-transpile', 'Do not run tsc.')

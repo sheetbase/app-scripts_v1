@@ -16,7 +16,7 @@ Build module or app for GAS deployment.
 
 #### Options
 
-- `--app`: Build an app.
+- `--module`: Build a module.
 - `--min`: Use the minified version for deployment.
 - `--vendor`: List of files to put into @vendor.js.
 - `--no-transpile`: Do not run tsc.

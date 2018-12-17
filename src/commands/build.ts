@@ -12,7 +12,7 @@ import {
 import { logError, logSucceed } from '../services/message';
 
 interface Options {
-    app?: boolean;
+    module?: boolean;
     min?: boolean;
     vendor?: string;
     transpile?: boolean;
@@ -98,7 +98,7 @@ export async function buildCommand(options: Options) {
         }
         // @index.js
         let indexContent = '';
-        if (options.app) {
+        if (!options.module) {
             indexContent = '// A Sheetbase Application';
         } else {
             const description = await buildDescription();
@@ -110,7 +110,7 @@ export async function buildCommand(options: Options) {
         /**
          * finalize
          */
-        if (options.app) {
+        if (!options.module) {
             await remove(DIST);
 
             // add www snipet
@@ -141,7 +141,7 @@ export async function buildCommand(options: Options) {
         // rename
         if (!!options.rename) {
             let newName = (typeof options.rename === 'string') ? options.rename :
-                (options.app ? 'app' : 'module');
+                (!options.module ? 'app' : 'module');
             newName = newName.replace('.js', '') + '.js';
             renameSync(deploymentFile, resolve(DEPLOY, newName));
         }

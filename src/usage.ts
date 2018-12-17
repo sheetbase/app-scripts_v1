@@ -5,7 +5,8 @@
  */
 const fs = require('fs');
 const fsExtra = require('fs-extra');
-const parseComments = require('parse-comments');
+const prsComments = require('parse-comments');
+const parseComments = new prsComments();
 const extract = require('extract-comments');
 const file = fs.readFileSync('src/index.ts').toString();
 const ucfirst = require('ucfirst');
@@ -25,31 +26,32 @@ const comments = extract(fileWithoutFirstLine);
 for (const command of comments) {
   // To use the parseComments module, complete the stripped comment.
   const comment = `/*${command.raw}*/`;
-  const sheetbaseCommand = parseComments(comment)[0];
+  const sheetbaseCommand = parseComments.parse(comment)[0];
+  console.log(sheetbaseCommand);
   // Only print valid commands.
-  if (sheetbaseCommand && sheetbaseCommand.description && sheetbaseCommand.name) {
+  if (sheetbaseCommand && sheetbaseCommand.description && sheetbaseCommand.value) {
     readme.push('');
-    readme.push(`### ${ucfirst(sheetbaseCommand.name)}`);
+    readme.push(`### ${ucfirst(sheetbaseCommand.value)}`);
     readme.push('');
     readme.push(sheetbaseCommand.description);
     // Parameters (@param)
-    if (sheetbaseCommand.params && sheetbaseCommand.params.length) {
+    if (sheetbaseCommand.tags && sheetbaseCommand.tags.length) {
       readme.push('');
       readme.push('#### Options\n');
-      sheetbaseCommand.params.map(param => {
+      sheetbaseCommand.tags.map(param => {
         const isOptional = param.type.indexOf('?') !== -1;
         // readme.push(JSON.stringify(param));
         const paramName = param.parent || param.description.split(' ')[0];
         if (isOptional) {
           readme.push([
-            // `\`sheetbase-app-scripts ${sheetbaseCommand.name}`,
+            // `\`sheetbase-app-scripts ${sheetbaseCommand.value}`,
             `- \`${paramName}\`:`,
             param.description,
           ].join(' '));
         } else {
           // Required parameters descriptions aren't parsed by parse-comments. Parse them manually.
           readme.push([
-            // `\`sheetbase-app-scripts ${sheetbaseCommand.name}`,
+            // `\`sheetbase-app-scripts ${sheetbaseCommand.value}`,
             `- \`${paramName}\`:`,
             param.description,
           ].join(' '));
