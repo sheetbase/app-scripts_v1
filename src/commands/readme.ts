@@ -31,11 +31,11 @@ export async function readmeCommand(options: Options) {
 
         const {
             header: blockHeader = '',
-            center: blockCenter = '',
+            body: blockBody = '',
             footer: blockFooter = '',
         } = await getReadmeBlocks() as {
             header?: string;
-            center?: string;
+            body?: string;
             footer?: string;
         };
 
@@ -68,8 +68,6 @@ const ${exportName} = ${exportName}Module.${exportName};
 
 ${oauthScopes ? '## Scopes' + EOL + '\`' + oauthScopes.join('\`' + EOL.repeat(2) + '\`') + '\`' : ''}
 
-${blockCenter}
-
 ## Usage
 
 ${!options.docs ? `- Homepage: ${homepage}` : `
@@ -77,6 +75,8 @@ ${!options.docs ? `- Homepage: ${homepage}` : `
 
 - API reference: ${docsUrl}/api
 `}
+
+${blockBody}
 
 ${!examples ? '' : `
 ### Examples
