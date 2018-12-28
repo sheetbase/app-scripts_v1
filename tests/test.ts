@@ -43,10 +43,6 @@ describe('Test --help for each command', () => {
     });
   });
 
-  describe('Test DEPLOY command', () => {
-    it.skip('should deploy using @google/clasp');
-  });
-
   describe('Test README command', () => {
     it.skip('should generate readme');
   });

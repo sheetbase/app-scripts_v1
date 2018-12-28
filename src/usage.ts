@@ -5,8 +5,7 @@
  */
 const fs = require('fs');
 const fsExtra = require('fs-extra');
-const prsComments = require('parse-comments');
-const parseComments = new prsComments();
+const parseComments = require('parse-comments');
 const extract = require('extract-comments');
 const file = fs.readFileSync('src/index.ts').toString();
 const ucfirst = require('ucfirst');
@@ -26,32 +25,31 @@ const comments = extract(fileWithoutFirstLine);
 for (const command of comments) {
   // To use the parseComments module, complete the stripped comment.
   const comment = `/*${command.raw}*/`;
-  const sheetbaseCommand = parseComments.parse(comment)[0];
-  console.log(sheetbaseCommand);
+  const sheetbaseCommand = parseComments(comment)[0];
   // Only print valid commands.
-  if (sheetbaseCommand && sheetbaseCommand.description && sheetbaseCommand.value) {
+  if (sheetbaseCommand && sheetbaseCommand.description && sheetbaseCommand.name) {
     readme.push('');
-    readme.push(`### ${ucfirst(sheetbaseCommand.value)}`);
+    readme.push(`### ${ucfirst(sheetbaseCommand.name)}`);
     readme.push('');
     readme.push(sheetbaseCommand.description);
     // Parameters (@param)
-    if (sheetbaseCommand.tags && sheetbaseCommand.tags.length) {
+    if (sheetbaseCommand.params && sheetbaseCommand.params.length) {
       readme.push('');
       readme.push('#### Options\n');
-      sheetbaseCommand.tags.map(param => {
+      sheetbaseCommand.params.map(param => {
         const isOptional = param.type.indexOf('?') !== -1;
         // readme.push(JSON.stringify(param));
         const paramName = param.parent || param.description.split(' ')[0];
         if (isOptional) {
           readme.push([
-            // `\`sheetbase-app-scripts ${sheetbaseCommand.value}`,
+            // `\`sheetbase-app-scripts ${sheetbaseCommand.name}`,
             `- \`${paramName}\`:`,
             param.description,
           ].join(' '));
         } else {
           // Required parameters descriptions aren't parsed by parse-comments. Parse them manually.
           readme.push([
-            // `\`sheetbase-app-scripts ${sheetbaseCommand.value}`,
+            // `\`sheetbase-app-scripts ${sheetbaseCommand.name}`,
             `- \`${paramName}\`:`,
             param.description,
           ].join(' '));
@@ -82,4 +80,4 @@ for (const command of comments) {
 }
 // console.log(readme.join('\n'));
 fsExtra.outputFileSync('./docs/usage.md', readme.join('\n'));
-console.log('\nWrite usage.md');
+console.log('\nWrite ... ./docs/usage.md');

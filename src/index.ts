@@ -9,7 +9,6 @@ import * as program from 'commander';
 
 import { buildCommand } from './commands/build';
 import { readmeCommand } from './commands/readme';
-import { deployCommand } from './commands/deploy';
 import { docsCommand } from './commands/docs';
 
 /**
@@ -19,19 +18,6 @@ program
   .version(require('../package.json').version, '-v, --version')
   .usage('sheetbase-app-scripts [options] [command]')
   .description('Scripts for developing Sheetbase backend modules and apps.');
-
-/**
- * Deploy code to GAS using @google/clasp.
- * Must have @google/clasp installed and logged in.
- * @name deploy
- * @param {string?} [dir] GAS code folder.
- * @param {string?} [--version] Also saving a new version.
- */
-program
-  .command('deploy [dir]')
-  .option('--version [description]', 'Also saving a new version.')
-  .description('Deploy code to GAS using @google/clasp.')
-  .action(async (dir, options) => await deployCommand(dir, options));
 
 /**
  * Build module or app for GAS deployment.

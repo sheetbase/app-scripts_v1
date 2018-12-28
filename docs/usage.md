@@ -1,15 +1,5 @@
 ## Usage
 
-### Deploy
-
-Deploy code to GAS using @google/clasp.
-Must have @google/clasp installed and logged in.
-
-#### Options
-
-- `dir`: GAS code folder.
-- `--version`: Also saving a new version.
-
 ### Build
 
 Build module or app for GAS deployment.
