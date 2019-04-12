@@ -58,7 +58,7 @@ export async function buildCommand(options: Options) {
 
         // bundle
         if (options.bundle) {
-            const rollup = options.rollup || '-c --silent';
+            const rollup = options.rollup || '-c';
             execSync('rollup ' + rollup, { cwd: ROOT, stdio: 'ignore' });
         }
 
