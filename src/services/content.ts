@@ -90,8 +90,8 @@ export async function getRollupConfig(path = '.'): Promise<RollupConfig> {
     const bundle = await rollup({
         input: resolve(path, 'rollup.config.js'),
     });
-    const { code } = await bundle.generate({ format: 'cjs' });
-    return requireFromString(code);
+    const { output } = await bundle.generate({ format: 'cjs' });
+    return requireFromString(output[0].code);
 }
 
 export async function getRollupOutputs(path = '.'): Promise<{

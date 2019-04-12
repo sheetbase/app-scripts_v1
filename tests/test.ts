@@ -29,9 +29,6 @@ describe('Test --help for each command', () => {
     it('should build --help', () => {
       expectResult(['build', '--help'], 'Build module or app for GAS deployment.');
     });
-    it('should deploy --help', () => {
-      expectResult(['deploy', '--help'], 'Deploy code to GAS using @google/clasp.');
-    });
     it('should readme --help', () => {
       expectResult(['readme', '--help'], 'Generate README.md.');
     });
