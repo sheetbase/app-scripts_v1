@@ -15,11 +15,11 @@ interface Options {
     module?: boolean;
     min?: boolean;
     vendor?: string;
-    transpile?: boolean;
+    noTranspile?: boolean;
     tsc?: string;
-    bundle?: boolean;
+    noBundle?: boolean;
     rollup?: string;
-    minify?: boolean;
+    noMinify?: boolean;
     uglifyjs?: string;
     copy?: string;
     rename?: string;
@@ -45,25 +45,25 @@ export async function buildCommand(options: Options) {
         );
 
         // cleanup
-        if (options.transpile || options.bundle) {
+        if (!options.noTranspile || !options.noBundle) {
             await remove(DIST);
         }
         await remove(DEPLOY);
 
         // transpile
-        if (options.transpile) {
+        if (!options.noTranspile) {
             const tsc = options.tsc || '-p tsconfig.json';
             execSync('tsc ' + tsc, { cwd: ROOT, stdio: 'ignore' });
         }
 
         // bundle
-        if (options.bundle) {
+        if (!options.noBundle) {
             const rollup = options.rollup || '-c';
             execSync('rollup ' + rollup, { cwd: ROOT, stdio: 'ignore' });
         }
 
         // minify
-        if (options.minify) {
+        if (!options.noMinify) {
             // tslint:disable-next-line:max-line-length
             const uglifyjs = options.uglifyjs || `${umdFile} --compress --mangle --comments --source-map -o ${umdFile.replace('.js', '.min.js')}`;
             execSync('uglifyjs ' + uglifyjs, { cwd: ROOT, stdio: 'ignore' });

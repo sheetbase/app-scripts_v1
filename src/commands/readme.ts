@@ -14,7 +14,7 @@ import {
 import { logError, logSucceed } from '../services/message';
 
 interface Options {
-    docs?: string;
+    noDocs?: string;
 }
 
 export async function readmeCommand(options: Options) {
@@ -70,7 +70,7 @@ ${oauthScopes ? '## Scopes' + EOL + '\`' + oauthScopes.join('\`' + EOL.repeat(2)
 
 ## Usage
 
-${!options.docs ? `- Homepage: ${homepage}` : `
+${options.noDocs ? `- Homepage: ${homepage}` : `
 - Docs homepage: ${docsUrl}
 
 - API reference: ${docsUrl}/api
