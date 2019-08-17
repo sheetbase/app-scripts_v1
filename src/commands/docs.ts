@@ -6,7 +6,7 @@ import { buildDocsMd } from '../services/content';
 import { logError, logSucceed } from '../services/message';
 
 interface Options {
-    noApi?: boolean;
+    notApi?: boolean;
     typedoc?: string;
 }
 
@@ -19,7 +19,7 @@ export async function docsCommand(options: Options) {
         await outputFile(resolve(DOCS, 'index.md'), content);
 
         // api reference
-        if (!options.noApi) {
+        if (!options.notApi) {
             const typedoc = options.typedoc ||
             (
                 'src --out \"docs/api\" ' +

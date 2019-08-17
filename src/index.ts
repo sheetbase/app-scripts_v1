@@ -24,12 +24,12 @@ program
  * @name build
  * @param {boolean?} [--module] Build a module.
  * @param {boolean?} [--min] Use the minified version for deployment.
- * @param {string?} [--vendor] List of files to put into @vendor.js.
- * @param {boolean?} [--no-transpile] Do not run tsc.
+ * @param {string?} [--vendor] List of files to put into @vendor.js, comma-seperated.
+ * @param {boolean?} [--not-transpile] Do not run tsc.
  * @param {string?} [--tsc] Custom tsc params.
- * @param {boolean?} [--no-bundle] Do not run rollup.
+ * @param {boolean?} [--not-bundle] Do not run rollup.
  * @param {string?} [--rollup] Custom rollup params.
- * @param {boolean?} [--no-minify] Do not run uglifyjs.
+ * @param {boolean?} [--not-minify] Do not run uglifyjs.
  * @param {string?} [--uglifyjs] Custom uglifyjs params.
  * @param {string?} [--copy] Resources to be copied, comma-seperated.
  * @param {string?} [--rename] Rename bundled deployment file.
@@ -39,11 +39,11 @@ program
   .option('--module', 'Build a module.')
   .option('--min', 'Use the minified version for deployment.')
   .option('--vendor [value]', 'List of files for @vendor.js, comma-seperated.')
-  .option('--no-transpile', 'Do not run tsc.')
+  .option('--not-transpile', 'Do not run tsc.')
   .option('--tsc [params]', 'Custom tsc params.')
-  .option('--no-bundle', 'Do not run rollup.')
+  .option('--not-bundle', 'Do not run rollup.')
   .option('--rollup [params]', 'Custom rollup params.')
-  .option('--no-minify', 'Do not run uglifyjs.')
+  .option('--not-minify', 'Do not run uglifyjs.')
   .option('--uglifyjs [params]', 'Custom uglifyjs params.')
   .option('--copy [value]', 'Resources to be copied, comma-seperated.')
   .option('--rename [value]', 'Rename bundled deployment file.')
@@ -53,23 +53,23 @@ program
 /**
  * Generate README.md.
  * @name readme
- * @param {boolean?} [--no-docs] No docs link.
+ * @param {boolean?} [--not-docs] No docs link.
  */
 program
   .command('readme')
-  .option('--no-docs', 'No docs link.')
+  .option('--not-docs', 'No docs link.')
   .description('Generate README.md.')
   .action(async (options) => await readmeCommand(options));
 
 /**
  * Generate the documentation.
  * @name docs
- * @param {boolean?} [--no-api] Do not run typedoc.
+ * @param {boolean?} [--not-api] Do not run typedoc.
  * @param {string?} [--typedoc] Custom typedoc params.
  */
 program
   .command('docs')
-  .option('--no-api', 'Do not run typedoc.')
+  .option('--not-api', 'Do not run typedoc.')
   .option('--typedoc [params]', 'Custom typedoc params.')
   .description('Generate the documentation.')
   .action(async (options) => await docsCommand(options));

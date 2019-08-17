@@ -1,3 +1,3 @@
 # @sheetbase/app-scripts
 
-- [Usage](usage.md)
+- [Reference](usage.md)

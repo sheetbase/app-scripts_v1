@@ -12,7 +12,7 @@ const ucfirst = require('ucfirst');
 
 // The README will be a concatenation of lines in this variable.
 let readme = [
-  '## Usage',
+  '## Reference',
 ];
 
 // Remove first line (#!/usr/bin/env node)
@@ -29,7 +29,7 @@ for (const command of comments) {
   // Only print valid commands.
   if (sheetbaseCommand && sheetbaseCommand.description && sheetbaseCommand.name) {
     readme.push('');
-    readme.push(`### ${ucfirst(sheetbaseCommand.name)}`);
+    readme.push(`### \`${ucfirst(sheetbaseCommand.name)}\``);
     readme.push('');
     readme.push(sheetbaseCommand.description);
     // Parameters (@param)
