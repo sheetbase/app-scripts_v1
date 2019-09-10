@@ -1,6 +1,6 @@
 {
   "name": "@sheetbase/app-scripts",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Scripts for Sheetbase modules and apps.",
   "main": "./src/index.js",
   "bin": {
@@ -32,13 +32,6 @@
     "build-tools",
     "google-apps-script"
   ],
-  "importSort": {
-    ".ts": {
-      "parser": "typescript",
-      "style": "module-compact"
-    },
-    "on-save": false
-  },
   "author": "Sheetbase",
   "homepage": "https://sheetbase.dev",
   "license": "MIT",

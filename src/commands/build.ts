@@ -124,7 +124,7 @@ export async function buildCommand(options: Options) {
             const moduleTypingsFile = 'dist/esm3/' + moduleFileName + '.js';
 
             // save proxy files
-            const typingsProxyContent =  `export * from './public_api';`;
+            const typingsProxyContent =  `export * from './public-api';`;
             await outputFile(resolve(ROOT, moduleTypingsFile), typingsProxyContent);
             await outputFile(resolve(ROOT, typingsFile), typingsProxyContent);
 
