@@ -14,10 +14,11 @@
     "!**/*.ts"
   ],
   "scripts": {
+    "compile": "tsc -p .",
     "lint": "gts check",
     "fix": "gts fix",
-    "build": "tsc -p . && npm i -g",
-    "test": "nyc --cache false mocha test/**/*.js",
+    "build": "npm run compile && npm i -g",
+    "test": "npm run compile && nyc --cache false mocha test/**/*.js",
     "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"
   },
   "keywords": [
@@ -52,11 +53,14 @@
     "@types/node": "^12.7.5",
     "@types/prettier": "^1.18.2",
     "@types/require-from-string": "^1.2.0",
+    "@types/sinon": "^7.0.13",
     "chai": "^4.2.0",
     "coveralls": "^3.0.6",
     "gts": "^1.1.0",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
+    "rewiremock": "^3.13.7",
+    "sinon": "^7.4.2",
     "tslint": "^5.20.0",
     "typescript": "^3.6.3"
   }
