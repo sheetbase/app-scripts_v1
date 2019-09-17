@@ -1,19 +1,12 @@
 {
+  "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    "target": "es5",
-	  "moduleResolution": "node",
-    "lib": [
-      "es2015",
-      "es5",
-      "es6",
-      "es2017"
-    ],
-    "strict": true,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
+    "rootDir": ".",
+    "declaration": false,
+    "sourceMap": false
   },
-  "files": [
-    "src/index.ts",
-    "tests/test.ts"
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts"
   ]
 }

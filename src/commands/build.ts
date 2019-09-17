@@ -1,164 +1,87 @@
 import { EOL } from 'os';
 import { execSync } from 'child_process';
 import { resolve } from 'path';
-import { copy, pathExists, remove, readFile, outputFile, writeJson, renameSync } from 'fs-extra';
 
 import {
-    getPackageJson,
-    getRollupOutputs,
-    buildDescription,
-    buildCodeExamples,
-} from '../services/content';
-import { logError, logSucceed } from '../services/message';
+  getPackageJson,
+  setPackageJson,
+  getFile,
+  saveFile,
+  copy,
+  remove,
+  getRollupOutputData,
+} from '../services/project';
+import { logOk } from '../services/message';
 
 interface Options {
-    module?: boolean;
-    min?: boolean;
-    vendor?: string;
-    notTranspile?: boolean;
-    tsc?: string;
-    notBundle?: boolean;
-    rollup?: string;
-    notMinify?: boolean;
-    uglifyjs?: string;
-    copy?: string;
-    rename?: string;
+  module?: boolean;
+  tsc?: string;
+  rollup?: string;
+  copy?: string;
+  vendor?: string;
 }
 
 export async function buildCommand(options: Options) {
-    const ROOT = resolve('.');
-    const SRC = resolve(ROOT, 'src');
-    const DIST = resolve(ROOT, 'dist');
-    const DEPLOY = resolve(ROOT, 'deploy');
+  const DIST_DIR = resolve('dist');
+  const DEPLOY_DIR = resolve('deploy');
 
-    try {
-        const { esm = {}, umd = {} } = await getRollupOutputs(ROOT);
-        const esmFile = esm.file || '';
-        const umdFile = umd.file || '';
-        const umdFileSplit = umdFile.split('/').filter(
-            item => (!!item && item !== '.' && item !== '..'),
-        );
-        const umdFileName = umdFileSplit.pop();
-        const moduleFileName = umdFileName.replace('.umd.js', '');
-        const deploymentFile = resolve(DEPLOY,
-            !options.min ? umdFileName : umdFileName.replace('.js', '.min.js'),
-        );
+  // prepare
+  const { esmPath, umdPath, moduleFileName } = await getRollupOutputData();
 
-        // cleanup
-        if (!options.notTranspile || !options.notBundle) {
-            await remove(DIST);
-        }
-        await remove(DEPLOY);
+  // cleanup
+  if (!!options.module) {
+    await remove(DIST_DIR);
+  } else {
+    await remove(DEPLOY_DIR);
+  }
 
-        // transpile
-        if (!options.notTranspile) {
-            const tsc = options.tsc || '-p tsconfig.json';
-            execSync('tsc ' + tsc, { cwd: ROOT, stdio: 'ignore' });
-        }
+  // transpile
+  const tscArgs = options.tsc || '-p tsconfig.json';
+  execSync(`tsc ${tscArgs}`, { stdio: 'ignore' });
 
-        // bundle
-        if (!options.notBundle) {
-            const rollup = options.rollup || '-c';
-            execSync('rollup ' + rollup, { cwd: ROOT, stdio: 'ignore' });
-        }
+  // bundle
+  const rollupArgs = options.rollup || '-c';
+  execSync(`rollup ${rollupArgs}`, { stdio: 'ignore' });
 
-        // minify
-        if (!options.notMinify) {
-            // tslint:disable-next-line:max-line-length
-            const uglifyjs = options.uglifyjs || `${umdFile} --compress --mangle --comments --source-map -o ${umdFile.replace('.js', '.min.js')}`;
-            execSync('uglifyjs ' + uglifyjs, { cwd: ROOT, stdio: 'ignore' });
-        }
+  // specific build
+  if (!!options.module) {
+    const typingsPath = `dist/${moduleFileName}.d.ts`;
+    // save typing proxy file
+    await saveFile(resolve(typingsPath), `export * from './public-api';`);
+    // add 'main', 'module' and 'typings' to package.json
+    const packageJson = await getPackageJson();
+    packageJson.main = umdPath.replace('./', '');
+    packageJson.module = esmPath.replace('./', '');
+    packageJson.typings = typingsPath;
+    await setPackageJson(packageJson);
+  } else {
+    // @index.js
+    await saveFile(resolve(DEPLOY_DIR, '@index.js'), '// A Sheetbase Application');
+    // @app.js
+    const content = await getFile(umdPath);
+    const www = '' + EOL +
+      'function doGet(e) { return App.Sheetbase.HTTP.get(e); }' + EOL +
+      'function doPost(e) { return App.Sheetbase.HTTP.post(e); }' + EOL;
+    await saveFile(resolve(DEPLOY_DIR, '@app.js'), content + www);
+    // copy files & folders
+    const copies = ['.clasp.json', 'appsscript.json', 'src/views'];
+    (options.copy || '').split(',').map(item => !!item && copies.push(item.trim()));
+    await copy(copies, DEPLOY_DIR);    
+    // remove the dist folder
+    await remove(DIST_DIR);
+  }
 
-        /**
-         * gas distribution
-         */
-        const copies = {
-            '.clasp.json': ROOT,
-            'appsscript.json': ROOT,
-        };
-        // main, rollup output
-        if (options.min) {
-            copies[umdFileName.replace('.js', '.min.js')] = resolve(ROOT, ... umdFileSplit);
-        } else {
-            copies[umdFileName] = resolve(ROOT, ... umdFileSplit);
-        }
-        // --copy
-        let copyItems = (options.copy || '').split(',').map(item => item.trim());
-        copyItems = [... copyItems, 'views'].filter(x => !!x);
-        for (let i = 0; i < copyItems.length; i++) {
-            copies[copyItems[i]] = SRC;
-        }
-        // run copy
-        for (const item of Object.keys(copies)) {
-            const src = resolve(copies[item], item);
-            const dest = resolve(DEPLOY, item);
-            if (!! await pathExists(src)) {
-                await copy(src, dest);
-            }
-        }
-        // @index.js
-        let indexContent = '';
-        if (!options.module) {
-            indexContent = '// A Sheetbase Application';
-        } else {
-            const description = await buildDescription();
-            const examples = await buildCodeExamples();
-            indexContent = description + EOL + examples;
-        }
-        await outputFile(resolve(DEPLOY, '@index.js'), indexContent);
-
-        /**
-         * finalize
-         */
-        if (!options.module) {
-            await remove(DIST);
-
-            // add www snipet
-            const www = '' +
-                'function doGet(e) { return App.Sheetbase.HTTP.get(e); }' + EOL +
-                'function doPost(e) { return App.Sheetbase.HTTP.post(e); }';
-            const content = (await readFile(deploymentFile, 'utf-8')) + EOL + www;
-            await outputFile(deploymentFile, content);
-        } else {
-            const typingsFile = 'dist/' + moduleFileName + '.d.ts';
-            const moduleTypingsFile = 'dist/esm3/' + moduleFileName + '.js';
-
-            // save proxy files
-            const typingsProxyContent =  `export * from './public-api';`;
-            await outputFile(resolve(ROOT, moduleTypingsFile), typingsProxyContent);
-            await outputFile(resolve(ROOT, typingsFile), typingsProxyContent);
-
-            // add 'main', 'module' and 'typings' to package.json
-            const packageJson = await getPackageJson();
-            packageJson.main = umdFile.replace('./', '');
-            packageJson.module = esmFile.replace('./', '');
-            packageJson.typings = typingsFile;
-            delete packageJson.gitUrl;
-            delete packageJson.pageUrl;
-            await writeJson(resolve(ROOT, 'package.json'), packageJson, { spaces: 3 });
-        }
-
-        // rename
-        if (!!options.rename) {
-            let newName = (typeof options.rename === 'string') ? options.rename :
-                (!options.module ? 'app' : 'module');
-            newName = newName.replace('.js', '') + '.js';
-            renameSync(deploymentFile, resolve(DEPLOY, newName));
-        }
-
-        // vendor
-        if (options.vendor && typeof options.vendor === 'string') {
-            const vendorItems = options.vendor.split(',').map(item => item.trim());
-            let vendorContent = '';
-            for (let i = 0; i < vendorItems.length; i++) {
-                const file = vendorItems[i].replace('~', 'node_modules').replace('!', 'src');
-                const content = await readFile(file, 'utf-8');
-                vendorContent += (`// ${file}` + EOL + content + EOL.repeat(2));
-            }
-            await outputFile(resolve(DEPLOY, '@vendor.js'), vendorContent);
-        }
-    } catch (error) {
-        return logError(error);
+  // vendor
+  if (options.vendor && typeof options.vendor === 'string') {
+    const vendors = options.vendor.split(',').map(item => item.trim());
+    let content = '';
+    for (let i = 0; i < vendors.length; i++) {
+      const path = vendors[i].replace('~', 'node_modules').replace('!', 'src');
+      const vendorContent = await getFile(resolve(path));
+      content += (`// ${path}` + EOL + vendorContent + EOL.repeat(2));
     }
-    return logSucceed('Build completed.');
+    await saveFile(resolve(DEPLOY_DIR, '@vendor.js'), content);
+  }
+
+  return logOk('Build completed.');
 }

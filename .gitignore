@@ -2,8 +2,7 @@ node_modules/
 
 # compiled js
 src/**/*.js
-tests/**/*.js
+test/**/*.js
 
 # test
 .nyc_output/
-coverage/

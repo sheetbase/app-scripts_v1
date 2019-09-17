@@ -26,9 +26,7 @@ Add these lines to the project *package.json*.
 {
    "scripts": {
       "build": "sheetbase-app-scripts build",
-      "readme": "sheetbase-app-scripts readme",
       "docs": "sheetbase-app-scripts docs",
-      "deploy": "sheetbase-app-scripts deploy"
    }
 }
 ```
@@ -36,7 +34,6 @@ Add these lines to the project *package.json*.
 ## Commands
 
 - [`sheetbase-app-scripts build [--module] [--min] [--vendor <input>] [--not-transpile] [--tsc <input>] [--not-bundle] [--rollup <input>] [--not-minify] [--uglifyjs <input>] [--copy <input>] [--rename <input>]`](#build)
-- [`sheetbase-app-scripts readme [--not-docs]`](#readme)
 - [`sheetbase-app-scripts docs [--not-api] [--typedoc <params>]`](#docs)
 - [`sheetbase-app-scripts help`](#help)
 - [`sheetbase-app-scripts *`](#*)
@@ -59,17 +56,10 @@ Build module or app for GAS deployment.
 - `--copy`: Resources to be copied, comma-seperated.
 - `--rename`: Rename bundled deployment file.
 
-### `Readme`
-
-Generate README.md.
-
-- `--not-docs`: No docs link.
-
 ### `Docs`
 
 Generate the documentation.
 
-- `--not-api`: Do not run typedoc.
 - `--typedoc`: Custom typedoc params.
 
 ### `Help`
@@ -88,13 +78,10 @@ Any other command is not supported.
 
 [license_badge]: https://img.shields.io/github/license/mashape/apistatus.svg
 [license_url]: https://github.com/sheetbase/app-scripts/blob/master/LICENSE
-
 [patreon_badge]: https://lamnhan.github.io/assets/images/badges/patreon.svg
 [patreon_url]: https://www.patreon.com/lamnhan
-
 [paypal_donate_badge]: https://lamnhan.github.io/assets/images/badges/paypal_donate.svg
 [paypal_donate_url]: https://www.paypal.me/lamnhan
-
 [ask_me_badge]: https://img.shields.io/badge/ask/me-anything-1abc9c.svg
 [ask_me_url]: https://m.me/sheetbase
 
