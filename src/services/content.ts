@@ -19,12 +19,12 @@ import {
 const EOL2X = EOL.repeat(2);
 
 export interface RoutingMethodData extends SignatureData {
-  routeName: string,
-  routeMethod: string,
-  routeEndpoint: string,
-  query?: DeclarationData[],
-  body?: DeclarationData[],
-  data?: DeclarationData[],
+  routeName: string;
+  routeMethod: string;
+  routeEndpoint: string;
+  query?: DeclarationData[];
+  body?: DeclarationData[];
+  data?: DeclarationData[];
 }
 
 export function stringBetween(
@@ -32,7 +32,7 @@ export function stringBetween(
   prefix: string,
   suffix: string,
   includePrefix = true,
-  includeSuffix = true,
+  includeSuffix = true
 ) {
   let prefixIndex = input.indexOf(prefix);
   let suffixIndex = input.indexOf(suffix);
@@ -57,13 +57,18 @@ export function formatMDContent(content: string) {
   return format(content, { parser: 'markdown' });
 }
 
-export async function getReadmeSections(): Promise<{ [name: string]: string; }> {
+export async function getReadmeSections(): Promise<{ [name: string]: string }> {
   const sections: { [name: string]: string } = {};
   const content = await getFile('README.md');
-  const sectionNames = matchAll(content, /\<section\:([a-zA-Z0-9]+)\>/gi).toArray();
+  const sectionNames = matchAll(
+    content,
+    /\<section\:([a-zA-Z0-9]+)\>/gi
+  ).toArray();
   for (const name of sectionNames) {
-    sections[name] = stringBetween(content,
-      `<!-- <section:${name}> -->`, `<!-- </section:${name}> -->`,
+    sections[name] = stringBetween(
+      content,
+      `<!-- <section:${name}> -->`,
+      `<!-- </section:${name}> -->`
     );
   }
   return sections;
@@ -79,7 +84,7 @@ export function buildMDSummary(items: DeclarationData[]) {
       name,
       description: rawDesc = '',
       type: rawType = '',
-      isOptional
+      isOptional,
     } = itemData;
     const description = escapeMDTableContent(rawDesc || '');
     const type = escapeMDTableContent(rawType || '');
@@ -99,13 +104,7 @@ export function getMainClassFullMD() {
   const data = getClassMethods(resolve('src', 'lib', `main.ts`), `MainService`);
   const summary = getMainClassSummaryMD(data);
   const detail = getMainClassDetailMD(data);
-  return formatMDContent(
-    [
-      summary,
-      '### Methods detail',
-      detail,
-    ].join(EOL2X),
-  );
+  return formatMDContent([summary, '### Methods detail', detail].join(EOL2X));
 }
 
 export function getMainClassSummaryMD(data: SignatureData[]) {
@@ -124,7 +123,9 @@ export function getMainClassSummaryMD(data: SignatureData[]) {
     const returnType = escapeMDTableContent(rawType || '');
     const paramArr = params.map(item => item.name);
     resultArr.push(
-      `| [${name}(${paramArr.join(', ')})](#${name}) | \`${returnType}\` | ${description} |`
+      `| [${name}(${paramArr.join(
+        ', '
+      )})](#${name}) | \`${returnType}\` | ${description} |`
     );
   }
   return formatMDContent(resultArr.join(EOL));
@@ -133,7 +134,14 @@ export function getMainClassSummaryMD(data: SignatureData[]) {
 export function getMainClassDetailMD(data: SignatureData[]) {
   const resultArr: string[] = [];
   for (const itemData of data) {
-    const { name, description, content, returnType, returnDesc, params = [] } = itemData;
+    const {
+      name,
+      description,
+      content,
+      returnType,
+      returnDesc,
+      params = [],
+    } = itemData;
     const subResultArr: string[] = [];
     // title
     const paramArr = params.map(item => item.name);
@@ -155,11 +163,11 @@ export function getMainClassDetailMD(data: SignatureData[]) {
     if (!!returnType) {
       subResultArr.push(`**Return**`);
       subResultArr.push(
-        `\`${returnType}\`${!returnDesc ? '' : (' - ' + returnDesc)}`
+        `\`${returnType}\`${!returnDesc ? '' : ' - ' + returnDesc}`
       );
     }
     // hr
-    subResultArr.push('---')
+    subResultArr.push('---');
     // save sub-item
     resultArr.push(subResultArr.join(EOL2X));
   }
@@ -167,7 +175,10 @@ export function getMainClassDetailMD(data: SignatureData[]) {
 }
 
 export function getRoutingInfoFullMD(moduleName: string) {
-  const routeClass = getDeclaration(resolve('src', 'lib', `route.ts`), `RouteService`);
+  const routeClass = getDeclaration(
+    resolve('src', 'lib', `route.ts`),
+    `RouteService`
+  );
   const declarations: DeclarationReflection[] = routeClass.children || [];
   // parse class
   let endpointDeclaration: DeclarationReflection | undefined;
@@ -183,7 +194,8 @@ export function getRoutingInfoFullMD(moduleName: string) {
     } else if (child.name === 'ERRORS') {
       errorsDeclaration = child;
     } else if (
-      child.kindString === 'Method' && !!child.signatures && // a method
+      child.kindString === 'Method' &&
+      !!child.signatures && // a method
       !!child.signatures[0].comment // implicit routing method
     ) {
       methodsDeclaration.push(child);
@@ -199,11 +211,14 @@ export function getRoutingInfoFullMD(moduleName: string) {
     throw new Error('Invalid routing service.');
   }
   // proccess data
-  const endpoint = (endpointDeclaration.defaultValue || '').replace(/(\")/g, '');
+  const endpoint = (endpointDeclaration.defaultValue || '').replace(
+    /(\")/g,
+    ''
+  );
   const disabled = (disabledDeclaration.children || []).map(item => ({
     endpoint: item.name,
     methods: JSON.parse(
-      (item.defaultValue || '').trim().replace(/(\')/g, '"'),
+      (item.defaultValue || '').trim().replace(/(\')/g, '"')
     ) as string[],
   }));
   const errors = (errorsDeclaration.children || []).map(item => ({
@@ -218,7 +233,9 @@ export function getRoutingInfoFullMD(moduleName: string) {
     const signatureData = parseSignature(signature);
     // route
     const routeInfo = signatureName
-      .replace('__', ' /').split(' ').map(x => x.replace(/\_/g, '/'));
+      .replace('__', ' /')
+      .split(' ')
+      .map(x => x.replace(/\_/g, '/'));
     const [routeMethod, routeEndpoint] = routeInfo;
     const routeName = routeMethod + ' ' + routeEndpoint;
     // query & body & data
@@ -254,9 +271,11 @@ export function getRoutingInfoFullMD(moduleName: string) {
     `**${moduleName}** module provides REST API endpoints allowing clients to access server resources. Theses enpoints are not public by default, to expose the endpoints:`
   );
   resultArr.push(
-    `\`\`\`ts` + EOL +
-    `${moduleName}.registerRoutes(/* options: AddonRoutesOptions */);` + EOL +
-    `\`\`\``
+    `\`\`\`ts` +
+      EOL +
+      `${moduleName}.registerRoutes(/* options: AddonRoutesOptions */);` +
+      EOL +
+      `\`\`\``
   );
   resultArr.push(
     `See detail addon routes options at [AddonRoutesOptions](https://sheetbase.github.io/server/interfaces/addonroutesoptions.html).`
@@ -269,11 +288,8 @@ export function getRoutingInfoFullMD(moduleName: string) {
   // disabled
   if (!!disabled.length) {
     const disabledArr: string[] = [];
-    disabled.forEach(
-      ({ endpoint, methods }) =>
-        disabledArr.push(
-          `- \`${methods.join('/').toUpperCase()}\` ${endpoint}`
-        )
+    disabled.forEach(({ endpoint, methods }) =>
+      disabledArr.push(`- \`${methods.join('/').toUpperCase()}\` ${endpoint}`)
     );
     resultArr.push('### Disabled');
     resultArr.push(
@@ -284,14 +300,13 @@ export function getRoutingInfoFullMD(moduleName: string) {
   // errors
   if (!!errors.length) {
     const errorsdArr: string[] = [];
-    errors.forEach((
-      { code, message }) =>
-      errorsdArr.push(
-        `- \`${code}\`: ${message}`
-      )
+    errors.forEach(({ code, message }) =>
+      errorsdArr.push(`- \`${code}\`: ${message}`)
     );
     resultArr.push('### Errors');
-    resultArr.push(`**${moduleName}** module returns these routing errors, you may use the error code to customize the message.`);
+    resultArr.push(
+      `**${moduleName}** module returns these routing errors, you may use the error code to customize the message.`
+    );
     resultArr.push(errorsdArr.join(EOL2X));
   }
   // summary
@@ -315,12 +330,7 @@ export function getRoutingInfoSummaryMD(data: RoutingMethodData[]) {
     `| --- | --- | --- |`,
   ];
   for (const itemData of data) {
-    const {
-      name,
-      routeEndpoint,
-      routeMethod,
-      description: rawDesc,
-    } = itemData;
+    const { name, routeEndpoint, routeMethod, description: rawDesc } = itemData;
     const description = escapeMDTableContent(rawDesc || '');
     resultArr.push(
       `| [${routeEndpoint}](#${name}) | \`${routeMethod}\` | ${description} |`
@@ -346,9 +356,7 @@ export function getRoutingInfoDetailMD(data: RoutingMethodData[]) {
     } = itemData;
     const subResultArr: string[] = [];
     // title
-    subResultArr.push(
-      `##### \`${routeMethod}\` [${routeEndpoint}](#${name})`
-    );
+    subResultArr.push(`##### \`${routeMethod}\` [${routeEndpoint}](#${name})`);
     // description
     if (!!description) {
       subResultArr.push(description);
@@ -376,11 +384,11 @@ export function getRoutingInfoDetailMD(data: RoutingMethodData[]) {
     if (!!returnType) {
       subResultArr.push(`**Response**`);
       subResultArr.push(
-        `\`${returnType}\`${!returnDesc ? '' : (' - ' + returnDesc)}`
+        `\`${returnType}\`${!returnDesc ? '' : ' - ' + returnDesc}`
       );
     }
     // hr
-    subResultArr.push('---')
+    subResultArr.push('---');
     // save sub-item
     resultArr.push(subResultArr.join(EOL2X));
   }

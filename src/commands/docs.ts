@@ -22,7 +22,6 @@ interface Options {
 const EOL2X = EOL.repeat(2);
 
 export async function docsCommand(options: Options) {
-
   /**
    * README.md
    */
@@ -41,7 +40,7 @@ export async function docsCommand(options: Options) {
     top: sectionTop = '',
     bottom: sectionBottom = '',
     footer: sectionFooter = '',
-  } = await getReadmeSections() as {
+  } = (await getReadmeSections()) as {
     header?: string;
     top?: string;
     bottom?: string;
@@ -59,23 +58,19 @@ export async function docsCommand(options: Options) {
       description,
       sectionHeader,
       `**Table of content**`,
-      (
-        [
-          `- [Install](#getting-started)`,
-          `- [Options](#options)`,
-          `- [Methods](#methods)`,
-          `- [Routing](#routing)`,
-        ]
-        .join(EOL)
-      ),
+      [
+        `- [Install](#getting-started)`,
+        `- [Options](#options)`,
+        `- [Methods](#methods)`,
+        `- [Routing](#routing)`,
+      ].join(EOL),
       // content top
       sectionTop,
       // docs
       `## Getting started`,
       `- Install: \`npm install --save ${packageName}\``,
       `- Usage:`,
-      (
-        [
+      [
         `\`\`\`ts`,
         `// 1. import constructor`,
         `import { ${packageEndpoint} } from '${packageName}';`,
@@ -85,10 +80,8 @@ export async function docsCommand(options: Options) {
         '',
         `// 3. start using`,
         `const getOptions = ${moduleName}.getOptions();`,
-        `\`\`\``
-        ]
-        .join(EOL)
-      ),
+        `\`\`\``,
+      ].join(EOL),
       `- Detail docs: <https://sheetbase.github.io/${packageEndpoint}>`,
       `## Options`,
       optionsInterfaceMD,
@@ -102,19 +95,18 @@ export async function docsCommand(options: Options) {
       `## License`,
       `**${packageName}** is released under the [${license}](${githubUrl}/blob/master/LICENSE) license.`,
       sectionFooter,
-    ]
-    .join(EOL2X)
+    ].join(EOL2X)
   );
   await saveFile('README.md', output);
 
   /**
    * API reference
    */
-  const args = options.typedoc || (
+  const args =
+    options.typedoc ||
     ' src --out docs --mode file --ignoreCompilerErrors' +
-    ' --excludeNotExported --excludePrivate --excludeProtected' +
-    ' --readme none'
-  );
+      ' --excludeNotExported --excludePrivate --excludeProtected' +
+      ' --readme none';
   execSync('typedoc' + args, { stdio: 'ignore' });
 
   // done

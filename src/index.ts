@@ -64,12 +64,10 @@ program
  * Any other command is not supported.
  * @name *
  */
-program
-  .command('*', 'Any other command is not supported.')
-  .action(cmd => {
-    console.error(chalk.red(`\nUnknown command '${cmd}'`));
-    return process.exit(1);
-  });
+program.command('*', 'Any other command is not supported.').action(cmd => {
+  console.error(chalk.red(`\nUnknown command '${cmd}'`));
+  return process.exit(1);
+});
 
 // show help
 if (!process.argv.slice(2).length) {

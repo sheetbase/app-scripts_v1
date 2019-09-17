@@ -56,17 +56,26 @@ export async function buildCommand(options: Options) {
     await setPackageJson(packageJson);
   } else {
     // @index.js
-    await saveFile(resolve(DEPLOY_DIR, '@index.js'), '// A Sheetbase Application');
+    await saveFile(
+      resolve(DEPLOY_DIR, '@index.js'),
+      '// A Sheetbase Application'
+    );
     // @app.js
     const content = await getFile(umdPath);
-    const www = '' + EOL +
-      'function doGet(e) { return App.Sheetbase.HTTP.get(e); }' + EOL +
-      'function doPost(e) { return App.Sheetbase.HTTP.post(e); }' + EOL;
+    const www =
+      '' +
+      EOL +
+      'function doGet(e) { return App.Sheetbase.HTTP.get(e); }' +
+      EOL +
+      'function doPost(e) { return App.Sheetbase.HTTP.post(e); }' +
+      EOL;
     await saveFile(resolve(DEPLOY_DIR, '@app.js'), content + www);
     // copy files & folders
     const copies = ['.clasp.json', 'appsscript.json', 'src/views'];
-    (options.copy || '').split(',').map(item => !!item && copies.push(item.trim()));
-    await copy(copies, DEPLOY_DIR);    
+    (options.copy || '')
+      .split(',')
+      .map(item => !!item && copies.push(item.trim()));
+    await copy(copies, DEPLOY_DIR);
     // remove the dist folder
     await remove(DIST_DIR);
   }
@@ -78,7 +87,7 @@ export async function buildCommand(options: Options) {
     for (let i = 0; i < vendors.length; i++) {
       const path = vendors[i].replace('~', 'node_modules').replace('!', 'src');
       const vendorContent = await getFile(resolve(path));
-      content += (`// ${path}` + EOL + vendorContent + EOL.repeat(2));
+      content += `// ${path}` + EOL + vendorContent + EOL.repeat(2);
     }
     await saveFile(resolve(DEPLOY_DIR, '@vendor.js'), content);
   }

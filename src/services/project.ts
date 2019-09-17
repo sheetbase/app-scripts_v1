@@ -63,12 +63,12 @@ export async function copy(sources: string[], destDir: string) {
     const srcParts = src.replace(/\\/g, '/').split('/');
     const from = resolve(src);
     // not found
-    if (!!srcParts.length || !await pathExists(from)) {
+    if (!!srcParts.length || !(await pathExists(from))) {
       continue;
     }
     // copy
     const isDir = !!statSync(from).isDirectory();
-    const to = resolve(destDir, isDir ? '' : srcParts.pop() as string);
+    const to = resolve(destDir, isDir ? '' : (srcParts.pop() as string));
     await fsCopy(from, to);
   }
 }
@@ -87,9 +87,9 @@ export async function getRollupConfig() {
 export async function getRollupOutputs() {
   // get output array
   let { output } = await getRollupConfig();
-  output = (output instanceof Array) ? output : [output];
+  output = output instanceof Array ? output : [output];
   // extract result
-  const result: {[format: string]: OutputOptions} = {};
+  const result: { [format: string]: OutputOptions } = {};
   for (let i = 0; i < output.length; i++) {
     const out = output[i];
     result[out.format || 'umd'] = out;

@@ -45,14 +45,14 @@ export interface ReflectionData {
   content?: string;
 }
 export interface DeclarationData extends ReflectionData {
-  type?: string,
+  type?: string;
   isOptional?: boolean;
 }
 export interface ParameterData extends DeclarationData {}
 export interface SignatureData extends ReflectionData {
-  returnType?: string,
+  returnType?: string;
   returnDesc?: string;
-  params?: ParameterData[],
+  params?: ParameterData[];
 }
 
 export function getApp() {
@@ -84,7 +84,8 @@ export function getDeclaration(filePath: string, declarationName: string) {
   let declaration;
   for (const child of project.children || []) {
     if (child.name === declarationName) {
-      declaration = child; break;
+      declaration = child;
+      break;
     }
   }
   // error
@@ -105,11 +106,8 @@ export function getClassMethods(filePath: string, className: string) {
   // parsing
   const methods: SignatureData[] = [];
   for (const method of classDeclaration.children || []) {
-    if (
-      method.kindString === 'Method' &&
-      method.flags.isExported
-    ) {
-      const [ signature ] = method.signatures || [];
+    if (method.kindString === 'Method' && method.flags.isExported) {
+      const [signature] = method.signatures || [];
       const item: SignatureData = parseSignature(signature);
       methods.push(item);
     }
@@ -119,7 +117,10 @@ export function getClassMethods(filePath: string, className: string) {
 
 export function parseReflection(reflection: Reflection) {
   const name = reflection.name;
-  const description = ((reflection.comment || {}).shortText || '').replace(/(?:\r\n|\r|\n)/g, ' ');
+  const description = ((reflection.comment || {}).shortText || '').replace(
+    /(?:\r\n|\r|\n)/g,
+    ' '
+  );
   const content = (reflection.comment || {}).text || '';
   return { name, description, content } as ReflectionData;
 }
@@ -154,5 +155,12 @@ export function parseSignature(signature: SignatureReflection) {
     const item = parseParameter(param);
     params.push(item);
   }
-  return { name, description, content, params, returnType, returnDesc } as SignatureData;
+  return {
+    name,
+    description,
+    content,
+    params,
+    returnType,
+    returnDesc,
+  } as SignatureData;
 }
