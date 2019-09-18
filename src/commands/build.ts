@@ -1,96 +1,135 @@
-import { EOL } from 'os';
-import { execSync } from 'child_process';
 import { resolve } from 'path';
+import { execSync } from 'child_process';
 
 import {
-  getPackageJson,
-  setPackageJson,
-  getFile,
-  saveFile,
+  OutputOptions,
+  bundleCode as rollupBundleCode,
+} from '../services/rollup';
+import {
+  ProjectConfigs,
+  getConfigs,
   copy,
   remove,
-  getRollupOutputData,
+  readFile,
+  outputFile,
 } from '../services/project';
+import { EOL, EOL2X } from '../services/content';
 import { logOk } from '../services/message';
 
 interface Options {
-  module?: boolean;
-  tsc?: string;
-  rollup?: string;
   copy?: string;
   vendor?: string;
 }
 
+const DIST_DIR = resolve('dist');
+const DEPLOY_DIR = resolve('deploy');
+
 export async function buildCommand(options: Options) {
-  const DIST_DIR = resolve('dist');
-  const DEPLOY_DIR = resolve('deploy');
-
-  // prepare
-  const { esmPath, umdPath, moduleFileName } = await getRollupOutputData();
-
-  // cleanup
-  if (!!options.module) {
-    await remove(DIST_DIR);
-  } else {
-    await remove(DEPLOY_DIR);
+  const projectConfigs = await getConfigs();
+  const { type, umdPath, typingsPath } = projectConfigs;
+  // validation
+  if (!umdPath || !typingsPath) {
+    throw new Error('Invalid project.');
   }
-
-  // transpile
-  const tscArgs = options.tsc || '-p tsconfig.json';
-  execSync(`tsc ${tscArgs}`, { stdio: 'ignore' });
-
-  // bundle
-  const rollupArgs = options.rollup || '-c';
-  execSync(`rollup ${rollupArgs}`, { stdio: 'ignore' });
-
+  // compile & bundle
+  await compileCode();
+  await bundleCode(projectConfigs);
   // specific build
-  if (!!options.module) {
-    const typingsPath = `dist/${moduleFileName}.d.ts`;
-    // save typing proxy file
-    await saveFile(resolve(typingsPath), `export * from './public-api';`);
-    // add 'main', 'module' and 'typings' to package.json
-    const packageJson = await getPackageJson();
-    packageJson.main = umdPath.replace('./', '');
-    packageJson.module = esmPath.replace('./', '');
-    packageJson.typings = typingsPath;
-    await setPackageJson(packageJson);
+  if (type === 'module') {
+    await buildModule(typingsPath);
   } else {
-    // @index.js
-    await saveFile(
-      resolve(DEPLOY_DIR, '@index.js'),
-      '// A Sheetbase Application'
-    );
-    // @app.js
-    const content = await getFile(umdPath);
-    const www =
-      '' +
-      EOL +
-      'function doGet(e) { return App.Sheetbase.HTTP.get(e); }' +
-      EOL +
-      'function doPost(e) { return App.Sheetbase.HTTP.post(e); }' +
-      EOL;
-    await saveFile(resolve(DEPLOY_DIR, '@app.js'), content + www);
-    // copy files & folders
-    const copies = ['.clasp.json', 'appsscript.json', 'src/views'];
-    (options.copy || '')
-      .split(',')
-      .map(item => !!item && copies.push(item.trim()));
-    await copy(copies, DEPLOY_DIR);
-    // remove the dist folder
-    await remove(DIST_DIR);
+    const { copy = '', vendor = '' } = options;
+    await buildApp(umdPath, copy, vendor);
   }
+  // done
+  return logOk(`Build ${type} completed.`);
+}
 
+async function compileCode() {
+  return execSync(`tsc -p tsconfig.json`, { stdio: 'ignore' });
+}
+
+async function bundleCode(configs: ProjectConfigs) {
+  const { type, inputPath, umdPath, umdName, esmPath } = configs;
+  // build output
+  const output: OutputOptions[] = [
+    // umd for both app & module
+    {
+      format: 'umd',
+      file: umdPath,
+      name: umdName,
+      sourcemap: type === 'module',
+    },
+  ];
+  // esm for module only
+  if (type === 'module') {
+    output.push({
+      format: 'esm',
+      sourcemap: true,
+      file: esmPath,
+    });
+  }
+  // bundle
+  return rollupBundleCode(inputPath, output);
+}
+
+async function buildModule(typingsPath: string) {
+  moduleSaveTypings(typingsPath);
+}
+
+async function moduleSaveTypings(typingsPath: string) {
+  return outputFile(typingsPath, `export * from './public-api';`);
+}
+
+async function buildApp(umdPath: string, copy: string, vendor: string) {
+  // cleanup
+  await remove(DEPLOY_DIR);
+  // @index.js
+  await appSaveIndex();
+  // @app.js
+  await appSaveMain(umdPath);
+  // copy
+  await appCopyResources(copy);
   // vendor
-  if (options.vendor && typeof options.vendor === 'string') {
-    const vendors = options.vendor.split(',').map(item => item.trim());
-    let content = '';
-    for (let i = 0; i < vendors.length; i++) {
-      const path = vendors[i].replace('~', 'node_modules').replace('!', 'src');
-      const vendorContent = await getFile(resolve(path));
-      content += `// ${path}` + EOL + vendorContent + EOL.repeat(2);
-    }
-    await saveFile(resolve(DEPLOY_DIR, '@vendor.js'), content);
-  }
+  await appSaveVendor(vendor);
+  // remove the dist folder
+  await remove(DIST_DIR);
+}
 
-  return logOk('Build completed.');
+async function appSaveIndex() {
+  return outputFile(
+    resolve(DEPLOY_DIR, '@index.js'),
+    '// A Sheetbase Application'
+  );
+}
+
+async function appSaveMain(mainPath: string) {
+  const mainContent = await readFile(mainPath);
+  const wwwSnippet = [
+    'function doGet(e) { return App.Sheetbase.HTTP.get(e); }',
+    'function doPost(e) { return App.Sheetbase.HTTP.post(e); }',
+  ].join(EOL);
+  const content = mainContent + EOL2X + wwwSnippet;
+  return outputFile(resolve(DEPLOY_DIR, '@app.js'), content);
+}
+
+async function appCopyResources(input: string) {
+  const copies = ['.clasp.json', 'appsscript.json', 'src/views'];
+  (input || '').split(',').forEach(item => !!item && copies.push(item.trim()));
+  return copy(copies, DEPLOY_DIR);
+}
+
+async function appSaveVendor(input: string) {
+  const vendors = (input || '').split(',').map(item => item.trim());
+  // merge vendor code
+  const contentArr = [];
+  for (const vendor of vendors) {
+    const path = vendor.replace('~', 'node_modules').replace('!', 'src');
+    const content = await readFile(path);
+    contentArr.push([`// ${path}`, content].join(EOL));
+  }
+  // save file
+  return !input
+    ? null
+    : outputFile(resolve(DEPLOY_DIR, '@vendor.js'), contentArr.join(EOL2X));
 }

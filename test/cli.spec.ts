@@ -96,8 +96,8 @@ describe('CLI app', () => {
     expect(result.versionArgs).eql(['2.0.0-beta', '-v, --version']);
     expect(result.usageText).equal('sheetbase-app-scripts [options] [command]');
     expect(result.descriptionList).eql([
-      'Scripts for developing Sheetbase backend modules and apps.',
-      'Build module or app for GAS deployment.',
+      'Scripts for Sheetbase backend modules and apps.',
+      'Build distribution package.',
       'Generate the documentation.',
       'Display help.',
       'Any other command is not supported.',
@@ -105,13 +105,8 @@ describe('CLI app', () => {
     expect(result.commandList).eql(['build', 'docs', 'help', '*']);
     expect(result.optionArgsList).eql([
       // build
-      ['--module', 'Build a module.'],
-      ['--tsc [params]', 'Custom tsc params.'],
-      ['--rollup [params]', 'Custom rollup params.'],
-      ['--copy [value]', 'Resources to be copied, comma-seperated.'],
-      ['--vendor [value]', 'List of files for @vendor.js, comma-seperated.'],
-      // docs
-      ['--typedoc [params]', 'Custom typedoc params.'],
+      ['--copy [value]', 'Copied resources, comma-seperated.'],
+      ['--vendor [value]', 'Files for @vendor.js, comma-seperated.'],
     ]);
     // build command result
     expect(await result.actionList[0]('xxx')).eql({

@@ -1,9 +1,9 @@
 import { EOL } from 'os';
 import { resolve } from 'path';
-const matchAll = require('match-all');
 import { format } from 'prettier';
+const matchAll = require('match-all');
 
-import { getFile } from './project';
+import { readFile } from './project';
 import {
   DeclarationReflection,
   ReflectionType,
@@ -16,8 +16,6 @@ import {
   parseDeclarationChildren,
 } from './typedoc';
 
-const EOL2X = EOL.repeat(2);
-
 export interface RoutingMethodData extends SignatureData {
   routeName: string;
   routeMethod: string;
@@ -25,6 +23,14 @@ export interface RoutingMethodData extends SignatureData {
   query?: DeclarationData[];
   body?: DeclarationData[];
   data?: DeclarationData[];
+}
+
+export { EOL };
+
+export const EOL2X = EOL.repeat(2);
+
+export function eol(repeat = 1) {
+  return EOL.repeat(repeat);
 }
 
 export function stringBetween(
@@ -59,7 +65,7 @@ export function formatMDContent(content: string) {
 
 export async function getReadmeSections(): Promise<{ [name: string]: string }> {
   const sections: { [name: string]: string } = {};
-  const content = await getFile('README.md');
+  const content = await readFile('README.md');
   const sectionNames = matchAll(
     content,
     /\<section\:([a-zA-Z0-9]+)\>/gi

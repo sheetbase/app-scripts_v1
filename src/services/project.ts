@@ -2,15 +2,12 @@ import { resolve } from 'path';
 import {
   pathExists,
   statSync,
+  readJson,
   copy as fsCopy,
   remove as fsRemove,
-  readJson,
-  writeJson,
-  readFile,
-  outputFile,
+  readFile as fsReadFile,
+  outputFile as fsOutputFile,
 } from 'fs-extra';
-import { rollup, OutputOptions } from 'rollup';
-import * as requireFromString from 'require-from-string';
 
 export interface PackageJson {
   name: string;
@@ -34,28 +31,86 @@ export interface PackageJson {
   dependencies: { [key: string]: string };
   devDependencies: { [key: string]: string };
   peerDependencies: { [key: string]: string };
+  // custom rollup plugin configs
+  rollup?: {
+    resolve?: {};
+    commonjs?: {};
+  };
 }
 
-export interface RollupConfig {
-  input: string;
-  output: OutputOptions[];
-  external?: string[];
+export interface ProjectConfigs {
+  type: 'app' | 'module';
+  name: string;
+  fullName: string;
+  inputPath: string;
+  umdPath: string;
+  umdName: string;
+  esmPath?: string;
+  typingsPath?: string;
 }
+
+export async function getConfigs(): Promise<ProjectConfigs> {
+  const { name: pkgName } = await getPackageJson();
+  const type =
+    pkgName === '@sheetbase/backend' || pkgName.indexOf('@app') !== -1
+      ? 'app'
+      : 'module';
+  const name = pkgName.split('/').pop() as string; // ex.: server
+  const fullName = pkgName.replace('@', '').replace('/', '-'); //ex.: sheetbase-server
+  if (type === 'app') {
+    const inputPath = './dist/index.js';
+    const umdPath = './dist/app.js';
+    const umdName = 'App';
+    return {
+      type,
+      name,
+      fullName,
+      inputPath,
+      umdPath,
+      umdName,
+    };
+  } else {
+    const inputPath = './dist/esm3/public-api.js';
+    const umdPath = `./dist/bundles/${fullName}.js`;
+    const umdName = name.charAt(0).toUpperCase() + name.slice(1);
+    const esmPath = `./dist/fesm3/${fullName}.js`;
+    const typingsPath = `./dist/${fullName}.d.ts`;
+    return {
+      type,
+      name,
+      fullName,
+      inputPath,
+      umdPath,
+      umdName,
+      esmPath,
+      typingsPath,
+    };
+  }
+}
+// export async function getConfigs(): Promise<ProjectConfigs> {
+//   const { umd = {} } = await getRollupOutputs();
+//   const exportName = umd.name;
+//   const mainPath = umd.file;
+//   const mainFile = (mainPath || '').split('/').pop();
+//   const fileName = (mainFile || '').split('.').shift();
+//   return {
+//     exportName,
+//     mainPath,
+//     mainFile,
+//     fileName,
+//   };
+// }
 
 export function getPackageJson() {
   return readJson('package.json') as Promise<PackageJson>;
 }
 
-export function setPackageJson(data: PackageJson) {
-  return writeJson('package.json', data, { spaces: 2 });
+export function readFile(path: string) {
+  return fsReadFile(path, 'utf-8');
 }
 
-export function getFile(path: string) {
-  return readFile(path, 'utf-8');
-}
-
-export function saveFile(path: string, content: string) {
-  return outputFile(path, content);
+export function outputFile(path: string, content: string) {
+  return fsOutputFile(path, content);
 }
 
 export async function copy(sources: string[], destDir: string) {
@@ -75,44 +130,4 @@ export async function copy(sources: string[], destDir: string) {
 
 export function remove(path: string) {
   return fsRemove(path);
-}
-
-export async function getRollupConfig() {
-  const bundle = await rollup({ input: 'rollup.config.js' });
-  const { output } = await bundle.generate({ format: 'cjs' });
-  const { code } = output[0];
-  return requireFromString(code) as RollupConfig;
-}
-
-export async function getRollupOutputs() {
-  // get output array
-  let { output } = await getRollupConfig();
-  output = output instanceof Array ? output : [output];
-  // extract result
-  const result: { [format: string]: OutputOptions } = {};
-  for (let i = 0; i < output.length; i++) {
-    const out = output[i];
-    result[out.format || 'umd'] = out;
-  }
-  // final result
-  return result;
-}
-
-export async function getRollupOutputData() {
-  const { esm = {}, umd = {} } = await getRollupOutputs();
-  // esm
-  const { file: esmPath = '' } = esm;
-  const esmFile = esmPath.split('/').pop();
-  // umd
-  const { file: umdPath = '' } = umd;
-  const umdFile = umdPath.split('/').pop();
-  // module
-  const moduleName = umd.name;
-  const moduleFileName = (esmFile || umdFile || '').split('.').shift();
-  return {
-    esmPath,
-    umdPath,
-    moduleName,
-    moduleFileName,
-  };
 }

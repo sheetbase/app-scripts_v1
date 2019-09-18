@@ -1,12 +1,8 @@
-import { EOL } from 'os';
-import { execSync } from 'child_process';
-
+import { generateDocs } from '../services/typedoc';
+import { getConfigs, getPackageJson, outputFile } from '../services/project';
 import {
-  getPackageJson,
-  getRollupOutputData,
-  saveFile,
-} from '../services/project';
-import {
+  EOL,
+  EOL2X,
   formatMDContent,
   getReadmeSections,
   getOptionsInterfaceMD,
@@ -15,26 +11,36 @@ import {
 } from '../services/content';
 import { logOk } from '../services/message';
 
-interface Options {
-  typedoc?: string;
+export async function docsCommand() {
+  // save readme
+  await saveReadme();
+  // save docs
+  saveDocs();
+  // done
+  return logOk('Save README.md && API reference.');
 }
 
-const EOL2X = EOL.repeat(2);
+/**
+ * API reference
+ */
+function saveDocs() {
+  return generateDocs(['src'], 'docs');
+}
 
-export async function docsCommand(options: Options) {
-  /**
-   * README.md
-   */
+/**
+ * README.md
+ */
+async function saveReadme() {
+  // configs
   const {
     name: packageName,
     description,
     repository: { url: repoUrl },
     license,
   } = await getPackageJson();
-  const packageEndpoint = packageName.split('/').pop() as string;
   const githubUrl = repoUrl.replace('.git', '');
-  const { moduleName } = await getRollupOutputData();
-
+  const { name, umdName } = await getConfigs();
+  // readme sections
   const {
     header: sectionHeader = '',
     top: sectionTop = '',
@@ -46,11 +52,11 @@ export async function docsCommand(options: Options) {
     bottom?: string;
     footer?: string;
   };
-
+  // build content
   const optionsInterfaceMD = getOptionsInterfaceMD();
   const methodInfoMD = getMainClassFullMD();
-  const routingInfoMD = getRoutingInfoFullMD(moduleName || 'Module');
-
+  const routingInfoMD = getRoutingInfoFullMD(umdName || 'Module');
+  // sum-up content
   const output = formatMDContent(
     [
       // head
@@ -73,16 +79,16 @@ export async function docsCommand(options: Options) {
       [
         `\`\`\`ts`,
         `// 1. import constructor`,
-        `import { ${packageEndpoint} } from '${packageName}';`,
+        `import { ${name} } from '${packageName}';`,
         '',
         `// 2. create an instance`,
-        `const ${moduleName} = ${packageEndpoint}(/* options */);`,
+        `const ${umdName} = ${name}(/* options */);`,
         '',
         `// 3. start using`,
-        `const getOptions = ${moduleName}.getOptions();`,
+        `const getOptions = ${umdName}.getOptions();`,
         `\`\`\``,
       ].join(EOL),
-      `- Detail docs: <https://sheetbase.github.io/${packageEndpoint}>`,
+      `- Detail docs: <https://sheetbase.github.io/${name}>`,
       `## Options`,
       optionsInterfaceMD,
       `## Methods`,
@@ -97,18 +103,5 @@ export async function docsCommand(options: Options) {
       sectionFooter,
     ].join(EOL2X)
   );
-  await saveFile('README.md', output);
-
-  /**
-   * API reference
-   */
-  const args =
-    options.typedoc ||
-    ' src --out docs --mode file --ignoreCompilerErrors' +
-      ' --excludeNotExported --excludePrivate --excludeProtected' +
-      ' --readme none';
-  execSync('typedoc' + args, { stdio: 'ignore' });
-
-  // done
-  return logOk('Save README.md && generate API reference.');
+  return outputFile('README.md', output);
 }

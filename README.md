@@ -20,7 +20,7 @@ Command: `sheetbase-app-scripts`
 
 `$ npm install --save-dev @sheetbase/app-scripts`
 
-Add these lines to the project *package.json*.
+Add these lines to the project `package.json`.
 
 ```json
 {
@@ -33,42 +33,26 @@ Add these lines to the project *package.json*.
 
 ## Commands
 
-- [`sheetbase-app-scripts build [--module] [--min] [--vendor <input>] [--not-transpile] [--tsc <input>] [--not-bundle] [--rollup <input>] [--not-minify] [--uglifyjs <input>] [--copy <input>] [--rename <input>]`](#build)
-- [`sheetbase-app-scripts docs [--not-api] [--typedoc <params>]`](#docs)
+- [`sheetbase-app-scripts build [--copy <input>] [--vendor <input>]`](#build)
+- [`sheetbase-app-scripts docs`](#docs)
 - [`sheetbase-app-scripts help`](#help)
-- [`sheetbase-app-scripts *`](#*)
 
 ## Reference
 
 ### `Build`
 
-Build module or app for GAS deployment.
+Build the distribution package.
 
-- `--module`: Build a module.
-- `--min`: Use the minified version for deployment.
-- `--vendor`: List of files to put into @vendor.js, comma-seperated.
-- `--not-transpile`: Do not run tsc.
-- `--tsc`: Custom tsc params.
-- `--not-bundle`: Do not run rollup.
-- `--rollup`: Custom rollup params.
-- `--not-minify`: Do not run uglifyjs.
-- `--uglifyjs`: Custom uglifyjs params.
-- `--copy`: Resources to be copied, comma-seperated.
-- `--rename`: Rename bundled deployment file.
+- `--copy`: Resources to be copied, comma-seperated (**app only**).
+- `--vendor`: List of files to put into @vendor.js, comma-seperated (**app only**).
 
 ### `Docs`
 
 Generate the documentation.
 
-- `--typedoc`: Custom typedoc params.
-
 ### `Help`
 
 Display help.
-
-### `*`
-
-Any other command is not supported.
 
 ## License
 

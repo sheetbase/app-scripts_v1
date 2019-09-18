@@ -1,7 +1,7 @@
 {
   "name": "@sheetbase/app-scripts",
   "version": "2.0.0-beta",
-  "description": "Scripts for Sheetbase modules and apps.",
+  "description": "Scripts for Sheetbase backend modules and apps.",
   "author": "Sheetbase",
   "homepage": "https://sheetbase.dev",
   "license": "MIT",
@@ -35,24 +35,21 @@
   },
   "dependencies": {
     "chalk": "^2.4.2",
-    "change-case": "^3.1.0",
     "commander": "^3.0.1",
     "fs-extra": "^8.1.0",
     "match-all": "^1.2.5",
     "prettier": "^1.18.2",
-    "require-from-string": "^2.0.2",
-    "rollup": "^1.21.2",
-    "ts2gas": "^3.4.4",
-    "typedoc": "^0.15.0",
-    "uglify-js": "^3.6.0"
+    "rollup": "^1.21.4",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "typedoc": "^0.15.0"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.2",
+    "@types/chai": "^4.2.3",
     "@types/fs-extra": "^8.0.0",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.7.5",
     "@types/prettier": "^1.18.2",
-    "@types/require-from-string": "^1.2.0",
     "@types/sinon": "^7.0.13",
     "chai": "^4.2.0",
     "coveralls": "^3.0.6",

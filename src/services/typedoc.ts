@@ -1,5 +1,5 @@
 import {
-  Application as TypedocApp,
+  Application as Typedoc,
   Reflection,
   DeclarationReflection,
   SignatureReflection,
@@ -55,15 +55,31 @@ export interface SignatureData extends ReflectionData {
   params?: ParameterData[];
 }
 
-export function getApp() {
-  return new TypedocApp({
+export function getApp(configs = {}) {
+  return new Typedoc({
+    // default
     mode: 'file',
     logger: 'none',
     target: 'ES5',
     module: 'CommonJS',
     experimentalDecorators: true,
     ignoreCompilerErrors: true,
+    // custom
+    ...configs,
   });
+}
+
+export function generateDocs(src: string[], out: string) {
+  const app = getApp({
+    excludeNotExported: true,
+    excludePrivate: true,
+    excludeProtected: true,
+    readme: 'none',
+  });
+  const project = app.convert(
+    app.expandInputFiles(src),
+  );
+  return !project ? null : app.generateDocs(project, out);
 }
 
 export function getProject(path: string) {
