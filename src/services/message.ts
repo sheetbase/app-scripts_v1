@@ -1,7 +1,13 @@
 import chalk from 'chalk';
 
-export const OK = `[${chalk.green('OK')}]`;
+export class MessageService {
 
-export function logOk(message: string) {
-  return console.log(`${OK} ${message}`);
+  OK = `[${chalk.green('OK')}]`;
+
+  constructor() {}
+  
+  logOk(message: string) {
+    return console.log(`${this.OK} ${message}`);
+  }
+
 }

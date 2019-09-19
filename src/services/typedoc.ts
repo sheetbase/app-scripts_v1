@@ -55,128 +55,134 @@ export interface SignatureData extends ReflectionData {
   params?: ParameterData[];
 }
 
-export function getApp(configs = {}) {
-  return new Typedoc({
-    // default
-    mode: 'file',
-    logger: 'none',
-    target: 'ES5',
-    module: 'CommonJS',
-    experimentalDecorators: true,
-    ignoreCompilerErrors: true,
-    // custom
-    ...configs,
-  });
-}
+export class TypedocService {
 
-export function generateDocs(src: string[], out: string) {
-  const app = getApp({
-    excludeNotExported: true,
-    excludePrivate: true,
-    excludeProtected: true,
-    readme: 'none',
-  });
-  const project = app.convert(
-    app.expandInputFiles(src),
-  );
-  return !project ? null : app.generateDocs(project, out);
-}
+  constructor() {}
 
-export function getProject(path: string) {
-  // typedoc app
-  const app = getApp();
-  // convert
-  const project = app.convert([path]);
-  if (!project) {
-    throw new Error('Typedoc convert failed.');
+  getApp(configs = {}) {
+    return new Typedoc({
+      // default
+      mode: 'file',
+      logger: 'none',
+      target: 'ES5',
+      module: 'CommonJS',
+      experimentalDecorators: true,
+      ignoreCompilerErrors: true,
+      // custom
+      ...configs,
+    });
   }
-  // result
-  return project;
-}
-
-export function getDeclaration(filePath: string, declarationName: string) {
-  const project = getProject(filePath);
-  // extract declaration
-  let declaration;
-  for (const child of project.children || []) {
-    if (child.name === declarationName) {
-      declaration = child;
-      break;
+  
+  generateDocs(src: string[], out: string) {
+    const app = this.getApp({
+      excludeNotExported: true,
+      excludePrivate: true,
+      excludeProtected: true,
+      readme: 'none',
+    });
+    const project = app.convert(
+      app.expandInputFiles(src),
+    );
+    return !project ? null : app.generateDocs(project, out);
+  }
+  
+  getProject(path: string) {
+    // typedoc app
+    const app = this.getApp();
+    // convert
+    const project = app.convert([path]);
+    if (!project) {
+      throw new Error('Typedoc convert failed.');
     }
+    // result
+    return project;
   }
-  // error
-  if (!declaration) {
-    throw new Error('No declaration found.');
-  }
-  // result
-  return declaration;
-}
-
-export function getInterfaceProps(filePath: string, interfaceName: string) {
-  const interfaceDeclaration = getDeclaration(filePath, interfaceName);
-  return parseDeclarationChildren(interfaceDeclaration);
-}
-
-export function getClassMethods(filePath: string, className: string) {
-  const classDeclaration = getDeclaration(filePath, className);
-  // parsing
-  const methods: SignatureData[] = [];
-  for (const method of classDeclaration.children || []) {
-    if (method.kindString === 'Method' && method.flags.isExported) {
-      const [signature] = method.signatures || [];
-      const item: SignatureData = parseSignature(signature);
-      methods.push(item);
+  
+  getDeclaration(filePath: string, declarationName: string) {
+    const project = this.getProject(filePath);
+    // extract declaration
+    let declaration;
+    for (const child of project.children || []) {
+      if (child.name === declarationName) {
+        declaration = child;
+        break;
+      }
     }
+    // error
+    if (!declaration) {
+      throw new Error('No declaration found.');
+    }
+    // result
+    return declaration;
   }
-  return methods;
-}
-
-export function parseReflection(reflection: Reflection) {
-  const name = reflection.name;
-  const description = ((reflection.comment || {}).shortText || '').replace(
-    /(?:\r\n|\r|\n)/g,
-    ' '
-  );
-  const content = (reflection.comment || {}).text || '';
-  return { name, description, content } as ReflectionData;
-}
-
-export function parseDeclaration(declaration: DeclarationReflection) {
-  const { name, description, content } = parseReflection(declaration);
-  const type = (declaration.type as Type).toString();
-  const isOptional = declaration.flags.isOptional || !!declaration.defaultValue;
-  // result
-  return { name, description, content, isOptional, type } as DeclarationData;
-}
-
-export function parseDeclarationChildren(declaration: DeclarationReflection) {
-  const props: DeclarationData[] = [];
-  for (const prop of declaration.children || []) {
-    const item: DeclarationData = parseDeclaration(prop);
-    props.push(item);
+  
+  getInterfaceProps(filePath: string, interfaceName: string) {
+    const interfaceDeclaration = this.getDeclaration(filePath, interfaceName);
+    return this.parseDeclarationChildren(interfaceDeclaration);
   }
-  return props;
-}
-
-export function parseParameter(parameter: ParameterReflection) {
-  return parseDeclaration(parameter as DeclarationReflection) as ParameterData;
-}
-
-export function parseSignature(signature: SignatureReflection) {
-  const { name, description, content } = parseReflection(signature);
-  const returnType = (signature.type as Type).toString();
-  const returnDesc = (signature.comment || {}).returns || '';
-  const params: DeclarationData[] = [];
-  for (const param of signature.parameters || []) {
-    const item = parseParameter(param);
-    params.push(item);
+  
+  getClassMethods(filePath: string, className: string) {
+    const classDeclaration = this.getDeclaration(filePath, className);
+    // parsing
+    const methods: SignatureData[] = [];
+    for (const method of classDeclaration.children || []) {
+      if (method.kindString === 'Method' && method.flags.isExported) {
+        const [signature] = method.signatures || [];
+        const item: SignatureData = this.parseSignature(signature);
+        methods.push(item);
+      }
+    }
+    return methods;
   }
-  return {
-    name,
-    description,
-    content,
-    params,
-    returnType,
-    returnDesc,
-  } as SignatureData;
+  
+  parseReflection(reflection: Reflection) {
+    const name = reflection.name;
+    const description = ((reflection.comment || {}).shortText || '').replace(
+      /(?:\r\n|\r|\n)/g,
+      ' '
+    );
+    const content = (reflection.comment || {}).text || '';
+    return { name, description, content } as ReflectionData;
+  }
+  
+  parseDeclaration(declaration: DeclarationReflection) {
+    const { name, description, content } = this.parseReflection(declaration);
+    const type = (declaration.type as Type).toString();
+    const isOptional = declaration.flags.isOptional || !!declaration.defaultValue;
+    // result
+    return { name, description, content, isOptional, type } as DeclarationData;
+  }
+  
+  parseDeclarationChildren(declaration: DeclarationReflection) {
+    const props: DeclarationData[] = [];
+    for (const prop of declaration.children || []) {
+      const item: DeclarationData = this.parseDeclaration(prop);
+      props.push(item);
+    }
+    return props;
+  }
+  
+  parseParameter(parameter: ParameterReflection) {
+    return this.parseDeclaration(parameter as DeclarationReflection) as ParameterData;
+  }
+  
+  parseSignature(signature: SignatureReflection) {
+    const { name, description, content } = this.parseReflection(signature);
+    const returnType = (signature.type as Type).toString();
+    const returnDesc = (signature.comment || {}).returns || '';
+    const params: DeclarationData[] = [];
+    for (const param of signature.parameters || []) {
+      const item = this.parseParameter(param);
+      params.push(item);
+    }
+    return {
+      name,
+      description,
+      content,
+      params,
+      returnType,
+      returnDesc,
+    } as SignatureData;
+  }
+
 }

@@ -1,17 +1,13 @@
 #!/usr/bin/env node
 
-/**
- * Scripts for Sheetbase modules and apps.
- */
+import { CLIApp } from './cli';
 
-import { cli } from './cli';
-
-const cliApp = cli();
+const cli = new CLIApp().getApp();
 
 // show help
 if (!process.argv.slice(2).length) {
-  cliApp.outputHelp();
+  cli.outputHelp();
 }
 
-// running
-cliApp.parse(process.argv);
+// execution
+cli.parse(process.argv);

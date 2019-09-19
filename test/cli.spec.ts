@@ -1,7 +1,7 @@
 // tslint:disable: no-any
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { rewiremock } from './index.spec';
+import { getModuleRewired } from './index.spec';
 
 class MockedCommander {
   // version
@@ -47,51 +47,41 @@ class MockedCommander {
 }
 
 class MockedBuildCommand {
-  async buildCommand(options: any) {
+  async build(options: any) {
     return { build: options };
   }
 }
 
 class MockedDocsCommand {
-  async docsCommand(options: any) {
-    return { docs: options };
+  async docs() {
+    return { docs: true };
   }
 }
 
-const getModule = () =>
-  rewiremock.around(
+async function getApp() {
+  const m = await getModuleRewired(
     () => import('../src/cli'),
-    mock => {
-      // commander
-      mock(() => import('commander'))
-        .nonStrict()
-        .with(new MockedCommander());
-      // build
-      mock(() => import('../src/commands/build'))
-        .nonStrict()
-        .with(new MockedBuildCommand());
-      // docs
-      mock(() => import('../src/commands/docs'))
-        .nonStrict()
-        .with(new MockedDocsCommand());
+    {
+      'commander': new MockedCommander(),
+      '../src/services/file': { FileService: class {} },
+      '../src/services/message': { MessageService: class {} },
+      '../src/services/typedoc': { TypedocService: class {} },
+      '../src/services/project': { ProjectService: class {} },
+      '../src/services/rollup': { RollupService: class {} },
+      '../src/services/content': { ContentService: class {} },
+      '../src/commands/build': { BuildCommand: MockedBuildCommand },
+      '../src/commands/docs': { DocsCommand: MockedDocsCommand },
     }
   );
-
-function before() {
-  rewiremock.enable();
+  return new m.CLIApp().getApp();
 }
 
-function after() {
-  rewiremock.disable();
-}
-
-describe('CLI app', () => {
-  beforeEach(before);
-  afterEach(after);
+describe('cli.ts', () => {
 
   it('#cli', async () => {
-    const CLI = await getModule();
-    const result = CLI.cli();
+
+    const result = await getApp();
+
     // commander data
     expect(result.versionArgs).eql(['2.0.0-beta', '-v, --version']);
     expect(result.usageText).equal('sheetbase-app-scripts [options] [command]');
@@ -113,8 +103,8 @@ describe('CLI app', () => {
       build: 'xxx',
     });
     // docs command result
-    expect(await result.actionList[1]('xxx')).eql({
-      docs: 'xxx',
+    expect(await result.actionList[1]()).eql({
+      docs: true,
     });
     // help command result
     expect(await result.actionList[2]()).equal('#outputHelp');
