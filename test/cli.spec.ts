@@ -1,7 +1,7 @@
 // tslint:disable: no-any
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { getModuleRewired } from './index.spec';
+import { rewireModule } from './index.spec';
 
 class MockedCommander {
   // version
@@ -58,8 +58,8 @@ class MockedDocsCommand {
   }
 }
 
-async function getApp() {
-  const m = await getModuleRewired(
+async function getData() {
+  const moduleRewiring = rewireModule(
     () => import('../src/cli'),
     {
       'commander': new MockedCommander(),
@@ -73,15 +73,21 @@ async function getApp() {
       '../src/commands/docs': { DocsCommand: MockedDocsCommand },
     }
   );
-  return new m.CLIApp().getApp();
+  const rewiredModule = await moduleRewiring.getModule();
+  const cliApp = new rewiredModule.CLIApp();
+  return {
+    moduleRewiring,
+    rewiredModule,
+    cliApp,
+  };
 }
 
 describe('cli.ts', () => {
 
   it('#cli', async () => {
+    const { cliApp } = await getData();
 
-    const result = await getApp();
-
+    const result = cliApp.getApp();
     // commander data
     expect(result.versionArgs).eql(['2.0.0-beta', '-v, --version']);
     expect(result.usageText).equal('sheetbase-app-scripts [options] [command]');

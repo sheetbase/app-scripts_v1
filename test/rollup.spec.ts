@@ -1,62 +1,71 @@
 // tslint:disable: no-any
 import { expect } from 'chai';
-import * as sinon from 'sinon';
 import {
-  MockedReturnsValues,
-  getModuleRewired,
-  setMockedReturnsValues,
+  MockBuilder,
+  buildMock,
+  MethodStubs,
+  rewireModule,
 } from './index.spec';
 
-class MockedRollup {
-  // rollup
-  inputArg: any;
-  async rollup(input: any) {
-    this.inputArg = input;
-    return this;
-  }
-  // write
-  outputArgList: any[] = [];
-  async write(output: any) {
-    this.outputArgList.push(output);
-    return this;
-  }
+import { RollupService } from '../src/services/rollup';
+
+// rollup
+type MockedRollup = MockBuilder<typeof defaultRollupModule>;
+const defaultRollupModule = {
+  rollup: '*',
+  write: '*',
+};
+function mockRollupModule(methods = {}) {
+  return buildMock(defaultRollupModule, methods);
 }
 
-class MockedProjectService {
-  constructor(returnsValues: MockedReturnsValues = {}) {
-    setMockedReturnsValues(this, returnsValues);
-  }
-  // getPackageJson
-  getPackageJsonMockedReturns: any = {};
-  async getPackageJson() {
-    return this.getPackageJsonMockedReturns;
-  }
+// services/project.ts
+type MockedProjectService = MockBuilder<typeof defaultProjectService>;
+const defaultProjectService = {
+  getPackageJson: async () => ({}),
+};
+function mockProjectService(methods = {}) {
+  return buildMock(defaultProjectService, methods);
 }
 
-async function getService(
+async function getData(
   mockedRollup?: MockedRollup,
   mockedProjectService?: MockedProjectService,
+  methodStubs: MethodStubs = {},
 ) {
-  const m = await getModuleRewired(
+  // rewire module
+  const moduleRewiring = rewireModule(
     () => import('../src/services/rollup'),
     {
-      'rollup': mockedRollup || new MockedRollup(),
+      'rollup': mockedRollup || mockRollupModule(),
       'rollup-plugin-node-resolve': (configs: any) => configs,
       'rollup-plugin-commonjs': (configs: any) => configs,
     },
   );
-  return new m.RollupService(
-    mockedProjectService ||
-    new MockedProjectService() as any,
-  );
+  // rewire service
+  const serviceRewiring = await moduleRewiring.rewireService<RollupService>(
+      'RollupService',
+      {
+        projectService: mockedProjectService || mockProjectService(),
+      },
+      methodStubs,
+    );
+  // get a service instance
+  const service = serviceRewiring.getInstance();
+  // return data
+  return {
+    moduleRewiring,
+    serviceRewiring,
+    service,
+  };
 }
 
 describe('services/rollup.ts', () => {
 
   it('#getConfigs (no values)', async () => {
-    const rollupService = await getService();
+    const { service } = await getData();
 
-    const result = await rollupService.getConfigs();
+    const result = await service.getConfigs();
     expect(result).eql({
       resolveConfigs: {},
       commonjsConfigs: {},
@@ -64,18 +73,18 @@ describe('services/rollup.ts', () => {
   });
 
   it('#getConfigs (has values)', async () => {
-    const rollupService = await getService(
+    const { service } = await getData(
       undefined,
-      new MockedProjectService({
-        getPackageJson: {
+      mockProjectService({
+        getPackageJson: async () => ({
           rollup: {
             commonjs: { a: 1 },
           },
-        }
+        }),
       }),
     );
 
-    const result = await rollupService.getConfigs();
+    const result = await service.getConfigs();
     expect(result).eql({
       resolveConfigs: {},
       commonjsConfigs: { a: 1 },
@@ -83,36 +92,53 @@ describe('services/rollup.ts', () => {
   });
 
   it('#bundleCode', async () => {
-    const mockedRollup = new MockedRollup();
-    const rollupService = await getService(
-      mockedRollup, // test rollup method args
-    );
-
-    // test plugin configs
-    const getConfigsStub = sinon.stub(rollupService, 'getConfigs')
-    .callsFake(async () => ({
-      resolveConfigs: { a: 1 },
-      commonjsConfigs: { b: 2 },
-    }));
-
-    const outputs = [
+    const { serviceRewiring, service } = await getData(
+      undefined,
+      undefined,
+      // stubs
       {
-        format: 'umd',
-        file: 'xxx',
-      },
-      {
-        format: 'esm',
-        file: 'xxx2',
+        getConfigs: async () => ({
+          resolveConfigs: { a: 1 },
+          commonjsConfigs: { b: 2 },
+        }),
       }
-    ];
-    await rollupService.bundleCode('xxx', outputs as any);
-    expect(mockedRollup.inputArg.input).equal('xxx');
-    expect(mockedRollup.inputArg.plugins[0]).eql({ a: 1 }, 'resolve');
-    expect(mockedRollup.inputArg.plugins[1]).eql({ b: 2 }, 'commonjs');
-    expect(mockedRollup.outputArgList).eql(outputs);
+    );
+    const mockedRollup = serviceRewiring.getModuleMock<MockedRollup>('rollup');
+
+    await service.bundleCode(
+      'xxx',
+      [
+        {
+          format: 'umd',
+          file: 'xxx',
+        },
+        {
+          format: 'esm',
+          file: 'xxx2',
+        }
+      ]
+    );
+    const rollupArgs = mockedRollup.getArgs('rollup');
+    expect(rollupArgs[0].input).equal('xxx');
+    expect(rollupArgs[0].plugins[0]).eql({ a: 1 }, 'resolve');
+    expect(rollupArgs[0].plugins[1]).eql({ b: 2 }, 'commonjs');
+    expect(mockedRollup.getArgsStack('write')).eql([
+      [
+        {
+          format: 'umd',
+          file: 'xxx',
+        }
+      ],
+      [
+        {
+          format: 'esm',
+          file: 'xxx2',
+        }
+      ]
+    ]);
 
     // clean stub
-    getConfigsStub.restore();
+    serviceRewiring.restoreStubs();
   });
 
 });
