@@ -139,7 +139,10 @@ export class BuildCommand {
     // merge vendor code
     const contentArr = [];
     for (const vendor of vendors) {
-      const path = vendor.replace('~', 'node_modules').replace('!', 'src');
+      const path = vendor
+        .replace('~', 'node_modules/')
+        .replace('@', 'src/')
+        .replace('//', '/');
       const content = await this.fileService.readFile(path);
       contentArr.push([`// ${path}`, content].join(EOL));
     }

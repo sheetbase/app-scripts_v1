@@ -29,14 +29,15 @@ export class FileService {
     for (const src of sources) {
       const srcParts = src.replace(/\\/g, '/').split('/');
       const from = resolve(src);
-      // not found
-      if (!!srcParts.length || !(await pathExists(from))) {
-        continue;
+      // the source must be available
+      if (
+        !!srcParts.length &&
+        await pathExists(from)
+      ) {
+        const isDir = !!statSync(from).isDirectory();
+        const to = resolve(destDir, isDir ? '' : (srcParts.pop() as string));
+        await fsCopy(from, to);
       }
-      // copy
-      const isDir = !!statSync(from).isDirectory();
-      const to = resolve(destDir, isDir ? '' : (srcParts.pop() as string));
-      await fsCopy(from, to);
     }
   }
   

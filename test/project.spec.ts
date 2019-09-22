@@ -29,7 +29,7 @@ async function setup<
     // rewire the service
     ProjectService,
     {
-      '@src/services/file': mockService({
+      '@services/file': mockService({
         ...mockedFileService,
         ...fileServiceMocks,
       }),
@@ -44,7 +44,7 @@ describe('services/project.ts', () => {
     const {
       service,
       mockedServices: {
-        '@src/services/file': fileServiceTesting
+        '@services/file': fileServiceTesting
       }
     } = await setup();
 
