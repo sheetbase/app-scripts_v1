@@ -1,122 +1,118 @@
 // tslint:disable: no-any
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { rewireModule } from './index.spec';
+import { mockModule, rewireFull } from '@lamnhan/testing';
 
-class MockedCommander {
-  // version
-  versionArgs: string[] = [];
-  version(...args: string[]) {
-    this.versionArgs = args;
-    return this;
-  }
-  // usage
-  usageText = '';
-  usage(value: string) {
-    this.usageText = value;
-    return this;
-  }
-  // description
-  descriptionList: string[] = [];
-  description(value: string) {
-    this.descriptionList.push(value);
-    return this;
-  }
-  // command
-  commandList: string[] = [];
-  command(value: string) {
-    this.commandList.push(value);
-    return this;
-  }
-  // option
-  optionArgsList: string[][] = [];
-  option(...args: string[]) {
-    this.optionArgsList.push(args);
-    return this;
-  }
-  // action
-  actionList: any[] = [];
-  action(value: any) {
-    this.actionList.push(value);
-    return this;
-  }
-  // help
-  outputHelp() {
-    return '#outputHelp';
-  }
-}
+import { CLIApp } from '../src/cli';
 
+// commander
+const mockedCommanderModule = {
+  version: '*',
+  usage: '*',
+  description: '*',
+  command: '*',
+  option: '*',
+  action: '*',
+  outputHelp: '#outputHelp',
+};
+
+// @src/commands/build
 class MockedBuildCommand {
   async build(options: any) {
     return { build: options };
   }
 }
 
+// @src/commands/docs
 class MockedDocsCommand {
   async docs() {
     return { docs: true };
   }
 }
 
-async function getData() {
-  const moduleRewiring = rewireModule(
+// setup test
+async function setup() {
+  return rewireFull(
+    // rewire the module
     () => import('../src/cli'),
     {
-      'commander': new MockedCommander(),
-      '../src/services/file': { FileService: class {} },
-      '../src/services/message': { MessageService: class {} },
-      '../src/services/typedoc': { TypedocService: class {} },
-      '../src/services/project': { ProjectService: class {} },
-      '../src/services/rollup': { RollupService: class {} },
-      '../src/services/content': { ContentService: class {} },
-      '../src/commands/build': { BuildCommand: MockedBuildCommand },
-      '../src/commands/docs': { DocsCommand: MockedDocsCommand },
-    }
+      'commander': mockModule(mockedCommanderModule),
+      '@src/services/file': { FileService: class {} },
+      '@src/services/message': { MessageService: class {} },
+      '@src/services/typedoc': { TypedocService: class {} },
+      '@src/services/project': { ProjectService: class {} },
+      '@src/services/rollup': { RollupService: class {} },
+      '@src/services/content': { ContentService: class {} },
+      '@src/commands/build': { BuildCommand: MockedBuildCommand },
+      '@src/commands/docs': { DocsCommand: MockedDocsCommand },
+    },
+    // rewire the service
+    CLIApp,
   );
-  const rewiredModule = await moduleRewiring.getModule();
-  const cliApp = new rewiredModule.CLIApp();
-  return {
-    moduleRewiring,
-    rewiredModule,
-    cliApp,
-  };
 }
 
 describe('cli.ts', () => {
 
   it('#cli', async () => {
-    const { cliApp } = await getData();
+    const {
+      mockedModules: {
+        commander: commanderTesting,
+      },
+      service,
+    } = await setup();
 
-    const result = cliApp.getApp();
+    const result = service.getApp();
+    // retrieve data
+    const versionArgs = commanderTesting.getArgs('version');
+    const usageArgs = commanderTesting.getArgs('usage');
+    const descriptionStackedArgs = commanderTesting.getStackedArgs('description');
+    const commandStackedArgs = commanderTesting.getStackedArgs('command');
+    const optionStackedArgs = commanderTesting.getStackedArgs('option');
+    const buildCommand = commanderTesting.getArgInStack('action', 1, 1);
+    const docsCommand = commanderTesting.getArgInStack('action', 2, 1);
+    const helpCommand = commanderTesting.getArgInStack('action', 3, 1);
+    const anyCommand = commanderTesting.getArgInStack('action', 4, 1);
     // commander data
-    expect(result.versionArgs).eql(['2.0.0-beta', '-v, --version']);
-    expect(result.usageText).equal('sheetbase-app-scripts [options] [command]');
-    expect(result.descriptionList).eql([
-      'Scripts for Sheetbase backend modules and apps.',
-      'Build distribution package.',
-      'Generate the documentation.',
-      'Display help.',
-      'Any other command is not supported.',
+    expect(versionArgs).eql([
+      '2.0.0-beta', '-v, --version'
     ]);
-    expect(result.commandList).eql(['build', 'docs', 'help', '*']);
-    expect(result.optionArgsList).eql([
-      // build
+    expect(usageArgs).eql([
+      'sheetbase-app-scripts [options] [command]'
+    ]);
+    expect(descriptionStackedArgs).eql([
+      ['Scripts for Sheetbase backend modules and apps.'],
+      ['Build distribution package.'],
+      ['Generate the documentation.'],
+      ['Display help.'],
+      ['Any other command is not supported.'],
+    ]);
+    expect(commandStackedArgs).eql([
+      ['build'], ['docs'], ['help'], ['*']
+    ]);
+    expect(optionStackedArgs).eql([
+      // build command
       ['--copy [value]', 'Copied resources, comma-seperated.'],
       ['--vendor [value]', 'Files for @vendor.js, comma-seperated.'],
     ]);
     // build command result
-    expect(await result.actionList[0]('xxx')).eql({
-      build: 'xxx',
-    });
+    const buildCommandResult = await buildCommand('xxx');
+    expect(buildCommandResult).eql(
+      { build: 'xxx' }
+    );
     // docs command result
-    expect(await result.actionList[1]()).eql({
-      docs: true,
-    });
+    const docsCommandResult = await docsCommand();
+    expect(docsCommandResult).eql(
+      { docs: true }
+    );
     // help command result
-    expect(await result.actionList[2]()).equal('#outputHelp');
+    const helpCommandResult = await helpCommand();
+    expect(helpCommandResult).equal(
+      '#outputHelp'
+    );
     // * command result
     const errorStub = sinon.stub(console, 'error').callsFake(value => value);
-    expect(await result.actionList[3]('xxx')).equal(
+    const anyCommandResult = await anyCommand('xxx');
+    expect(anyCommandResult).equal(
       `\u001b[31mUnknown command \'xxx\'\u001b[39m`
     );
     errorStub.restore();

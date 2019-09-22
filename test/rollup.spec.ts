@@ -1,69 +1,64 @@
 // tslint:disable: no-any
 import { expect } from 'chai';
 import {
-  MockBuilder,
-  buildMock,
-  MethodStubs,
-  rewireModule,
-} from './index.spec';
+  ModuleMocking,
+  ServiceMocking,
+  ServiceStubing,
+  mockModule,
+  mockService,
+  rewireFull,
+} from '@lamnhan/testing';
 
 import { RollupService } from '../src/services/rollup';
 
 // rollup
-type MockedRollup = MockBuilder<typeof defaultRollupModule>;
-const defaultRollupModule = {
+const mockedRollupModule = {
   rollup: '*',
   write: '*',
 };
-function mockRollupModule(methods = {}) {
-  return buildMock(defaultRollupModule, methods);
-}
 
-// services/project.ts
-type MockedProjectService = MockBuilder<typeof defaultProjectService>;
-const defaultProjectService = {
+// @src/services/project
+const mockedProjectService = {
   getPackageJson: async () => ({}),
 };
-function mockProjectService(methods = {}) {
-  return buildMock(defaultProjectService, methods);
-}
 
-async function getData(
-  mockedRollup?: MockedRollup,
-  mockedProjectService?: MockedProjectService,
-  methodStubs: MethodStubs = {},
+// setup test
+async function setup<
+  ServiceStubs extends ServiceStubing<RollupService>,
+  ProjectServiceMocks extends ServiceMocking<typeof mockedProjectService>,
+  RollupModuleMocks extends ModuleMocking<typeof mockedRollupModule>,
+>(
+  serviceStubs?: ServiceStubs,
+  projectServiceMocks?: ProjectServiceMocks,
+  rollupModuleMocks?: RollupModuleMocks,
 ) {
-  // rewire module
-  const moduleRewiring = rewireModule(
+  return rewireFull(
+    // rewire the module
     () => import('../src/services/rollup'),
     {
-      'rollup': mockedRollup || mockRollupModule(),
+      'rollup': mockModule({
+        ...mockedRollupModule,
+        ...rollupModuleMocks,
+      }),
       'rollup-plugin-node-resolve': (configs: any) => configs,
       'rollup-plugin-commonjs': (configs: any) => configs,
     },
+    // rewire the service
+    RollupService,
+    {
+      '@src/services/project': mockService({
+        ...mockedProjectService,
+        ...projectServiceMocks,
+      }),
+    },
+    serviceStubs,
   );
-  // rewire service
-  const serviceRewiring = await moduleRewiring.rewireService<RollupService>(
-      'RollupService',
-      {
-        projectService: mockedProjectService || mockProjectService(),
-      },
-      methodStubs,
-    );
-  // get a service instance
-  const service = serviceRewiring.getInstance();
-  // return data
-  return {
-    moduleRewiring,
-    serviceRewiring,
-    service,
-  };
 }
 
 describe('services/rollup.ts', () => {
 
   it('#getConfigs (no values)', async () => {
-    const { service } = await getData();
+    const { service } = await setup();
 
     const result = await service.getConfigs();
     expect(result).eql({
@@ -73,15 +68,15 @@ describe('services/rollup.ts', () => {
   });
 
   it('#getConfigs (has values)', async () => {
-    const { service } = await getData(
+    const { service } = await setup(
       undefined,
-      mockProjectService({
+      {
         getPackageJson: async () => ({
           rollup: {
             commonjs: { a: 1 },
           },
         }),
-      }),
+      },
     );
 
     const result = await service.getConfigs();
@@ -92,10 +87,12 @@ describe('services/rollup.ts', () => {
   });
 
   it('#bundleCode', async () => {
-    const { serviceRewiring, service } = await getData(
-      undefined,
-      undefined,
-      // stubs
+    const {
+      service,
+      mockedModules: {
+        rollup: rollupTesting,
+      }
+    } = await setup(
       {
         getConfigs: async () => ({
           resolveConfigs: { a: 1 },
@@ -103,42 +100,18 @@ describe('services/rollup.ts', () => {
         }),
       }
     );
-    const mockedRollup = serviceRewiring.getModuleMock<MockedRollup>('rollup');
 
     await service.bundleCode(
-      'xxx',
-      [
-        {
-          format: 'umd',
-          file: 'xxx',
-        },
-        {
-          format: 'esm',
-          file: 'xxx2',
-        }
-      ]
+      'xxx', [{ format: 'umd', file: 'xxx' }, { format: 'esm', file: 'xxx2' }]
     );
-    const rollupArgs = mockedRollup.getArgs('rollup');
-    expect(rollupArgs[0].input).equal('xxx');
-    expect(rollupArgs[0].plugins[0]).eql({ a: 1 }, 'resolve');
-    expect(rollupArgs[0].plugins[1]).eql({ b: 2 }, 'commonjs');
-    expect(mockedRollup.getArgsStack('write')).eql([
-      [
-        {
-          format: 'umd',
-          file: 'xxx',
-        }
-      ],
-      [
-        {
-          format: 'esm',
-          file: 'xxx2',
-        }
-      ]
+    const rollupArg = rollupTesting.getArgFirst('rollup');
+    expect(rollupArg.input).equal('xxx');
+    expect(rollupArg.plugins[0]).eql({ a: 1 }, 'resolve');
+    expect(rollupArg.plugins[1]).eql({ b: 2 }, 'commonjs');
+    expect(rollupTesting.getStackedArgs('write')).eql([
+      [{ format: 'umd', file: 'xxx' }],
+      [{ format: 'esm', file: 'xxx2' }]
     ]);
-
-    // clean stub
-    serviceRewiring.restoreStubs();
   });
 
 });

@@ -1,65 +1,62 @@
 // tslint:disable: no-any
 import { expect } from 'chai';
 import {
-  MockBuilder,
-  buildMock,
-  MethodStubs,
-  rewireModule,
-} from './index.spec';
+  ServiceMocking,
+  ServiceStubing,
+  mockService,
+  rewireFull,
+} from '@lamnhan/testing';
 
 import { ProjectService } from '../src/services/project';
 
-// services/file.ts
-type MockedFileService = MockBuilder<typeof defaultFileService>;
-const defaultFileService = {
+// @src/services/file
+const mockedFileService = {
   readJson: async () => ({ name: 'xxx' }),
 };
-function mockFileService(methods = {}) {
-  return buildMock(defaultFileService, methods);
-}
 
-// prepare test
-async function getTestingData(
-  mockedFileService?: typeof defaultFileService,  
-  methodStubs: MethodStubs = {},
+// setup test
+async function setup<
+  ServiceStubs extends ServiceStubing<ProjectService>,
+  FileServiceMocks extends ServiceMocking<typeof mockedFileService>,
+>(
+  serviceStubs?: ServiceStubs,
+  fileServiceMocks?: FileServiceMocks,
 ) {
-  const moduleRewiring = rewireModule(
+  return rewireFull(
+    // rewire the module
     () => import('../src/services/project'),
+    undefined,
+    // rewire the service
+    ProjectService,
+    {
+      '@src/services/file': mockService({
+        ...mockedFileService,
+        ...fileServiceMocks,
+      }),
+    },
+    serviceStubs,
   );
-  // rewire service
-  const serviceRewiring = await moduleRewiring.rewireService<ProjectService>(
-      'ProjectService',
-      {
-        fileService: mockedFileService || mockFileService(),
-      },
-      methodStubs,
-    );
-  // get a service instance
-  const service = serviceRewiring.getInstance();
-  // return data
-  return {
-    moduleRewiring,
-    serviceRewiring,
-    service,
-  };
 }
 
 describe('services/project.ts', () => {
   
   it('#getPackageJson', async () => {
-    const { serviceRewiring, service } = await getTestingData();
-    const fileService = serviceRewiring.getServiceMock<MockedFileService>('fileService');
+    const {
+      service,
+      mockedServices: {
+        '@src/services/file': fileServiceTesting
+      }
+    } = await setup();
 
     const result = await service.getPackageJson();
     expect(result).eql({ name: 'xxx' });
     expect(
-      fileService.getArgs('readJson'),
+      fileServiceTesting.getArgs('readJson'),
     ).eql(['package.json']);
   });
 
   it('#getConfigs (module)', async () => {
-    const { service } = await getTestingData(
-      undefined,
+    const { service } = await setup(
       {
         getPackageJson: async () => ({ name: '@sheetbase/xxx' }),
       }
@@ -79,8 +76,7 @@ describe('services/project.ts', () => {
   });
 
   it('#getConfigs (app 1)', async () => {
-    const { service } = await getTestingData(
-      undefined,
+    const { service } = await setup(
       {
         getPackageJson: async () => ({ name: '@sheetbase/backend' }),
       }
@@ -97,8 +93,7 @@ describe('services/project.ts', () => {
   });
 
   it('#getConfigs (app 2)', async () => {
-    const { service } = await getTestingData(
-      undefined,
+    const { service } = await setup(
       {
         getPackageJson: async () => ({ name: '@app/xxx' }),
       }
