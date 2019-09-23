@@ -26,16 +26,16 @@ export class FileService {
   }
   
   async copy(sources: string[], destDir: string) {
-    for (const src of sources) {
-      const srcParts = src.replace(/\\/g, '/').split('/');
+    for (let src of sources) {
+      src = src.replace(/\\/g, '/');
       const from = resolve(src);
       // the source must be available
       if (
-        !!srcParts.length &&
+        src !== '' &&
         await pathExists(from)
       ) {
         const isDir = !!statSync(from).isDirectory();
-        const to = resolve(destDir, isDir ? '' : (srcParts.pop() as string));
+        const to = resolve(destDir, isDir ? '' : (src.split('/').pop() as string));
         await fsCopy(from, to);
       }
     }

@@ -10,13 +10,13 @@ import { FileService } from '../src/services/file';
 
 // path
 const mockedPathModule = {
-  resolve: '/',
+  resolve: (p1: string, p2: string) => !p2 ? p1 : p1 + '/' + p2,
 };
 
 // fs-extra
 const mockedFSExtra = {
   pathExists: async () => true,
-  statSync: () => ({ isDirectory: () => true }),
+  statSync: (path: string) => ({ isDirectory: () => path.indexOf('.') === -1 }),
   readJson: async () => ({ a: 1 }),
   copy: async () => undefined,
   remove: async () => undefined,
@@ -97,7 +97,74 @@ describe('services/file.ts', () => {
     ]);
   });
   
-  it('#copy', async () => {});
+  it('#copy (empty src)', async () => {
+    const {
+      service,
+      mockedModules: {
+        '~fs-extra': fsExtraModuleTesting,
+      }
+    } = await setup();
+
+    const result = await service.copy([], 'dest');
+    const copyArgs = fsExtraModuleTesting.getArgs('copy');
+    expect(copyArgs).equal(undefined);
+  });
+  
+  it('#copy (src in valid)', async () => {
+    const {
+      service,
+      mockedModules: {
+        '~fs-extra': fsExtraModuleTesting,
+      }
+    } = await setup();
+
+    const result = await service.copy([''], 'dest');
+    const copyArgs = fsExtraModuleTesting.getArgs('copy');
+    expect(copyArgs).equal(undefined);
+  });
+
+  it('#copy (src not exists)', async () => {
+    const {
+      service,
+      mockedModules: {
+        '~fs-extra': fsExtraModuleTesting,
+      }
+    } = await setup({
+      pathExists: async () => false,
+    });
+
+    const result = await service.copy(['xxx.txt'], 'dest');
+    const copyArgs = fsExtraModuleTesting.getArgs('copy');
+    expect(copyArgs).equal(undefined);
+  });
+
+  it('#copy', async () => {
+    const {
+      service,
+      mockedModules: {
+        '~fs-extra': fsExtraModuleTesting,
+      }
+    } = await setup();
+
+    const result = await service.copy(
+      [
+        'xxx', // top level folder
+        'xxx.txt', // top level file
+        'src/xxx', // nested folder
+        'src/xxx/abc.txt', // nested file
+        'src\\xxx\\abc.txt', // Windows path
+      ],
+      'dest',
+    );
+    const copyStackedArgs = fsExtraModuleTesting.getStackedArgs('copy');
+    expect(copyStackedArgs).eql([
+      ['xxx' , 'dest'],
+      ['xxx.txt' , 'dest/xxx.txt'],
+      ['src/xxx' , 'dest'],
+      ['src/xxx/abc.txt' , 'dest/abc.txt'],
+      ['src/xxx/abc.txt' , 'dest/abc.txt'],
+    ]);
+  });
   
   it('#remove', async () => {
     const {
