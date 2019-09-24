@@ -19,7 +19,7 @@ export class BuildCommand {
   private messageService: MessageService;
   private projectService: ProjectService;
   private rollupService: RollupService;
-  
+
   DIST_DIR = resolve('dist');
   DEPLOY_DIR = resolve('deploy');
 
@@ -36,7 +36,7 @@ export class BuildCommand {
     this.projectService = projectService;
     this.rollupService = rollupService;
   }
-  
+
   async build(options: Options) {
     const projectConfigs = await this.projectService.getConfigs();
     const { type, umdPath, typingsPath } = projectConfigs;
@@ -45,7 +45,7 @@ export class BuildCommand {
       throw new Error('Invalid project.');
     }
     // compile & bundle
-    await this.compileCode();
+    this.compileCode();
     await this.bundleCode(projectConfigs);
     // specific build
     if (type === 'module') {
@@ -57,9 +57,9 @@ export class BuildCommand {
     // done
     return this.messageService.logOk(`Build ${type} completed.`);
   }
-  
-  async compileCode() {
-    return execSync(`tsc -p tsconfig.json`, { stdio: 'ignore' });
+
+  compileCode() {
+    return execSync(`tsc -p .`, { stdio: 'ignore' });
   }
   
   async bundleCode(configs: ProjectConfigs) {

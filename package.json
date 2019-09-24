@@ -45,7 +45,7 @@
     "typedoc": "^0.15.0"
   },
   "devDependencies": {
-    "@lamnhan/testing": "0.0.1",
+    "@lamnhan/testing": "0.0.3",
     "@types/chai": "^4.2.3",
     "@types/fs-extra": "^8.0.0",
     "@types/mocha": "^5.2.7",
