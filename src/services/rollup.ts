@@ -7,15 +7,16 @@ import { ProjectService } from './project';
 export { OutputOptions };
 
 export class RollupService {
-
   private projectService: ProjectService;
 
   constructor(projectService: ProjectService) {
     this.projectService = projectService;
   }
-    
+
   async getConfigs() {
-    const { rollup: rollupConfigs = {} } = await this.projectService.getPackageJson();
+    const {
+      rollup: rollupConfigs = {},
+    } = await this.projectService.getPackageJson();
     const {
       resolve: resolveConfigs = {},
       commonjs: commonjsConfigs = {},
@@ -32,9 +33,8 @@ export class RollupService {
       input,
       plugins: [resolve(resolveConfigs), commonjs(commonjsConfigs)],
     });
-    for(const output of outputs) {
+    for (const output of outputs) {
       await bundle.write(output);
     }
   }
-
 }

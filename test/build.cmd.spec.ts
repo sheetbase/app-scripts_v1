@@ -13,7 +13,7 @@ import { BuildCommand } from '../src/commands/build';
 
 // path
 const mockedPathModule = {
-  resolve: (p1: string, p2: string) => !p2 ? p1 : p1 + '/' + p2,
+  resolve: (p1: string, p2: string) => (!p2 ? p1 : p1 + '/' + p2),
 };
 
 // child_process
@@ -22,9 +22,7 @@ const mockedChildProcessModule = {
 };
 
 // @services/content
-const mockedContentService = {
-
-};
+const mockedContentService = {};
 
 // @services/file
 const mockedFileService = {
@@ -32,19 +30,13 @@ const mockedFileService = {
 };
 
 // @services/message
-const mockedMessageService = {
-
-};
+const mockedMessageService = {};
 
 // @services/project
-const mockedProjectService = {
-
-};
+const mockedProjectService = {};
 
 // @services/rollup
-const mockedRollupService = {
-
-};
+const mockedRollupService = {};
 
 // setup test
 async function setup<
@@ -53,21 +45,21 @@ async function setup<
   FileServiceMocks extends ServiceMocking<typeof mockedFileService>,
   MessageServiceMocks extends ServiceMocking<typeof mockedMessageService>,
   ProjectServiceMocks extends ServiceMocking<typeof mockedProjectService>,
-  RollupServiceMocks extends ServiceMocking<typeof mockedRollupService>,
+  RollupServiceMocks extends ServiceMocking<typeof mockedRollupService>
 >(
   serviceStubs?: ServiceStubs,
   contentServiceMocks?: ContentServiceMocks,
   fileServiceMocks?: FileServiceMocks,
   messageServiceMocks?: MessageServiceMocks,
   projectServiceMocks?: ProjectServiceMocks,
-  rollupServiceMocks?: RollupServiceMocks,
+  rollupServiceMocks?: RollupServiceMocks
 ) {
   return rewireFull(
     // rewire the module
     '@commands/build',
     {
-      'path': mockModule(mockedPathModule),
-      'child_process': mockModule(mockedChildProcessModule)
+      path: mockModule(mockedPathModule),
+      child_process: mockModule(mockedChildProcessModule),
     },
     // rewire the service
     BuildCommand,
@@ -93,34 +85,33 @@ async function setup<
         ...rollupServiceMocks,
       }),
     },
-    serviceStubs,
+    serviceStubs
   );
 }
 
 describe('commands/build.ts', () => {
-
   it('service instances', async () => {
     const { service } = await setup();
 
     expect(
       // @ts-ignore
-      service.contentService instanceof MockBuilder,
+      service.contentService instanceof MockBuilder
     ).equal(true, '@service/content');
     expect(
       // @ts-ignore
-      service.fileService instanceof MockBuilder,
+      service.fileService instanceof MockBuilder
     ).equal(true, '@service/file');
     expect(
       // @ts-ignore
-      service.messageService instanceof MockBuilder,
+      service.messageService instanceof MockBuilder
     ).equal(true, '@service/message');
     expect(
       // @ts-ignore
-      service.projectService instanceof MockBuilder,
+      service.projectService instanceof MockBuilder
     ).equal(true, '@service/project');
     expect(
       // @ts-ignore
-      service.rollupService instanceof MockBuilder,
+      service.rollupService instanceof MockBuilder
     ).equal(true, '@service/rollup');
   });
 
@@ -137,9 +128,7 @@ describe('commands/build.ts', () => {
     const { service } = await setup();
 
     const result = service.compileCode();
-    expect(result).eql([
-      `tsc -p .`, { stdio: 'ignore' },
-    ]);
+    expect(result).eql([`tsc -p .`, { stdio: 'ignore' }]);
   });
 
   // it('#bundleCode', async () => {});
@@ -154,10 +143,7 @@ describe('commands/build.ts', () => {
     const { service } = await setup();
 
     const result = await service.appSaveIndex();
-    expect(result).eql([
-      'deploy/@index.js',
-      '// A Sheetbase Application'
-    ]);
+    expect(result).eql(['deploy/@index.js', '// A Sheetbase Application']);
   });
 
   // it('#appSaveMain', async () => {});
@@ -165,5 +151,4 @@ describe('commands/build.ts', () => {
   // it('#appCopyResources', async () => {});
 
   // it('#appSaveVendor', async () => {});
-
 });

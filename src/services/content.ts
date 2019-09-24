@@ -1,4 +1,4 @@
-import { EOL as OSEOL} from 'os';
+import { EOL as OSEOL } from 'os';
 import { resolve } from 'path';
 import { format } from 'prettier';
 const matchAll = require('match-all');
@@ -22,25 +22,21 @@ export interface RoutingMethodData extends SignatureData {
 }
 
 export class ContentService {
-
   private fileService: FileService;
   private typedocService: TypedocService;
 
   EOL = OSEOL;
   EOL2X = this.EOL.repeat(2);
 
-  constructor(
-    fileService: FileService,
-    typedocService: TypedocService,
-  ) {
+  constructor(fileService: FileService, typedocService: TypedocService) {
     this.fileService = fileService;
     this.typedocService = typedocService;
   }
-  
+
   eol(repeat = 1) {
     return this.EOL.repeat(repeat);
   }
-  
+
   stringBetween(
     input: string,
     prefix: string,
@@ -62,15 +58,15 @@ export class ContentService {
       return input.substring(prefixIndex, suffixIndex);
     }
   }
-  
+
   escapeMDTableContent(content: string) {
     return content.replace(/\|/g, '\\|');
   }
-  
+
   formatMDContent(content: string) {
     return format(content, { parser: 'markdown' });
   }
-  
+
   async getReadmeSections(): Promise<{ [name: string]: string }> {
     const sections: { [name: string]: string } = {};
     const content = await this.fileService.readFile('README.md');
@@ -87,7 +83,7 @@ export class ContentService {
     }
     return sections;
   }
-  
+
   buildMDSummary(items: DeclarationData[]) {
     const resultArr: string[] = [
       `| Name | Type | Description |`,
@@ -103,24 +99,34 @@ export class ContentService {
       const description = this.escapeMDTableContent(rawDesc || '');
       const type = this.escapeMDTableContent(rawType || '');
       resultArr.push(
-        `| ${isOptional ? name : `**${name}**`} | \`${type}\` | ${description} |`
+        `| ${
+          isOptional ? name : `**${name}**`
+        } | \`${type}\` | ${description} |`
       );
     }
     return this.formatMDContent(resultArr.join(this.EOL));
   }
-  
+
   getOptionsInterfaceMD() {
-    const data = this.typedocService.getInterfaceProps(resolve('src', 'lib', 'types.ts'), 'Options');
+    const data = this.typedocService.getInterfaceProps(
+      resolve('src', 'lib', 'types.ts'),
+      'Options'
+    );
     return this.buildMDSummary(data);
   }
-  
+
   getMainClassFullMD() {
-    const data = this.typedocService.getClassMethods(resolve('src', 'lib', `main.ts`), `MainService`);
+    const data = this.typedocService.getClassMethods(
+      resolve('src', 'lib', `main.ts`),
+      `MainService`
+    );
     const summary = this.getMainClassSummaryMD(data);
     const detail = this.getMainClassDetailMD(data);
-    return this.formatMDContent([summary, '### Methods detail', detail].join(this.EOL2X));
+    return this.formatMDContent(
+      [summary, '### Methods detail', detail].join(this.EOL2X)
+    );
   }
-  
+
   getMainClassSummaryMD(data: SignatureData[]) {
     const resultArr: string[] = [
       `| Method | Return type | Description |`,
@@ -144,7 +150,7 @@ export class ContentService {
     }
     return this.formatMDContent(resultArr.join(this.EOL));
   }
-  
+
   getMainClassDetailMD(data: SignatureData[]) {
     const resultArr: string[] = [];
     for (const itemData of data) {
@@ -187,7 +193,7 @@ export class ContentService {
     }
     return this.formatMDContent(resultArr.join(this.EOL2X));
   }
-  
+
   getRoutingInfoFullMD(moduleName: string) {
     const routeClass = this.typedocService.getDeclaration(
       resolve('src', 'lib', `route.ts`),
@@ -260,7 +266,9 @@ export class ContentService {
         const { name, type } = params[i];
         const paramDecleration = (type as ReflectionType).declaration;
         if (name === 'query') {
-          query = this.typedocService.parseDeclarationChildren(paramDecleration);
+          query = this.typedocService.parseDeclarationChildren(
+            paramDecleration
+          );
         } else if (name === 'body') {
           body = this.typedocService.parseDeclarationChildren(paramDecleration);
         } else if (name === 'data') {
@@ -337,14 +345,19 @@ export class ContentService {
     }
     return this.formatMDContent(resultArr.join(this.EOL2X));
   }
-  
+
   getRoutingInfoSummaryMD(data: RoutingMethodData[]) {
     const resultArr: string[] = [
       `| Route | Method | Description |`,
       `| --- | --- | --- |`,
     ];
     for (const itemData of data) {
-      const { name, routeEndpoint, routeMethod, description: rawDesc } = itemData;
+      const {
+        name,
+        routeEndpoint,
+        routeMethod,
+        description: rawDesc,
+      } = itemData;
       const description = this.escapeMDTableContent(rawDesc || '');
       resultArr.push(
         `| [${routeEndpoint}](#${name}) | \`${routeMethod}\` | ${description} |`
@@ -352,7 +365,7 @@ export class ContentService {
     }
     return this.formatMDContent(resultArr.join(this.EOL));
   }
-  
+
   getRoutingInfoDetailMD(data: RoutingMethodData[]) {
     const resultArr: string[] = [];
     for (const itemData of data) {
@@ -370,7 +383,9 @@ export class ContentService {
       } = itemData;
       const subResultArr: string[] = [];
       // title
-      subResultArr.push(`##### \`${routeMethod}\` [${routeEndpoint}](#${name})`);
+      subResultArr.push(
+        `##### \`${routeMethod}\` [${routeEndpoint}](#${name})`
+      );
       // description
       if (!!description) {
         subResultArr.push(description);
@@ -408,5 +423,4 @@ export class ContentService {
     }
     return this.formatMDContent(resultArr.join(this.EOL2X));
   }
-
 }

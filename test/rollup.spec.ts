@@ -26,11 +26,11 @@ const mockedProjectService = {
 async function setup<
   ServiceStubs extends ServiceStubing<RollupService>,
   ProjectServiceMocks extends ServiceMocking<typeof mockedProjectService>,
-  RollupModuleMocks extends ModuleMocking<typeof mockedRollupModule>,
+  RollupModuleMocks extends ModuleMocking<typeof mockedRollupModule>
 >(
   serviceStubs?: ServiceStubs,
   projectServiceMocks?: ProjectServiceMocks,
-  rollupModuleMocks?: RollupModuleMocks,
+  rollupModuleMocks?: RollupModuleMocks
 ) {
   return rewireFull(
     // rewire the module
@@ -51,12 +51,11 @@ async function setup<
         ...projectServiceMocks,
       }),
     },
-    serviceStubs,
+    serviceStubs
   );
 }
 
 describe('services/rollup.ts', () => {
-
   it('#getConfigs (no values)', async () => {
     const { service } = await setup();
 
@@ -68,16 +67,13 @@ describe('services/rollup.ts', () => {
   });
 
   it('#getConfigs (has values)', async () => {
-    const { service } = await setup(
-      undefined,
-      {
-        getPackageJson: async () => ({
-          rollup: {
-            commonjs: { a: 1 },
-          },
-        }),
-      },
-    );
+    const { service } = await setup(undefined, {
+      getPackageJson: async () => ({
+        rollup: {
+          commonjs: { a: 1 },
+        },
+      }),
+    });
 
     const result = await service.getConfigs();
     expect(result).eql({
@@ -89,29 +85,25 @@ describe('services/rollup.ts', () => {
   it('#bundleCode', async () => {
     const {
       service,
-      mockedModules: {
-        '~rollup': rollupModuleTesting,
-      }
-    } = await setup(
-      {
-        getConfigs: async () => ({
-          resolveConfigs: { a: 1 },
-          commonjsConfigs: { b: 2 },
-        }),
-      }
-    );
+      mockedModules: { '~rollup': rollupModuleTesting },
+    } = await setup({
+      getConfigs: async () => ({
+        resolveConfigs: { a: 1 },
+        commonjsConfigs: { b: 2 },
+      }),
+    });
 
-    await service.bundleCode(
-      'xxx', [{ format: 'umd', file: 'xxx' }, { format: 'esm', file: 'xxx2' }]
-    );
+    await service.bundleCode('xxx', [
+      { format: 'umd', file: 'xxx' },
+      { format: 'esm', file: 'xxx2' },
+    ]);
     const rollupArg = rollupModuleTesting.getArgFirst('rollup');
     expect(rollupArg.input).equal('xxx');
     expect(rollupArg.plugins[0]).eql({ a: 1 }, 'resolve');
     expect(rollupArg.plugins[1]).eql({ b: 2 }, 'commonjs');
     expect(rollupModuleTesting.getStackedArgs('write')).eql([
       [{ format: 'umd', file: 'xxx' }],
-      [{ format: 'esm', file: 'xxx2' }]
+      [{ format: 'esm', file: 'xxx2' }],
     ]);
   });
-
 });

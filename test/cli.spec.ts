@@ -47,17 +47,14 @@ async function setup() {
       '@commands/docs': { DocsCommand: MockedDocsCommand },
     },
     // rewire the service
-    CLIApp,
+    CLIApp
   );
 }
 
 describe('cli.ts', () => {
-
   it('#cli', async () => {
     const {
-      mockedModules: {
-        '~commander': commanderModuleTesting,
-      },
+      mockedModules: { '~commander': commanderModuleTesting },
       service,
     } = await setup();
 
@@ -65,7 +62,9 @@ describe('cli.ts', () => {
     // retrieve data
     const versionArgs = commanderModuleTesting.getArgs('version');
     const usageArgs = commanderModuleTesting.getArgs('usage');
-    const descriptionStkArgs = commanderModuleTesting.getStackedArgs('description');
+    const descriptionStkArgs = commanderModuleTesting.getStackedArgs(
+      'description'
+    );
     const commandStkArgs = commanderModuleTesting.getStackedArgs('command');
     const optionStkArgs = commanderModuleTesting.getStackedArgs('option');
     const buildCommand = commanderModuleTesting.getArgInStack('action', 1, 1);
@@ -73,12 +72,8 @@ describe('cli.ts', () => {
     const helpCommand = commanderModuleTesting.getArgInStack('action', 3, 1);
     const anyCommand = commanderModuleTesting.getArgInStack('action', 4, 1);
     // commander data
-    expect(versionArgs).eql([
-      '2.0.0-beta', '-v, --version'
-    ]);
-    expect(usageArgs).eql([
-      'sheetbase-app-scripts [options] [command]'
-    ]);
+    expect(versionArgs).eql(['2.0.0-beta', '-v, --version']);
+    expect(usageArgs).eql(['sheetbase-app-scripts [options] [command]']);
     expect(descriptionStkArgs).eql([
       ['Scripts for Sheetbase backend modules and apps.'],
       ['Build distribution package.'],
@@ -86,9 +81,7 @@ describe('cli.ts', () => {
       ['Display help.'],
       ['Any other command is not supported.'],
     ]);
-    expect(commandStkArgs).eql([
-      ['build'], ['docs'], ['help'], ['*']
-    ]);
+    expect(commandStkArgs).eql([['build'], ['docs'], ['help'], ['*']]);
     expect(optionStkArgs).eql([
       // build command
       ['--copy [value]', 'Copied resources, comma-seperated.'],
@@ -96,19 +89,13 @@ describe('cli.ts', () => {
     ]);
     // build command result
     const buildCommandResult = await buildCommand('xxx');
-    expect(buildCommandResult).eql(
-      { build: 'xxx' }
-    );
+    expect(buildCommandResult).eql({ build: 'xxx' });
     // docs command result
     const docsCommandResult = await docsCommand();
-    expect(docsCommandResult).eql(
-      { docs: true }
-    );
+    expect(docsCommandResult).eql({ docs: true });
     // help command result
     const helpCommandResult = await helpCommand();
-    expect(helpCommandResult).equal(
-      '#outputHelp'
-    );
+    expect(helpCommandResult).equal('#outputHelp');
     // * command result
     const errorStub = sinon.stub(console, 'error').callsFake(value => value);
     const anyCommandResult = await anyCommand('xxx');

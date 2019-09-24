@@ -5,19 +5,18 @@ import { ProjectService } from '../services/project';
 import { TypedocService } from '../services/typedoc';
 
 export class DocsCommand {
-
   private contentService: ContentService;
   private fileService: FileService;
   private messageService: MessageService;
   private projectService: ProjectService;
   private typedocService: TypedocService;
-  
+
   constructor(
     contentService: ContentService,
     fileService: FileService,
     messageService: MessageService,
     projectService: ProjectService,
-    typedocService: TypedocService,
+    typedocService: TypedocService
   ) {
     this.contentService = contentService;
     this.fileService = fileService;
@@ -34,14 +33,14 @@ export class DocsCommand {
     // done
     return this.messageService.logOk('Save README.md && API reference.');
   }
-  
+
   /**
    * API reference
    */
   saveDocs() {
     return this.typedocService.generateDocs(['src'], 'docs');
   }
-  
+
   /**
    * README.md
    */
@@ -71,7 +70,9 @@ export class DocsCommand {
     // build content
     const optionsInterfaceMD = this.contentService.getOptionsInterfaceMD();
     const methodInfoMD = this.contentService.getMainClassFullMD();
-    const routingInfoMD = this.contentService.getRoutingInfoFullMD(umdName || 'Module');
+    const routingInfoMD = this.contentService.getRoutingInfoFullMD(
+      umdName || 'Module'
+    );
     // sum-up content
     const output = this.contentService.formatMDContent(
       [
@@ -121,5 +122,4 @@ export class DocsCommand {
     );
     return this.fileService.outputFile('README.md', output);
   }
-
 }

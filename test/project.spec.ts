@@ -17,11 +17,8 @@ const mockedFileService = {
 // setup test
 async function setup<
   ServiceStubs extends ServiceStubing<ProjectService>,
-  FileServiceMocks extends ServiceMocking<typeof mockedFileService>,
->(
-  serviceStubs?: ServiceStubs,
-  fileServiceMocks?: FileServiceMocks,
-) {
+  FileServiceMocks extends ServiceMocking<typeof mockedFileService>
+>(serviceStubs?: ServiceStubs, fileServiceMocks?: FileServiceMocks) {
   return rewireFull(
     // rewire the module
     () => import('../src/services/project'),
@@ -34,33 +31,26 @@ async function setup<
         ...fileServiceMocks,
       }),
     },
-    serviceStubs,
+    serviceStubs
   );
 }
 
 describe('services/project.ts', () => {
-  
   it('#getPackageJson', async () => {
     const {
       service,
-      mockedServices: {
-        '@services/file': fileServiceTesting
-      }
+      mockedServices: { '@services/file': fileServiceTesting },
     } = await setup();
 
     const result = await service.getPackageJson();
     expect(result).eql({ name: 'xxx' });
-    expect(
-      fileServiceTesting.getArgs('readJson'),
-    ).eql(['package.json']);
+    expect(fileServiceTesting.getArgs('readJson')).eql(['package.json']);
   });
 
   it('#getConfigs (module)', async () => {
-    const { service } = await setup(
-      {
-        getPackageJson: async () => ({ name: '@sheetbase/xxx' }),
-      }
-    );
+    const { service } = await setup({
+      getPackageJson: async () => ({ name: '@sheetbase/xxx' }),
+    });
 
     const result = await service.getConfigs();
     expect(result).eql({
@@ -76,11 +66,9 @@ describe('services/project.ts', () => {
   });
 
   it('#getConfigs (app 1)', async () => {
-    const { service } = await setup(
-      {
-        getPackageJson: async () => ({ name: '@sheetbase/backend' }),
-      }
-    );
+    const { service } = await setup({
+      getPackageJson: async () => ({ name: '@sheetbase/backend' }),
+    });
     const result = await service.getConfigs();
     expect(result).eql({
       type: 'app',
@@ -93,13 +81,10 @@ describe('services/project.ts', () => {
   });
 
   it('#getConfigs (app 2)', async () => {
-    const { service } = await setup(
-      {
-        getPackageJson: async () => ({ name: '@app/xxx' }),
-      }
-    );
+    const { service } = await setup({
+      getPackageJson: async () => ({ name: '@app/xxx' }),
+    });
     const result = await service.getConfigs();
     expect(result.type).equal('app');
   });
-
 });

@@ -41,13 +41,12 @@ export interface ProjectConfigs {
 }
 
 export class ProjectService {
-
   private fileService: FileService;
 
   constructor(fileService: FileService) {
     this.fileService = fileService;
   }
-  
+
   async getConfigs(): Promise<ProjectConfigs> {
     const { name: pkgName } = await this.getPackageJson();
     const type =
@@ -86,9 +85,8 @@ export class ProjectService {
       };
     }
   }
-  
+
   async getPackageJson() {
     return this.fileService.readJson('package.json') as Promise<PackageJson>;
   }
-
 }

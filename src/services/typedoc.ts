@@ -56,7 +56,6 @@ export interface SignatureData extends ReflectionData {
 }
 
 export class TypedocService {
-
   constructor() {}
 
   getApp(configs = {}) {
@@ -72,7 +71,7 @@ export class TypedocService {
       ...configs,
     });
   }
-  
+
   generateDocs(src: string[], out: string) {
     const app = this.getApp({
       excludeNotExported: true,
@@ -80,12 +79,10 @@ export class TypedocService {
       excludeProtected: true,
       readme: 'none',
     });
-    const project = app.convert(
-      app.expandInputFiles(src),
-    );
+    const project = app.convert(app.expandInputFiles(src));
     return !project ? null : app.generateDocs(project, out);
   }
-  
+
   getProject(path: string) {
     // typedoc app
     const app = this.getApp();
@@ -97,7 +94,7 @@ export class TypedocService {
     // result
     return project;
   }
-  
+
   getDeclaration(filePath: string, declarationName: string) {
     const project = this.getProject(filePath);
     // extract declaration
@@ -115,12 +112,12 @@ export class TypedocService {
     // result
     return declaration;
   }
-  
+
   getInterfaceProps(filePath: string, interfaceName: string) {
     const interfaceDeclaration = this.getDeclaration(filePath, interfaceName);
     return this.parseDeclarationChildren(interfaceDeclaration);
   }
-  
+
   getClassMethods(filePath: string, className: string) {
     const classDeclaration = this.getDeclaration(filePath, className);
     // parsing
@@ -134,7 +131,7 @@ export class TypedocService {
     }
     return methods;
   }
-  
+
   parseReflection(reflection: Reflection) {
     const name = reflection.name;
     const description = ((reflection.comment || {}).shortText || '').replace(
@@ -144,15 +141,16 @@ export class TypedocService {
     const content = (reflection.comment || {}).text || '';
     return { name, description, content } as ReflectionData;
   }
-  
+
   parseDeclaration(declaration: DeclarationReflection) {
     const { name, description, content } = this.parseReflection(declaration);
     const type = (declaration.type as Type).toString();
-    const isOptional = declaration.flags.isOptional || !!declaration.defaultValue;
+    const isOptional =
+      declaration.flags.isOptional || !!declaration.defaultValue;
     // result
     return { name, description, content, isOptional, type } as DeclarationData;
   }
-  
+
   parseDeclarationChildren(declaration: DeclarationReflection) {
     const props: DeclarationData[] = [];
     for (const prop of declaration.children || []) {
@@ -161,11 +159,13 @@ export class TypedocService {
     }
     return props;
   }
-  
+
   parseParameter(parameter: ParameterReflection) {
-    return this.parseDeclaration(parameter as DeclarationReflection) as ParameterData;
+    return this.parseDeclaration(
+      parameter as DeclarationReflection
+    ) as ParameterData;
   }
-  
+
   parseSignature(signature: SignatureReflection) {
     const { name, description, content } = this.parseReflection(signature);
     const returnType = (signature.type as Type).toString();
@@ -184,5 +184,4 @@ export class TypedocService {
       returnDesc,
     } as SignatureData;
   }
-
 }

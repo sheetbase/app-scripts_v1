@@ -13,7 +13,6 @@ interface Options {
 }
 
 export class BuildCommand {
-
   private contentService: ContentService;
   private fileService: FileService;
   private messageService: MessageService;
@@ -28,7 +27,7 @@ export class BuildCommand {
     fileService: FileService,
     messageService: MessageService,
     projectService: ProjectService,
-    rollupService: RollupService,
+    rollupService: RollupService
   ) {
     this.contentService = contentService;
     this.fileService = fileService;
@@ -61,7 +60,7 @@ export class BuildCommand {
   compileCode() {
     return execSync(`tsc -p .`, { stdio: 'ignore' });
   }
-  
+
   async bundleCode(configs: ProjectConfigs) {
     const { type, inputPath, umdPath, umdName, esmPath } = configs;
     // build output
@@ -85,15 +84,18 @@ export class BuildCommand {
     // bundle
     return this.rollupService.bundleCode(inputPath, output);
   }
-  
+
   async buildModule(typingsPath: string) {
     this.moduleSaveTypings(typingsPath);
   }
-  
+
   async moduleSaveTypings(typingsPath: string) {
-    return this.fileService.outputFile(typingsPath, `export * from './public-api';`);
+    return this.fileService.outputFile(
+      typingsPath,
+      `export * from './public-api';`
+    );
   }
-  
+
   async buildApp(umdPath: string, copy: string, vendor: string) {
     // cleanup
     await this.fileService.remove(this.DEPLOY_DIR);
@@ -108,14 +110,14 @@ export class BuildCommand {
     // remove the dist folder
     await this.fileService.remove(this.DIST_DIR);
   }
-  
+
   async appSaveIndex() {
     return this.fileService.outputFile(
       resolve(this.DEPLOY_DIR, '@index.js'),
       '// A Sheetbase Application'
     );
   }
-  
+
   async appSaveMain(mainPath: string) {
     const { EOL, EOL2X } = this.contentService;
     const mainContent = await this.fileService.readFile(mainPath);
@@ -124,15 +126,20 @@ export class BuildCommand {
       'function doPost(e) { return App.Sheetbase.HTTP.post(e); }',
     ].join(EOL);
     const content = mainContent + EOL2X + wwwSnippet;
-    return this.fileService.outputFile(resolve(this.DEPLOY_DIR, '@app.js'), content);
+    return this.fileService.outputFile(
+      resolve(this.DEPLOY_DIR, '@app.js'),
+      content
+    );
   }
-  
+
   async appCopyResources(input: string) {
     const copies = ['.clasp.json', 'appsscript.json', 'src/views'];
-    (input || '').split(',').forEach(item => !!item && copies.push(item.trim()));
+    (input || '')
+      .split(',')
+      .forEach(item => !!item && copies.push(item.trim()));
     return this.fileService.copy(copies, this.DEPLOY_DIR);
   }
-  
+
   async appSaveVendor(input: string) {
     const { EOL, EOL2X } = this.contentService;
     const vendors = (input || '').split(',').map(item => item.trim());
@@ -150,9 +157,8 @@ export class BuildCommand {
     return !input
       ? null
       : this.fileService.outputFile(
-        resolve(this.DEPLOY_DIR, '@vendor.js'),
-        contentArr.join(EOL2X),
-      );
+          resolve(this.DEPLOY_DIR, '@vendor.js'),
+          contentArr.join(EOL2X)
+        );
   }
-
 }
