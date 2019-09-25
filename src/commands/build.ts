@@ -39,16 +39,12 @@ export class BuildCommand {
   async build(options: Options) {
     const projectConfigs = await this.projectService.getConfigs();
     const { type, umdPath, typingsPath } = projectConfigs;
-    // validation
-    if (!umdPath || !typingsPath) {
-      throw new Error('Invalid project.');
-    }
     // compile & bundle
     this.compileCode();
     await this.bundleCode(projectConfigs);
     // specific build
     if (type === 'module') {
-      await this.buildModule(typingsPath);
+      await this.buildModule(typingsPath as string);
     } else {
       const { copy = '', vendor = '' } = options;
       await this.buildApp(umdPath, copy, vendor);
@@ -120,7 +116,9 @@ export class BuildCommand {
 
   async appSaveMain(mainPath: string) {
     const { EOL, EOL2X } = this.contentService;
-    const mainContent = await this.fileService.readFile(mainPath);
+    const mainContent = await this.fileService.readFile(
+      resolve(mainPath),
+    );
     const wwwSnippet = [
       'function doGet(e) { return App.Sheetbase.HTTP.get(e); }',
       'function doPost(e) { return App.Sheetbase.HTTP.post(e); }',
@@ -134,31 +132,40 @@ export class BuildCommand {
 
   async appCopyResources(input: string) {
     const copies = ['.clasp.json', 'appsscript.json', 'src/views'];
+    // extract copied path
     (input || '')
       .split(',')
-      .forEach(item => !!item && copies.push(item.trim()));
+      .forEach(item => !!item.trim() && copies.push(item.trim()));
+    // save file
     return this.fileService.copy(copies, this.DEPLOY_DIR);
   }
 
   async appSaveVendor(input: string) {
     const { EOL, EOL2X } = this.contentService;
-    const vendors = (input || '').split(',').map(item => item.trim());
-    // merge vendor code
-    const contentArr = [];
-    for (const vendor of vendors) {
-      const path = vendor
-        .replace('~', 'node_modules/')
-        .replace('@', 'src/')
-        .replace('//', '/');
-      const content = await this.fileService.readFile(path);
-      contentArr.push([`// ${path}`, content].join(EOL));
-    }
-    // save file
-    return !input
-      ? null
-      : this.fileService.outputFile(
-          resolve(this.DEPLOY_DIR, '@vendor.js'),
-          contentArr.join(EOL2X)
+    // extract vendor paths
+    const vendors: string[] = [];
+    (input || '')
+      .split(',')
+      .forEach(item => !!item.trim() && vendors.push(item.trim()));
+    if (!!vendors.length) {
+      // merge vendor code
+      const contentArr: string[] = [];
+      for (const vendor of vendors) {
+        const path = vendor
+          .replace('~', 'node_modules/')
+          .replace('@', 'src/')
+          .replace('//', '/');
+        const content = await this.fileService.readFile(
+          resolve(path),
         );
+        contentArr.push([`// ${path}`, content].join(EOL));
+      }
+      // save file
+      return this.fileService.outputFile(
+        resolve(this.DEPLOY_DIR, '@vendor.js'),
+        contentArr.join(EOL2X)
+      );
+    }
   }
+
 }
