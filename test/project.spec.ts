@@ -21,12 +21,10 @@ async function setup<
 >(
   serviceStubs?: ServiceStubs,
   serviceMocks: {
-    fileServiceMocks?: FileServiceMocks,
-  } = {},
+    fileServiceMocks?: FileServiceMocks;
+  } = {}
 ) {
-  const {
-    fileServiceMocks = {},
-  } = serviceMocks;
+  const { fileServiceMocks = {} } = serviceMocks;
   return rewireFull(
     // rewire the module
     '@services/project',

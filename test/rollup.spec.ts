@@ -30,18 +30,14 @@ async function setup<
 >(
   serviceStubs?: ServiceStubs,
   serviceMocks: {
-    projectServiceMocks?: ProjectServiceMocks,
+    projectServiceMocks?: ProjectServiceMocks;
   } = {},
   moduleMocks: {
-    rollupModuleMocks?: RollupModuleMocks
-  } = {},
+    rollupModuleMocks?: RollupModuleMocks;
+  } = {}
 ) {
-  const {
-    projectServiceMocks = {},
-  } = serviceMocks;
-  const {
-    rollupModuleMocks = {},
-  } = moduleMocks;
+  const { projectServiceMocks = {} } = serviceMocks;
+  const { rollupModuleMocks = {} } = moduleMocks;
   return rewireFull(
     // rewire the module
     '@services/rollup',
@@ -85,7 +81,7 @@ describe('services/rollup.ts', () => {
             commonjs: { a: 1 },
           },
         }),
-      }
+      },
     });
 
     const result = await service.getConfigs();

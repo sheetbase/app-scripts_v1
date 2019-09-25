@@ -116,9 +116,7 @@ export class BuildCommand {
 
   async appSaveMain(mainPath: string) {
     const { EOL, EOL2X } = this.contentService;
-    const mainContent = await this.fileService.readFile(
-      resolve(mainPath),
-    );
+    const mainContent = await this.fileService.readFile(resolve(mainPath));
     const wwwSnippet = [
       'function doGet(e) { return App.Sheetbase.HTTP.get(e); }',
       'function doPost(e) { return App.Sheetbase.HTTP.post(e); }',
@@ -155,9 +153,7 @@ export class BuildCommand {
           .replace('~', 'node_modules/')
           .replace('@', 'src/')
           .replace('//', '/');
-        const content = await this.fileService.readFile(
-          resolve(path),
-        );
+        const content = await this.fileService.readFile(resolve(path));
         contentArr.push([`// ${path}`, content].join(EOL));
       }
       // save file
@@ -167,5 +163,4 @@ export class BuildCommand {
       );
     }
   }
-
 }

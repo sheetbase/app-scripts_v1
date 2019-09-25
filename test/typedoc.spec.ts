@@ -1,10 +1,6 @@
 // tslint:disable: no-any ban-ts-ignore ban
 import { expect } from 'chai';
-import {
-  mockModule,
-  ServiceStubing,
-  rewireFull,
-} from '@lamnhan/testing';
+import { mockModule, ServiceStubing, rewireFull } from '@lamnhan/testing';
 
 import { TypedocService } from '../src/services/typedoc';
 
@@ -12,15 +8,15 @@ import { TypedocService } from '../src/services/typedoc';
 const mockedTypedocModule = {
   '.Application': class {
     args: any[] = [];
-    constructor(...args: any[]) { this.args = args; }
+    constructor(...args: any[]) {
+      this.args = args;
+    }
   },
 };
 
 // setup test
-async function setup<
-  ServiceStubs extends ServiceStubing<TypedocService>,
->(
-  serviceStubs?: ServiceStubs,
+async function setup<ServiceStubs extends ServiceStubing<TypedocService>>(
+  serviceStubs?: ServiceStubs
 ) {
   return rewireFull(
     // rewire the module
@@ -36,7 +32,6 @@ async function setup<
 }
 
 describe('services/typedoc.ts', () => {
-
   it('#getApp (default)', async () => {
     const { service } = await setup();
 
@@ -50,7 +45,7 @@ describe('services/typedoc.ts', () => {
         module: 'CommonJS',
         experimentalDecorators: true,
         ignoreCompilerErrors: true,
-      }
+      },
     ]);
   });
 
@@ -72,7 +67,7 @@ describe('services/typedoc.ts', () => {
         module: 'umd',
         experimentalDecorators: true,
         ignoreCompilerErrors: false,
-      }
+      },
     ]);
   });
 
@@ -95,5 +90,4 @@ describe('services/typedoc.ts', () => {
   it.skip('#parseParameter', async () => {});
 
   it.skip('#parseSignature', async () => {});
-
 });

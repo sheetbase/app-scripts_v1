@@ -165,7 +165,9 @@ export class ContentService {
       const subResultArr: string[] = [];
       // title
       const paramArr = params.map(item => item.name);
-      subResultArr.push(`<h4><a name="${name}">\`${name}(${paramArr.join(', ')})\`</a></h4>`);
+      subResultArr.push(
+        `<h4><a name="${name}">\`${name}(${paramArr.join(', ')})\`</a></h4>`
+      );
       // description
       if (!!description) {
         subResultArr.push(description);

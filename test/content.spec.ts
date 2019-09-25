@@ -45,14 +45,11 @@ async function setup<
 >(
   serviceStubs?: ServiceStubs,
   serviceMocks: {
-    fileServiceMocks?: FileServiceMocks,
-    typedocServiceMocks?: TypedocServiceMocks
-  } = {},
+    fileServiceMocks?: FileServiceMocks;
+    typedocServiceMocks?: TypedocServiceMocks;
+  } = {}
 ) {
-  const {
-    fileServiceMocks = {},
-    typedocServiceMocks = {},
-  } = serviceMocks;
+  const { fileServiceMocks = {}, typedocServiceMocks = {} } = serviceMocks;
   return rewireFull(
     // rewire the module
     '@services/content',
@@ -79,7 +76,6 @@ async function setup<
 }
 
 describe('services/content.ts', () => {
-
   it('service instances', async () => {
     const { service } = await setup();
 
@@ -130,5 +126,4 @@ describe('services/content.ts', () => {
   it.skip('#getRoutingInfoSummaryMD', async () => {});
 
   it.skip('#getRoutingInfoDetailMD', async () => {});
-
 });

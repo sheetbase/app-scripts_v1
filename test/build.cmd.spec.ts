@@ -61,12 +61,12 @@ async function setup<
 >(
   serviceStubs?: ServiceStubs,
   serviceMocks: {
-    contentServiceMocks?: ContentServiceMocks,
-    fileServiceMocks?: FileServiceMocks,
-    messageServiceMocks?: MessageServiceMocks,
-    projectServiceMocks?: ProjectServiceMocks,
-    rollupServiceMocks?: RollupServiceMocks
-  } = {},
+    contentServiceMocks?: ContentServiceMocks;
+    fileServiceMocks?: FileServiceMocks;
+    messageServiceMocks?: MessageServiceMocks;
+    projectServiceMocks?: ProjectServiceMocks;
+    rollupServiceMocks?: RollupServiceMocks;
+  } = {}
 ) {
   const {
     contentServiceMocks = {},
@@ -156,10 +156,10 @@ describe('commands/build.ts', () => {
     };
     const { service } = await setup(
       {
-        compileCode: async () => compileCodeCalled = true,
-        bundleCode: async (...args: any[]) => bundleCodeArgs = args,
-        buildModule: async (...args: any[]) => buildModuleArgs = args,
-        buildApp: async (...args: any[]) => buildAppArgs = args,
+        compileCode: async () => (compileCodeCalled = true),
+        bundleCode: async (...args: any[]) => (bundleCodeArgs = args),
+        buildModule: async (...args: any[]) => (buildModuleArgs = args),
+        buildApp: async (...args: any[]) => (buildAppArgs = args),
       },
       {
         projectServiceMocks: {
@@ -170,7 +170,7 @@ describe('commands/build.ts', () => {
 
     const result = await service.build({});
     expect(compileCodeCalled).equal(true);
-    expect(bundleCodeArgs).eql([ getConfigsMockedReturns ]);
+    expect(bundleCodeArgs).eql([getConfigsMockedReturns]);
     expect(buildModuleArgs).eql(['xxx.d.ts']);
     expect(buildAppArgs).eql([]);
     expect(result).equal('Build module completed.');
@@ -189,10 +189,10 @@ describe('commands/build.ts', () => {
     };
     const { service } = await setup(
       {
-        compileCode: async () => compileCodeCalled = true,
-        bundleCode: async (...args: any[]) => bundleCodeArgs = args,
-        buildModule: async (...args: any[]) => buildModuleArgs = args,
-        buildApp: async (...args: any[]) => buildAppArgs = args,
+        compileCode: async () => (compileCodeCalled = true),
+        bundleCode: async (...args: any[]) => (bundleCodeArgs = args),
+        buildModule: async (...args: any[]) => (buildModuleArgs = args),
+        buildApp: async (...args: any[]) => (buildAppArgs = args),
       },
       {
         projectServiceMocks: {
@@ -206,7 +206,7 @@ describe('commands/build.ts', () => {
       vendor: 'src/xxx.js',
     });
     expect(compileCodeCalled).equal(true);
-    expect(bundleCodeArgs).eql([ getConfigsMockedReturns ]);
+    expect(bundleCodeArgs).eql([getConfigsMockedReturns]);
     expect(buildModuleArgs).eql([]);
     expect(buildAppArgs).eql(['xxx.umd.js', 'src/xxx', 'src/xxx.js']);
     expect(result).equal('Build app completed.');
@@ -239,7 +239,7 @@ describe('commands/build.ts', () => {
           name: 'Xxx',
           sourcemap: false,
         },
-      ]
+      ],
     ]);
   });
 
@@ -269,7 +269,7 @@ describe('commands/build.ts', () => {
           sourcemap: true,
           file: 'xxx.esm.js',
         },
-      ]
+      ],
     ]);
   });
 
@@ -277,7 +277,8 @@ describe('commands/build.ts', () => {
     let moduleSaveTypingsArgs: any[] = [];
 
     const { service } = await setup({
-      moduleSaveTypings: async (...args: any[]) => moduleSaveTypingsArgs = args,
+      moduleSaveTypings: async (...args: any[]) =>
+        (moduleSaveTypingsArgs = args),
     });
 
     const result = await service.buildModule('xxx.d.ts');
@@ -288,10 +289,7 @@ describe('commands/build.ts', () => {
     const { service } = await setup();
 
     const result = await service.moduleSaveTypings('xxx.d.ts');
-    expect(result).eql([
-      'xxx.d.ts',
-      `export * from './public-api';`
-    ]);
+    expect(result).eql(['xxx.d.ts', `export * from './public-api';`]);
   });
 
   it('#buildApp', async () => {
@@ -302,23 +300,21 @@ describe('commands/build.ts', () => {
 
     const {
       service,
-      mockedServices: {
-        '@services/file': fileServiceTesting,
-      },
+      mockedServices: { '@services/file': fileServiceTesting },
     } = await setup({
-      appSaveIndex: async () => appSaveIndexCalled = true,
-      appSaveMain: async (...args: any[]) => appSaveMainArgs = args,
-      appCopyResources: async (...args: any[]) => appCopyResourcesArgs = args,
-      appSaveVendor: async (...args: any[]) => appSaveVendorArgs = args,
+      appSaveIndex: async () => (appSaveIndexCalled = true),
+      appSaveMain: async (...args: any[]) => (appSaveMainArgs = args),
+      appCopyResources: async (...args: any[]) => (appCopyResourcesArgs = args),
+      appSaveVendor: async (...args: any[]) => (appSaveVendorArgs = args),
     });
 
     const result = await service.buildApp(
-      'xxx.umd.js', 'src/xxx', 'src/xxx.js',
+      'xxx.umd.js',
+      'src/xxx',
+      'src/xxx.js'
     );
     const removeStackedArgs = fileServiceTesting.getStackedArgs('remove');
-    expect(removeStackedArgs).eql([
-      ['deploy'], ['dist']
-    ]);
+    expect(removeStackedArgs).eql([['deploy'], ['dist']]);
     expect(appSaveIndexCalled).equal(true);
     expect(appSaveMainArgs).eql(['xxx.umd.js']);
     expect(appCopyResourcesArgs).eql(['src/xxx']);
@@ -329,18 +325,13 @@ describe('commands/build.ts', () => {
     const { service } = await setup();
 
     const result = await service.appSaveIndex();
-    expect(result).eql([
-      'deploy/@index.js',
-      '// A Sheetbase Application'
-    ]);
+    expect(result).eql(['deploy/@index.js', '// A Sheetbase Application']);
   });
 
   it('#appSaveMain', async () => {
     const {
       service,
-      mockedServices: {
-        '@services/file': fileServiceTesting,
-      },
+      mockedServices: { '@services/file': fileServiceTesting },
     } = await setup();
 
     const result = await service.appSaveMain('xxx.umd.js');
@@ -383,8 +374,12 @@ describe('commands/build.ts', () => {
     const result = await service.appCopyResources('abc.txt, src/xxx,xxx.xyz ');
     expect(result).eql([
       [
-        '.clasp.json', 'appsscript.json', 'src/views',
-        'abc.txt', 'src/xxx', 'xxx.xyz',
+        '.clasp.json',
+        'appsscript.json',
+        'src/views',
+        'abc.txt',
+        'src/xxx',
+        'xxx.xyz',
       ],
       'deploy',
     ]);
@@ -407,9 +402,7 @@ describe('commands/build.ts', () => {
   it('#appSaveVendor (valid input)', async () => {
     const {
       service,
-      mockedServices: {
-        '@services/file': fileServiceTesting,
-      },
+      mockedServices: { '@services/file': fileServiceTesting },
     } = await setup();
 
     const result = await service.appSaveVendor(
@@ -444,8 +437,7 @@ describe('commands/build.ts', () => {
         '',
         '// node_modules/xxx/xxx.js',
         'xxx',
-      ].join('\n')
+      ].join('\n'),
     ]);
   });
-
 });
