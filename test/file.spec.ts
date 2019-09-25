@@ -6,7 +6,7 @@ import { FileService } from '../src/services/file';
 
 // path
 const mockedPathModule = {
-  resolve: (p1: string, p2: string) => (!p2 ? p1 : p1 + '/' + p2),
+  resolve: (...args: string[]) => args.join('/'),
 };
 
 // fs-extra
@@ -125,9 +125,9 @@ describe('services/file.ts', () => {
     );
     const copyStackedArgs = fsExtraModuleTesting.getStackedArgs('copy');
     expect(copyStackedArgs).eql([
-      ['xxx', 'dest'],
+      ['xxx', 'dest/'],
       ['xxx.txt', 'dest/xxx.txt'],
-      ['src/xxx', 'dest'],
+      ['src/xxx', 'dest/'],
       ['src/xxx/abc.txt', 'dest/abc.txt'],
       ['src/xxx/abc.txt', 'dest/abc.txt'],
     ]);
