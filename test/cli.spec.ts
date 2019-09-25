@@ -34,7 +34,7 @@ class MockedDocsCommand {
 async function setup() {
   return rewireFull(
     // rewire the module
-    () => import('../src/cli'),
+    '@src/cli',
     {
       '~commander': mockModule(mockedCommanderModule),
       '@services/file': { FileService: class {} },

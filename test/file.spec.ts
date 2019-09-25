@@ -23,10 +23,17 @@ const mockedFSExtra = {
 // setup test
 async function setup<
   FSExtraModuleMocks extends ModuleMocking<typeof mockedFSExtra>
->(fsExtraModuleMocks?: FSExtraModuleMocks) {
+>(
+  moduleMocks: {
+    fsExtraModuleMocks?: FSExtraModuleMocks
+  } = {},
+) {
+  const {
+    fsExtraModuleMocks = {},
+  } = moduleMocks;
   return rewireFull(
     // rewire the module
-    () => import('../src/services/file'),
+    '@services/file',
     {
       path: mockModule(mockedPathModule),
       '~fs-extra': mockModule({
@@ -99,7 +106,10 @@ describe('services/file.ts', () => {
       service,
       mockedModules: { '~fs-extra': fsExtraModuleTesting },
     } = await setup({
-      pathExists: async () => false,
+      // remock fs-extra module
+      fsExtraModuleMocks: {
+        pathExists: async () => false,
+      }
     });
 
     const result = await service.copy(['xxx.txt'], 'dest');

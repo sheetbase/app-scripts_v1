@@ -18,10 +18,18 @@ const mockedFileService = {
 async function setup<
   ServiceStubs extends ServiceStubing<ProjectService>,
   FileServiceMocks extends ServiceMocking<typeof mockedFileService>
->(serviceStubs?: ServiceStubs, fileServiceMocks?: FileServiceMocks) {
+>(
+  serviceStubs?: ServiceStubs,
+  serviceMocks: {
+    fileServiceMocks?: FileServiceMocks,
+  } = {},
+) {
+  const {
+    fileServiceMocks = {},
+  } = serviceMocks;
   return rewireFull(
     // rewire the module
-    () => import('../src/services/project'),
+    '@services/project',
     undefined,
     // rewire the service
     ProjectService,

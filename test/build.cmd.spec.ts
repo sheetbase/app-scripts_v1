@@ -69,11 +69,11 @@ async function setup<
   } = {},
 ) {
   const {
-    contentServiceMocks,
-    fileServiceMocks,
-    messageServiceMocks,
-    projectServiceMocks,
-    rollupServiceMocks,
+    contentServiceMocks = {},
+    fileServiceMocks = {},
+    messageServiceMocks = {},
+    projectServiceMocks = {},
+    rollupServiceMocks = {},
   } = serviceMocks;
   return rewireFull(
     // rewire the module

@@ -29,12 +29,22 @@ async function setup<
   RollupModuleMocks extends ModuleMocking<typeof mockedRollupModule>
 >(
   serviceStubs?: ServiceStubs,
-  projectServiceMocks?: ProjectServiceMocks,
-  rollupModuleMocks?: RollupModuleMocks
+  serviceMocks: {
+    projectServiceMocks?: ProjectServiceMocks,
+  } = {},
+  moduleMocks: {
+    rollupModuleMocks?: RollupModuleMocks
+  } = {},
 ) {
+  const {
+    projectServiceMocks = {},
+  } = serviceMocks;
+  const {
+    rollupModuleMocks = {},
+  } = moduleMocks;
   return rewireFull(
     // rewire the module
-    () => import('../src/services/rollup'),
+    '@services/rollup',
     {
       '~rollup': mockModule({
         ...mockedRollupModule,
@@ -68,11 +78,14 @@ describe('services/rollup.ts', () => {
 
   it('#getConfigs (has values)', async () => {
     const { service } = await setup(undefined, {
-      getPackageJson: async () => ({
-        rollup: {
-          commonjs: { a: 1 },
-        },
-      }),
+      // remock project service
+      projectServiceMocks: {
+        getPackageJson: async () => ({
+          rollup: {
+            commonjs: { a: 1 },
+          },
+        }),
+      }
     });
 
     const result = await service.getConfigs();
