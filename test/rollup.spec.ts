@@ -46,8 +46,6 @@ async function setup<
         ...mockedRollupModule,
         ...rollupModuleMocks,
       }),
-      '~rollup-plugin-node-resolve': (configs: any) => configs,
-      '~rollup-plugin-commonjs': (configs: any) => configs,
     },
     // rewire the service
     RollupService,
@@ -97,8 +95,8 @@ describe('services/rollup.ts', () => {
       mockedModules: { '~rollup': rollupModuleTesting },
     } = await setup({
       getConfigs: async () => ({
-        resolveConfigs: { a: 1 },
-        commonjsConfigs: { b: 2 },
+        resolveConfigs: {},
+        commonjsConfigs: {},
       }),
     });
 
@@ -108,8 +106,8 @@ describe('services/rollup.ts', () => {
     ]);
     const rollupArg = rollupModuleTesting.getArgFirst('rollup');
     expect(rollupArg.input).equal('xxx');
-    expect(rollupArg.plugins[0]).eql({ a: 1 }, 'resolve');
-    expect(rollupArg.plugins[1]).eql({ b: 2 }, 'commonjs');
+    expect(rollupArg.plugins[0].name).equal('node-resolve');
+    expect(rollupArg.plugins[1].name).equal('commonjs');
     expect(rollupModuleTesting.getStackedArgs('write')).eql([
       [{ format: 'umd', file: 'xxx' }],
       [{ format: 'esm', file: 'xxx2' }],

@@ -1,6 +1,6 @@
 import { rollup, OutputOptions } from 'rollup';
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
+import * as resolve from 'rollup-plugin-node-resolve';
+import * as commonjs from 'rollup-plugin-commonjs';
 
 import { ProjectService } from './project';
 
@@ -31,7 +31,12 @@ export class RollupService {
     const { resolveConfigs, commonjsConfigs } = await this.getConfigs();
     const bundle = await rollup({
       input,
-      plugins: [resolve(resolveConfigs), commonjs(commonjsConfigs)],
+      plugins: [
+        // tslint:disable-next-line: no-any
+        (resolve as any)(resolveConfigs),
+        // tslint:disable-next-line: no-any
+        (commonjs as any)(commonjsConfigs)
+      ],
     });
     for (const output of outputs) {
       await bundle.write(output);

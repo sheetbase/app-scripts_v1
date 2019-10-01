@@ -216,7 +216,7 @@ describe('commands/build.ts', () => {
     const { service } = await setup();
 
     const result = service.compileCode();
-    expect(result).eql([`tsc -p .`, { stdio: 'ignore' }]);
+    expect(result).eql([`npx tsc -p .`, { stdio: 'ignore' }]);
   });
 
   it('#bundleCode (app)', async () => {
@@ -289,7 +289,7 @@ describe('commands/build.ts', () => {
     const { service } = await setup();
 
     const result = await service.moduleSaveTypings('xxx.d.ts');
-    expect(result).eql(['xxx.d.ts', `export * from './public-api';`]);
+    expect(result).eql(['xxx.d.ts', `export * from './src/public-api';`]);
   });
 
   it('#buildApp', async () => {
@@ -342,8 +342,8 @@ describe('commands/build.ts', () => {
       [
         'xxx',
         '',
-        'function doGet(e) { return App.Sheetbase.HTTP.get(e); }',
-        'function doPost(e) { return App.Sheetbase.HTTP.post(e); }',
+        'function doGet(e) { return App.Server.HTTP.get(e); }',
+        'function doPost(e) { return App.Server.HTTP.post(e); }',
       ].join('\n'),
     ]);
   });

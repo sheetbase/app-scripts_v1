@@ -63,10 +63,10 @@ describe('services/project.ts', () => {
       type: 'module',
       name: 'xxx',
       fullName: 'sheetbase-xxx',
-      inputPath: './dist/esm3/public-api.js',
-      umdPath: './dist/bundles/sheetbase-xxx.js',
+      inputPath: './dist/src/public-api.js',
+      umdPath: './dist/sheetbase-xxx.js',
       umdName: 'Xxx',
-      esmPath: './dist/fesm3/sheetbase-xxx.js',
+      esmPath: './dist/sheetbase-xxx.esm.js',
       typingsPath: './dist/sheetbase-xxx.d.ts',
     });
   });
@@ -80,7 +80,7 @@ describe('services/project.ts', () => {
       type: 'app',
       name: 'backend',
       fullName: 'sheetbase-backend',
-      inputPath: './dist/index.js',
+      inputPath: './dist/src/index.js',
       umdPath: './dist/app.js',
       umdName: 'App',
     });

@@ -56,7 +56,7 @@ export class ProjectService {
     const name = pkgName.split('/').pop() as string; // ex.: server
     const fullName = pkgName.replace('@', '').replace('/', '-'); //ex.: sheetbase-server
     if (type === 'app') {
-      const inputPath = './dist/index.js';
+      const inputPath = './dist/src/index.js';
       const umdPath = './dist/app.js';
       const umdName = 'App';
       return {
@@ -68,10 +68,10 @@ export class ProjectService {
         umdName,
       };
     } else {
-      const inputPath = './dist/esm3/public-api.js';
-      const umdPath = `./dist/bundles/${fullName}.js`;
+      const inputPath = './dist/src/public-api.js';
+      const umdPath = `./dist/${fullName}.js`;
       const umdName = name.charAt(0).toUpperCase() + name.slice(1);
-      const esmPath = `./dist/fesm3/${fullName}.js`;
+      const esmPath = `./dist/${fullName}.esm.js`;
       const typingsPath = `./dist/${fullName}.d.ts`;
       return {
         type,

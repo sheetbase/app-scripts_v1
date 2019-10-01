@@ -54,7 +54,7 @@ export class BuildCommand {
   }
 
   compileCode() {
-    return execSync(`tsc -p .`, { stdio: 'ignore' });
+    return execSync(`npx tsc -p .`, { stdio: 'ignore' });
   }
 
   async bundleCode(configs: ProjectConfigs) {
@@ -88,7 +88,7 @@ export class BuildCommand {
   async moduleSaveTypings(typingsPath: string) {
     return this.fileService.outputFile(
       typingsPath,
-      `export * from './public-api';`
+      `export * from './src/public-api';`
     );
   }
 
@@ -118,8 +118,8 @@ export class BuildCommand {
     const { EOL, EOL2X } = this.contentService;
     const mainContent = await this.fileService.readFile(resolve(mainPath));
     const wwwSnippet = [
-      'function doGet(e) { return App.Sheetbase.HTTP.get(e); }',
-      'function doPost(e) { return App.Sheetbase.HTTP.post(e); }',
+      'function doGet(e) { return App.Server.HTTP.get(e); }',
+      'function doPost(e) { return App.Server.HTTP.post(e); }',
     ].join(EOL);
     const content = mainContent + EOL2X + wwwSnippet;
     return this.fileService.outputFile(

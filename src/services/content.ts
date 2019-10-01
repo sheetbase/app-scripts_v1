@@ -118,7 +118,7 @@ export class ContentService {
   getMainClassFullMD() {
     const data = this.typedocService.getClassMethods(
       resolve('src', 'lib', `main.ts`),
-      `MainService`
+      `Main`
     );
     const summary = this.getMainClassSummaryMD(data);
     const detail = this.getMainClassDetailMD(data);
@@ -199,7 +199,7 @@ export class ContentService {
   getRoutingInfoFullMD(moduleName: string) {
     const routeClass = this.typedocService.getDeclaration(
       resolve('src', 'lib', `route.ts`),
-      `RouteService`
+      `Route`
     );
     const declarations: DeclarationReflection[] = routeClass.children || [];
     // parse class
@@ -209,11 +209,11 @@ export class ContentService {
     const methodsDeclaration: DeclarationReflection[] = [];
     for (let i = 0, l = declarations.length; i < l; i++) {
       const child: DeclarationReflection = declarations[i];
-      if (child.name === 'ENDPOINT') {
+      if (child.name === 'baseEndpoint') {
         endpointDeclaration = child;
-      } else if (child.name === 'DISABLED') {
+      } else if (child.name === 'disabledRoutes') {
         disabledDeclaration = child;
-      } else if (child.name === 'ERRORS') {
+      } else if (child.name === 'routingErrors') {
         errorsDeclaration = child;
       } else if (
         child.kindString === 'Method' &&
@@ -424,5 +424,13 @@ export class ContentService {
       resultArr.push(subResultArr.join(this.EOL2X));
     }
     return this.formatMDContent(resultArr.join(this.EOL2X));
+  }
+
+  // TODO: add middle info
+  getMiddlewareInfoFullMD(moduleName: string) {
+    const middlewareClass = this.typedocService.getDeclaration(
+      resolve('src', 'lib', `middleware.ts`),
+      `Middleware`
+    );
   }
 }

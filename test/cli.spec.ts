@@ -72,7 +72,7 @@ describe('cli.ts', () => {
     const helpCommand = commanderModuleTesting.getArgInStack('action', 3, 1);
     const anyCommand = commanderModuleTesting.getArgInStack('action', 4, 1);
     // commander data
-    expect(versionArgs).eql(['2.0.0-beta', '-v, --version']);
+    expect(versionArgs).eql(['2.0.0-beta.1', '-v, --version']);
     expect(usageArgs).eql(['sheetbase-app-scripts [options] [command]']);
     expect(descriptionStkArgs).eql([
       ['Scripts for Sheetbase backend modules and apps.'],
