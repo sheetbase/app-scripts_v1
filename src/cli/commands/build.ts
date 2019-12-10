@@ -1,42 +1,33 @@
 import { resolve } from 'path';
 import { execSync } from 'child_process';
 
-import { ContentService } from '../services/content';
-import { FileService } from '../services/file';
-import { MessageService } from '../services/message';
-import { ProjectConfigs, ProjectService } from '../services/project';
-import { OutputOptions, RollupService } from '../services/rollup';
+import {
+  ProjectConfigs,
+  OutputOptions,
+  ProjectService,
+  MessageService,
+  RollupService,
+  FileService,
+} from '../../public-api';
 
-interface Options {
+export interface BuildOptions {
   copy?: string;
   vendor?: string;
 }
 
 export class BuildCommand {
-  private contentService: ContentService;
-  private fileService: FileService;
-  private messageService: MessageService;
-  private projectService: ProjectService;
-  private rollupService: RollupService;
 
   DIST_DIR = resolve('dist');
   DEPLOY_DIR = resolve('deploy');
 
   constructor(
-    contentService: ContentService,
-    fileService: FileService,
-    messageService: MessageService,
-    projectService: ProjectService,
-    rollupService: RollupService
-  ) {
-    this.contentService = contentService;
-    this.fileService = fileService;
-    this.messageService = messageService;
-    this.projectService = projectService;
-    this.rollupService = rollupService;
-  }
+    private fileService: FileService,
+    private messageService: MessageService,
+    private projectService: ProjectService,
+    private rollupService: RollupService,
+  ) {}
 
-  async build(options: Options) {
+  async run(options: BuildOptions) {
     const projectConfigs = await this.projectService.getConfigs();
     const { type, umdPath, typingsPath } = projectConfigs;
     // compile & bundle
@@ -115,13 +106,12 @@ export class BuildCommand {
   }
 
   async appSaveMain(mainPath: string) {
-    const { EOL, EOL2X } = this.contentService;
     const mainContent = await this.fileService.readFile(resolve(mainPath));
     const wwwSnippet = [
       'function doGet(e) { return App.Server.HTTP.get(e); }',
       'function doPost(e) { return App.Server.HTTP.post(e); }',
-    ].join(EOL);
-    const content = mainContent + EOL2X + wwwSnippet;
+    ].join('\n');
+    const content = mainContent + '\n\n' + wwwSnippet;
     return this.fileService.outputFile(
       resolve(this.DEPLOY_DIR, '@app.js'),
       content
@@ -139,7 +129,6 @@ export class BuildCommand {
   }
 
   async appSaveVendor(input: string) {
-    const { EOL, EOL2X } = this.contentService;
     // extract vendor paths
     const vendors: string[] = [];
     (input || '')
@@ -154,12 +143,12 @@ export class BuildCommand {
           .replace('@', 'src/')
           .replace('//', '/');
         const content = await this.fileService.readFile(resolve(path));
-        contentArr.push([`// ${path}`, content].join(EOL));
+        contentArr.push([`// ${path}`, content].join('\n'));
       }
       // save file
       return this.fileService.outputFile(
         resolve(this.DEPLOY_DIR, '@vendor.js'),
-        contentArr.join(EOL2X)
+        contentArr.join('\n\n')
       );
     }
   }

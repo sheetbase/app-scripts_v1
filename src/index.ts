@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-import { CLIApp } from './cli';
+import { CLI } from './cli/index';
 
-const cli = new CLIApp().getApp();
+const cliApp = new CLI().getApp();
 
 // show help
 if (!process.argv.slice(2).length) {
-  cli.outputHelp();
+  cliApp.outputHelp();
 }
 
 // execution
-cli.parse(process.argv);
+cliApp.parse(process.argv);

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { mockModule, rewireFull } from '@lamnhan/testing';
 
-import { CLIApp } from '../src/cli';
+import { CLI } from '../src/cli/index';
 
 // commander
 const mockedCommanderModule = {
@@ -47,7 +47,7 @@ async function setup() {
       '@commands/docs': { DocsCommand: MockedDocsCommand },
     },
     // rewire the service
-    CLIApp
+    CLI
   );
 }
 

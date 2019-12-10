@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 import { ModuleMocking, mockModule, rewireFull } from '@lamnhan/testing';
 
-import { FileService } from '../src/services/file';
+import { File } from '../src/lib/services/file';
 
 // path
 const mockedPathModule = {
@@ -40,7 +40,7 @@ async function setup<
       }),
     },
     // rewire the service
-    FileService
+    File
   );
 }
 

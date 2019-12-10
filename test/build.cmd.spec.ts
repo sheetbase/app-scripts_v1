@@ -9,7 +9,7 @@ import {
   rewireFull,
 } from '@lamnhan/testing';
 
-import { BuildCommand } from '../src/commands/build';
+import { BuildCommand } from '../src/cli/commands/build';
 
 // path
 const mockedPathModule = {

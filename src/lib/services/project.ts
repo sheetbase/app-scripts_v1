@@ -41,11 +41,8 @@ export interface ProjectConfigs {
 }
 
 export class ProjectService {
-  private fileService: FileService;
 
-  constructor(fileService: FileService) {
-    this.fileService = fileService;
-  }
+  constructor(private fileService: FileService) {}
 
   async getConfigs(): Promise<ProjectConfigs> {
     const { name: pkgName } = await this.getPackageJson();

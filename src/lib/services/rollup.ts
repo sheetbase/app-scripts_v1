@@ -7,11 +7,8 @@ import { ProjectService } from './project';
 export { OutputOptions };
 
 export class RollupService {
-  private projectService: ProjectService;
 
-  constructor(projectService: ProjectService) {
-    this.projectService = projectService;
-  }
+  constructor(private projectService: ProjectService) {}
 
   async getConfigs() {
     const {

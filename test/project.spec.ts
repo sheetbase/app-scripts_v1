@@ -7,7 +7,7 @@ import {
   rewireFull,
 } from '@lamnhan/testing';
 
-import { ProjectService } from '../src/services/project';
+import { Project } from '../src/lib/services/project';
 
 // @src/services/file
 const mockedFileService = {
@@ -16,7 +16,7 @@ const mockedFileService = {
 
 // setup test
 async function setup<
-  ServiceStubs extends ServiceStubing<ProjectService>,
+  ServiceStubs extends ServiceStubing<Project>,
   FileServiceMocks extends ServiceMocking<typeof mockedFileService>
 >(
   serviceStubs?: ServiceStubs,
@@ -30,7 +30,7 @@ async function setup<
     '@services/project',
     undefined,
     // rewire the service
-    ProjectService,
+    Project,
     {
       '@services/file': mockService({
         ...mockedFileService,

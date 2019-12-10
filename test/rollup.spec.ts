@@ -9,7 +9,7 @@ import {
   rewireFull,
 } from '@lamnhan/testing';
 
-import { RollupService } from '../src/services/rollup';
+import { Rollup } from '../src/lib/services/rollup';
 
 // rollup
 const mockedRollupModule = {
@@ -24,7 +24,7 @@ const mockedProjectService = {
 
 // setup test
 async function setup<
-  ServiceStubs extends ServiceStubing<RollupService>,
+  ServiceStubs extends ServiceStubing<Rollup>,
   ProjectServiceMocks extends ServiceMocking<typeof mockedProjectService>,
   RollupModuleMocks extends ModuleMocking<typeof mockedRollupModule>
 >(
@@ -48,7 +48,7 @@ async function setup<
       }),
     },
     // rewire the service
-    RollupService,
+    Rollup,
     {
       '@services/project': mockService({
         ...mockedProjectService,

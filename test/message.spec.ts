@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import { MessageService } from '../src/services/message';
+import { Message } from '../src/lib/services/message';
 
-const messageService = new MessageService();
+const messageService = new Message();
 let logStub: sinon.SinonStub;
 
 function before() {
