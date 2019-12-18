@@ -12,6 +12,7 @@
   },
   "files": [
     "src",
+    "ayedocs-plugin",
     "!**/*.ts",
     "**/*.d.ts"
   ],

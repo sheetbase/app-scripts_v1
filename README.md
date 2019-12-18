@@ -21,6 +21,19 @@
 
 </section>
 
+<section id="tocx" data-note="AUTO-GENERATED CONTENT, DO NOT EDIT DIRECTLY!">
+
+- [Install](#install)
+  - [Global](#global)
+  - [Local](#local)
+- [Command overview](#command-overview)
+- [Command reference](#command-reference)
+  - [`build`](#command-build)
+- [Detail API reference](https://sheetbase.github.io/app-scripts)
+
+
+</section>
+
 <section id="installation">
 
 ## Install
@@ -76,18 +89,5 @@ Build distribution package.
 ## License
 
 **@sheetbase/app-scripts** is released under the [MIT](https://github.com/sheetbase/app-scripts/blob/master/LICENSE) license.
-
-</section>
-
-<section id="tocx" data-note="AUTO-GENERATED CONTENT, DO NOT EDIT DIRECTLY!">
-
-- [Install](#install)
-  - [Global](#global)
-  - [Local](#local)
-- [Command overview](#command-overview)
-- [Command reference](#command-reference)
-  - [`build`](#command-build)
-- [Detail API reference](https://sheetbase.github.io/app-scripts)
-
 
 </section>

@@ -1,7 +1,7 @@
-import chalk from 'chalk';
+import { green } from 'chalk';
 
 export class MessageService {
-  OK = `[${chalk.green('OK')}]`;
+  OK = `[${green('OK')}]`;
 
   constructor() {}
 
