@@ -34,15 +34,19 @@ function extractParamChildren(methodName, methodTags, fileContent, paramName) {
   });
 }
 
-function routingConvertBuilder(umdName) {
+module.exports = (umdName) => {
   return (declaration, options, contentService) => {
     const routingBlocks = [];
     // const
+    const heading = typeof options.heading === 'boolean' ? options.heading: true;
     const fileContent = fs.readFileSync(
       './src/' + declaration.FILE_NAME, { encoding: 'utf8' });
+    // heading
+    if (heading) {
+      routingBlocks.push(contentService.blockHeading('Routing', 2, 'routing'));
+    }
     // intro
     routingBlocks.push(
-      contentService.blockHeading('Routing', 2, 'routing'),
       contentService.blockText([
         `**${umdName}** module provides REST API endpoints allowing clients to access server resources. Theses enpoints are not public by default, to expose the endpoints:`,
         [
@@ -190,71 +194,5 @@ function routingConvertBuilder(umdName) {
       ...detailRoutes
     );
     return routingBlocks;
-  }
-}
-
-module.exports = (full) => {
-  return (options, contentService, projectService) => {
-    const templateSections = {};
-    // consts
-    const { convertings = {} } = options;
-    const { name: packageName } = projectService.PACKAGE;
-    const name = packageName.split('/').pop();
-    const umdName = name.charAt(0).toUpperCase() + name.substr(1);
-    // header
-    if (full) {
-      templateSections['head'] = true;
-      templateSections['tocx'] = true;
-    }
-    // getting started
-    templateSections['gettingstarted'] = [
-      contentService.blockHeading('Getting started', 2, 'getting-started'),
-      contentService.blockText([
-        `- Install: \`npm install --save ${packageName}\``,
-        `- Usage:`,
-        [
-          `\`\`\`ts`,
-          `// 1. import constructor`,
-          `import { ${name} } from '${packageName}';`,
-          '',
-          `// 2. create an instance`,
-          `const ${umdName} = ${name}(/* options */);`,
-          '',
-          `// 3. start using`,
-          `const getOptions = ${umdName}.getOptions();`,
-          `\`\`\``,
-        ].join('\n')
-      ]),
-    ];
-    // options
-    templateSections['options'] = [
-      contentService.blockHeading('Options', 2, 'options'),
-      [
-        'Options',
-        'SUMMARY_PROPERTIES',
-        convertings['options'] || {}
-      ]
-    ];
-    // main
-    templateSections['main'] = [
-      'Main',
-      'FULL',
-      {
-        ...(convertings['main'] || {}),
-        title: 'Main'
-      }
-    ];
-    // routing
-    templateSections['routing'] = [
-      'RouteService',
-      routingConvertBuilder(umdName),
-      convertings['routing'] || {}
-    ];
-    // footer
-    if (full) {
-      templateSections['license'] = true;
-    }
-    // result
-    return templateSections;
   }
 }

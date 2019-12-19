@@ -26,6 +26,10 @@
 - [Install](#install)
   - [Global](#global)
   - [Local](#local)
+- [Ayedocs plugin](#ayedocs-plugin)
+  - [Sheetbase template](#sheetbase-template)
+  - [Sheetbase installation template](#sheetbase-installation-template)
+  - [Sheetbase routing template](#sheetbase-routing-template)
 - [Command overview](#command-overview)
 - [Command reference](#command-reference)
   - [`build`](#command-build)
@@ -56,6 +60,64 @@ Add these lines to the project `package.json`.
     "build": "sheetbase-app-scripts build"
   }
 }
+```
+
+</section>
+
+<section id="ayedocs-plugin">
+
+## Ayedocs plugin
+
+This package provides Ayedocs templates and converts for conviniently document generation for Sheetbase server modules.
+
+### Sheetbase template
+
+Included all sections:
+
+- Installation
+- Options
+- Main properties & methods
+- Routing
+
+```js
+const sheetbaseTemplate = require("@sheetbase/app-scripts/ayedocs-plugin/sheetbase.template");
+
+module.exports = {
+  fileRender: {
+    "sheetbase.md": sheetbaseTemplate(),
+    "sheetbase-full.md": sheetbaseTemplate(true)
+  }
+};
+```
+
+### Sheetbase installation template
+
+Common installation & basic usage section.
+
+```js
+const sheetbaseInstallationTemplate = require("@sheetbase/app-scripts/ayedocs-plugin/sheetbase-installation.template");
+
+module.exports = {
+  fileRender: {
+    "sheetbase-installation.md": sheetbaseInstallationTemplate(),
+    "sheetbase-installation-full.md": sheetbaseInstallationTemplate(true)
+  }
+};
+```
+
+### Sheetbase routing template
+
+Showing **endpoint**, **default disabled routes**, **routing errors** and **the list of routes**.
+
+```js
+const sheetbaseRoutingTemplate = require("@sheetbase/app-scripts/ayedocs-plugin/sheetbase-routing.template");
+
+module.exports = {
+  fileRender: {
+    "sheetbase-routing.md": sheetbaseRoutingTemplate(),
+    "sheetbase-routing-full.md": sheetbaseRoutingTemplate(true)
+  }
+};
 ```
 
 </section>
