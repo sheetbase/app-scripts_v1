@@ -78,6 +78,12 @@
 								<li><a href="#local">Local</a></li>
 							</ul>
 						</li>
+						<li><a href="#ayedocs-plugin">Ayedocs plugin</a><ul>
+								<li><a href="#sheetbase-template">Sheetbase template</a></li>
+								<li><a href="#sheetbase-installation-template">Sheetbase installation template</a></li>
+								<li><a href="#sheetbase-routing-template">Sheetbase routing template</a></li>
+							</ul>
+						</li>
 						<li><a href="#command-overview">Command overview</a></li>
 						<li><a href="#command-reference">Command reference</a><ul>
 								<li><a href="#command-build"><code>build</code></a></li>
@@ -114,39 +120,45 @@
 					<a href="#sheetbase-template" id="sheetbase-template" style="color: inherit; text-decoration: none;">
 						<h3>Sheetbase template</h3>
 					</a>
-					<pre><code class="language-js"><span class="hljs-keyword">const</span> sheetbaseTemplate = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@sheetbase/app-scripts/ayedocs-plugin/sheetbase.template'</span>);
+					<p>Included all sections:</p>
+					<ul>
+						<li>Installation</li>
+						<li>Options</li>
+						<li>Main properties &amp; methods</li>
+						<li>Routing</li>
+					</ul>
+					<pre><code class="language-js"><span class="hljs-keyword">const</span> sheetbaseTemplate = <span class="hljs-built_in">require</span>(<span class="hljs-string">"@sheetbase/app-scripts/ayedocs-plugin/sheetbase.template"</span>);
 
 <span class="hljs-built_in">module</span>.exports = {
   <span class="hljs-attr">fileRender</span>: {
-    <span class="hljs-string">'sheetbase.md'</span>: sheetbaseTemplate(),
-    <span class="hljs-string">'sheetbase-full.md'</span>: sheetbaseTemplate(<span class="hljs-literal">true</span>),
+    <span class="hljs-string">"sheetbase.md"</span>: sheetbaseTemplate(),
+    <span class="hljs-string">"sheetbase-full.md"</span>: sheetbaseTemplate(<span class="hljs-literal">true</span>)
   }
-};
-</code></pre>
+};</code></pre>
 					<a href="#sheetbase-installation-template" id="sheetbase-installation-template" style="color: inherit; text-decoration: none;">
 						<h3>Sheetbase installation template</h3>
 					</a>
-					<pre><code class="language-js"><span class="hljs-keyword">const</span> sheetbaseInstallationTemplate = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@sheetbase/app-scripts/ayedocs-plugin/sheetbase-installation.template'</span>);
+					<p>Common installation &amp; basic usage section.</p>
+					<pre><code class="language-js"><span class="hljs-keyword">const</span> sheetbaseInstallationTemplate = <span class="hljs-built_in">require</span>(<span class="hljs-string">"@sheetbase/app-scripts/ayedocs-plugin/sheetbase-installation.template"</span>);
 
 <span class="hljs-built_in">module</span>.exports = {
   <span class="hljs-attr">fileRender</span>: {
-    <span class="hljs-string">'sheetbase-installation.md'</span>: sheetbaseInstallationTemplate(),
-    <span class="hljs-string">'sheetbase-installation-full.md'</span>: sheetbaseInstallationTemplate(<span class="hljs-literal">true</span>),
+    <span class="hljs-string">"sheetbase-installation.md"</span>: sheetbaseInstallationTemplate(),
+    <span class="hljs-string">"sheetbase-installation-full.md"</span>: sheetbaseInstallationTemplate(<span class="hljs-literal">true</span>)
   }
-};
-</code></pre>
+};</code></pre>
 					<a href="#sheetbase-routing-template" id="sheetbase-routing-template" style="color: inherit; text-decoration: none;">
 						<h3>Sheetbase routing template</h3>
 					</a>
-					<pre><code class="language-js"><span class="hljs-keyword">const</span> sheetbaseRoutingTemplate = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@sheetbase/app-scripts/ayedocs-plugin/sheetbase-routing.template'</span>);
+					<p>Showing <strong>endpoint</strong>, <strong>default disabled routes</strong>, <strong>routing errors</strong> and <strong>the list of routes</strong>.</p>
+					<pre><code class="language-js"><span class="hljs-keyword">const</span> sheetbaseRoutingTemplate = <span class="hljs-built_in">require</span>(<span class="hljs-string">"@sheetbase/app-scripts/ayedocs-plugin/sheetbase-routing.template"</span>);
 
 <span class="hljs-built_in">module</span>.exports = {
   <span class="hljs-attr">fileRender</span>: {
-    <span class="hljs-string">'sheetbase-routing.md'</span>: sheetbaseRoutingTemplate(),
-    <span class="hljs-string">'sheetbase-routing-full.md'</span>: sheetbaseRoutingTemplate(<span class="hljs-literal">true</span>),
+    <span class="hljs-string">"sheetbase-routing.md"</span>: sheetbaseRoutingTemplate(),
+    <span class="hljs-string">"sheetbase-routing-full.md"</span>: sheetbaseRoutingTemplate(<span class="hljs-literal">true</span>)
   }
-};
-</code></pre>
+};</code></pre>
 				</section>
 				<section id="cli" data-note="AUTO-GENERATED CONTENT, DO NOT EDIT DIRECTLY!">
 					<h2><a name="command-overview"><p>Command overview</p>

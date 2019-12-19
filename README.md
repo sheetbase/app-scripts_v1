@@ -33,6 +33,7 @@
 - [Command overview](#command-overview)
 - [Command reference](#command-reference)
   - [`build`](#command-build)
+  - [`help`](#command-help)
 - [Detail API reference](https://sheetbase.github.io/app-scripts)
 
 
@@ -130,6 +131,7 @@ module.exports = {
 Scripts for Sheetbase backend modules and apps.
 
 - [`sheetbase-app-scripts build --copy [value] --vendor [value]`](#command-build)
+- [`sheetbase-app-scripts help`](#command-help)
 
 <h2><a name="command-reference"><p>Command reference</p>
 </a></h2>
@@ -143,6 +145,11 @@ Build distribution package.
 
 - `--copy [value]`: Copied resources, comma-seperated.
 - `--vendor [value]`: Files for @vendor.js, comma-seperated.
+
+<h3><a name="command-help"><p><code>help</code></p>
+</a></h3>
+
+Display help.
 
 </section>
 
