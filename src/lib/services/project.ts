@@ -41,7 +41,6 @@ export interface ProjectConfigs {
 }
 
 export class ProjectService {
-
   constructor(private fileService: FileService) {}
 
   async getConfigs(): Promise<ProjectConfigs> {

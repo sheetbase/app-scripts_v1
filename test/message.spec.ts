@@ -1,13 +1,14 @@
 import { expect } from 'chai';
-import * as sinon from 'sinon';
+import { sinon } from '@lamnhan/testea';
 
-import { Message } from '../src/lib/services/message';
+import { MessageService } from '../src/lib/services/message';
 
-const messageService = new Message();
+const messageService = new MessageService();
 let logStub: sinon.SinonStub;
 
 function before() {
-  logStub = sinon.stub(console, 'log').callsFake(value => value);
+  // tslint:disable-next-line: no-any
+  logStub = sinon.stub(console, 'log').callsFake(value => value) as any;
 }
 
 function after() {

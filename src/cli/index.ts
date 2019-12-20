@@ -1,29 +1,33 @@
 import { red } from 'chalk';
 import * as commander from 'commander';
-
-import { appscripts, AppscriptsModule } from '../public-api';
+import { AppscriptsModule } from '../public-api';
 
 import { BuildCommand } from './commands/build';
 
 export class Cli {
   private appscriptsModule: AppscriptsModule;
-  private buildCommand: BuildCommand;
 
-  commander = ['sheetbase-app-scripts', 'Scripts for Sheetbase backend modules and apps.'];
+  buildCommand: BuildCommand;
+
+  commander = [
+    'sheetbase-app-scripts',
+    'Scripts for Sheetbase backend modules and apps.'
+  ];
 
   buildCommandDef: CommandDef = [
-    'build', 'Build distribution package.',
+    'build',
+    'Build distribution package.',
     ['--copy [value]', 'Copied resources, comma-seperated.'],
     ['--vendor [value]', 'Files for @vendor.js, comma-seperated.']
   ];
 
   constructor() {
-    this.appscriptsModule = appscripts();
+    this.appscriptsModule = new AppscriptsModule();
     this.buildCommand = new BuildCommand(
-      this.appscriptsModule.File,
-      this.appscriptsModule.Message,
-      this.appscriptsModule.Project,
-      this.appscriptsModule.Rollup,
+      this.appscriptsModule.fileService,
+      this.appscriptsModule.messageService,
+      this.appscriptsModule.projectService,
+      this.appscriptsModule.rollupService
     );
   }
 
@@ -35,7 +39,7 @@ export class Cli {
 
     // build
     (() => {
-      const [ command, description, copyOpt, vendorOpt ] = this.buildCommandDef;
+      const [command, description, copyOpt, vendorOpt] = this.buildCommandDef;
       commander
         .command(command)
         .description(description)
@@ -58,7 +62,6 @@ export class Cli {
 
     return commander;
   }
-
 }
 
 type CommandDef = [string, string, ...Array<[string, string]>];

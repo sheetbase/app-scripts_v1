@@ -160,3 +160,11 @@ Display help.
 **@sheetbase/app-scripts** is released under the [MIT](https://github.com/sheetbase/app-scripts/blob/master/LICENSE) license.
 
 </section>
+
+<section id="attr">
+
+---
+
+⚡️ This document is generated automatically using [@lamnhan/ayedocs](https://github.com/lamnhan/ayedocs).
+
+</section>

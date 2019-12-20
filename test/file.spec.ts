@@ -1,8 +1,8 @@
 // tslint:disable: no-any
 import { expect } from 'chai';
-import { ModuleMocking, mockModule, rewireFull } from '@lamnhan/testing';
+import { ModuleMocking, mockModule, rewireFull } from '@lamnhan/testea';
 
-import { File } from '../src/lib/services/file';
+import { FileService } from '../src/lib/services/file';
 
 // path
 const mockedPathModule = {
@@ -31,7 +31,7 @@ async function setup<
   const { fsExtraModuleMocks = {} } = moduleMocks;
   return rewireFull(
     // rewire the module
-    '@services/file',
+    '@lib/services/file',
     {
       path: mockModule(mockedPathModule),
       '~fs-extra': mockModule({
@@ -40,8 +40,8 @@ async function setup<
       }),
     },
     // rewire the service
-    File
-  );
+    FileService
+  ).getResult();
 }
 
 describe('services/file.ts', () => {
@@ -53,7 +53,7 @@ describe('services/file.ts', () => {
 
     const result = await service.readFile('xxx.txt');
     expect(result).equal('xxx');
-    expect(fsExtraModuleTesting.getArgs('readFile')).eql(['xxx.txt', 'utf-8']);
+    expect(fsExtraModuleTesting.getResult('readFile').getArgs()).eql(['xxx.txt', 'utf-8']);
   });
 
   it('#outputFile', async () => {
@@ -63,7 +63,7 @@ describe('services/file.ts', () => {
     } = await setup();
 
     const result = await service.outputFile('xxx.txt', 'abc');
-    expect(fsExtraModuleTesting.getArgs('outputFile')).eql(['xxx.txt', 'abc']);
+    expect(fsExtraModuleTesting.getResult('outputFile').getArgs()).eql(['xxx.txt', 'abc']);
   });
 
   it('#readJson', async () => {
@@ -74,7 +74,7 @@ describe('services/file.ts', () => {
 
     const result = await service.readJson('xxx.json');
     expect(result).eql({ a: 1 });
-    expect(fsExtraModuleTesting.getArgs('readJson')).eql(['xxx.json']);
+    expect(fsExtraModuleTesting.getResult('readJson').getArgs()).eql(['xxx.json']);
   });
 
   it('#copy (empty src)', async () => {
@@ -84,7 +84,7 @@ describe('services/file.ts', () => {
     } = await setup();
 
     const result = await service.copy([], 'dest');
-    const copyArgs = fsExtraModuleTesting.getArgs('copy');
+    const copyArgs = fsExtraModuleTesting.getResult('copy').getArgs();
     expect(copyArgs).equal(undefined);
   });
 
@@ -95,7 +95,7 @@ describe('services/file.ts', () => {
     } = await setup();
 
     const result = await service.copy([''], 'dest');
-    const copyArgs = fsExtraModuleTesting.getArgs('copy');
+    const copyArgs = fsExtraModuleTesting.getResult('copy').getArgs();
     expect(copyArgs).equal(undefined);
   });
 
@@ -111,7 +111,7 @@ describe('services/file.ts', () => {
     });
 
     const result = await service.copy(['xxx.txt'], 'dest');
-    const copyArgs = fsExtraModuleTesting.getArgs('copy');
+    const copyArgs = fsExtraModuleTesting.getResult('copy').getArgs();
     expect(copyArgs).equal(undefined);
   });
 
@@ -131,7 +131,7 @@ describe('services/file.ts', () => {
       ],
       'dest'
     );
-    const copyStackedArgs = fsExtraModuleTesting.getStackedArgs('copy');
+    const copyStackedArgs = fsExtraModuleTesting.getResult('copy').getStackedArgs();
     expect(copyStackedArgs).eql([
       ['xxx', 'dest/'],
       ['xxx.txt', 'dest/xxx.txt'],
@@ -148,6 +148,6 @@ describe('services/file.ts', () => {
     } = await setup();
 
     const result = await service.remove('xxx.txt');
-    expect(fsExtraModuleTesting.getArgs('remove')).eql(['xxx.txt']);
+    expect(fsExtraModuleTesting.getResult('remove').getArgs()).eql(['xxx.txt']);
   });
 });

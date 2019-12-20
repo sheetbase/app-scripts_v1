@@ -5,9 +5,9 @@ import {
   ServiceStubing,
   mockService,
   rewireFull,
-} from '@lamnhan/testing';
+} from '@lamnhan/testea';
 
-import { Project } from '../src/lib/services/project';
+import { ProjectService } from '../src/lib/services/project';
 
 // @src/services/file
 const mockedFileService = {
@@ -16,7 +16,7 @@ const mockedFileService = {
 
 // setup test
 async function setup<
-  ServiceStubs extends ServiceStubing<Project>,
+  ServiceStubs extends ServiceStubing<ProjectService>,
   FileServiceMocks extends ServiceMocking<typeof mockedFileService>
 >(
   serviceStubs?: ServiceStubs,
@@ -27,30 +27,30 @@ async function setup<
   const { fileServiceMocks = {} } = serviceMocks;
   return rewireFull(
     // rewire the module
-    '@services/project',
+    '@lib/services/project',
     undefined,
     // rewire the service
-    Project,
+    ProjectService,
     {
-      '@services/file': mockService({
+      '@lib/services/file': mockService({
         ...mockedFileService,
         ...fileServiceMocks,
       }),
     },
     serviceStubs
-  );
+  ).getResult();
 }
 
 describe('services/project.ts', () => {
   it('#getPackageJson', async () => {
     const {
       service,
-      mockedServices: { '@services/file': fileServiceTesting },
+      mockedServices: { '@lib/services/file': fileServiceTesting },
     } = await setup();
 
     const result = await service.getPackageJson();
     expect(result).eql({ name: 'xxx' });
-    expect(fileServiceTesting.getArgs('readJson')).eql(['package.json']);
+    expect(fileServiceTesting.getResult('readJson').getArgs()).eql(['package.json']);
   });
 
   it('#getConfigs (module)', async () => {

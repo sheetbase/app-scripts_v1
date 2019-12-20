@@ -7,7 +7,7 @@ import {
   mockService,
   ServiceStubing,
   rewireFull,
-} from '@lamnhan/testing';
+} from '@lamnhan/testea';
 
 import { BuildCommand } from '../src/cli/commands/build';
 
@@ -21,17 +21,11 @@ const mockedChildProcessModule = {
   execSync: '...',
 };
 
-// @services/content
-const mockedContentService = {
-  '.EOL': '\n',
-  '.EOL2X': '\n\n',
-};
-
 // @services/file
 const mockedFileService = {
   readFile: async () => 'xxx',
-  outputFile: '*...',
-  copy: '*...',
+  outputFile: '...$',
+  copy: '...$',
   remove: async () => undefined,
 };
 
@@ -47,13 +41,12 @@ const mockedProjectService = {
 
 // @services/rollup
 const mockedRollupService = {
-  bundleCode: '*...',
+  bundleCode: '...$',
 };
 
 // setup test
 async function setup<
   ServiceStubs extends ServiceStubing<BuildCommand>,
-  ContentServiceMocks extends ServiceMocking<typeof mockedContentService>,
   FileServiceMocks extends ServiceMocking<typeof mockedFileService>,
   MessageServiceMocks extends ServiceMocking<typeof mockedMessageService>,
   ProjectServiceMocks extends ServiceMocking<typeof mockedProjectService>,
@@ -61,7 +54,6 @@ async function setup<
 >(
   serviceStubs?: ServiceStubs,
   serviceMocks: {
-    contentServiceMocks?: ContentServiceMocks;
     fileServiceMocks?: FileServiceMocks;
     messageServiceMocks?: MessageServiceMocks;
     projectServiceMocks?: ProjectServiceMocks;
@@ -69,7 +61,6 @@ async function setup<
   } = {}
 ) {
   const {
-    contentServiceMocks = {},
     fileServiceMocks = {},
     messageServiceMocks = {},
     projectServiceMocks = {},
@@ -77,7 +68,7 @@ async function setup<
   } = serviceMocks;
   return rewireFull(
     // rewire the module
-    '@commands/build',
+    '@cli/commands/build',
     {
       path: mockModule(mockedPathModule),
       child_process: mockModule(mockedChildProcessModule),
@@ -85,39 +76,31 @@ async function setup<
     // rewire the service
     BuildCommand,
     {
-      '@services/content': mockService({
-        ...mockedContentService,
-        ...contentServiceMocks,
-      }),
-      '@services/file': mockService({
+      '@lib/services/file': mockService({
         ...mockedFileService,
         ...fileServiceMocks,
       }),
-      '@services/message': mockService({
+      '@lib/services/message': mockService({
         ...mockedMessageService,
         ...messageServiceMocks,
       }),
-      '@services/project': mockService({
+      '@lib/services/project': mockService({
         ...mockedProjectService,
         ...projectServiceMocks,
       }),
-      '@services/rollup': mockService({
+      '@lib/services/rollup': mockService({
         ...mockedRollupService,
         ...rollupServiceMocks,
       }),
     },
     serviceStubs
-  );
+  ).getResult();
 }
 
 describe('commands/build.ts', () => {
   it('service instances', async () => {
     const { service } = await setup();
 
-    expect(
-      // @ts-ignore
-      service.contentService instanceof MockBuilder
-    ).equal(true, '@service/content');
     expect(
       // @ts-ignore
       service.fileService instanceof MockBuilder
@@ -143,7 +126,7 @@ describe('commands/build.ts', () => {
     expect(service.DEPLOY_DIR).equal('deploy');
   });
 
-  it('#build (module)', async () => {
+  it('#run (module)', async () => {
     let compileCodeCalled = false;
     let bundleCodeArgs: any[] = [];
     let buildModuleArgs: any[] = [];
@@ -168,7 +151,7 @@ describe('commands/build.ts', () => {
       }
     );
 
-    const result = await service.build({});
+    const result = await service.run({});
     expect(compileCodeCalled).equal(true);
     expect(bundleCodeArgs).eql([getConfigsMockedReturns]);
     expect(buildModuleArgs).eql(['xxx.d.ts']);
@@ -176,7 +159,7 @@ describe('commands/build.ts', () => {
     expect(result).equal('Build module completed.');
   });
 
-  it('#build (app)', async () => {
+  it('#run (app)', async () => {
     let compileCodeCalled = false;
     let bundleCodeArgs: any[] = [];
     let buildModuleArgs: any[] = [];
@@ -201,7 +184,7 @@ describe('commands/build.ts', () => {
       }
     );
 
-    const result = await service.build({
+    const result = await service.run({
       copy: 'src/xxx',
       vendor: 'src/xxx.js',
     });
@@ -300,7 +283,7 @@ describe('commands/build.ts', () => {
 
     const {
       service,
-      mockedServices: { '@services/file': fileServiceTesting },
+      mockedServices: { '@lib/services/file': fileServiceTesting },
     } = await setup({
       appSaveIndex: async () => (appSaveIndexCalled = true),
       appSaveMain: async (...args: any[]) => (appSaveMainArgs = args),
@@ -313,7 +296,7 @@ describe('commands/build.ts', () => {
       'src/xxx',
       'src/xxx.js'
     );
-    const removeStackedArgs = fileServiceTesting.getStackedArgs('remove');
+    const removeStackedArgs = fileServiceTesting.getResult('remove').getStackedArgs();
     expect(removeStackedArgs).eql([['deploy'], ['dist']]);
     expect(appSaveIndexCalled).equal(true);
     expect(appSaveMainArgs).eql(['xxx.umd.js']);
@@ -331,11 +314,11 @@ describe('commands/build.ts', () => {
   it('#appSaveMain', async () => {
     const {
       service,
-      mockedServices: { '@services/file': fileServiceTesting },
+      mockedServices: { '@lib/services/file': fileServiceTesting },
     } = await setup();
 
     const result = await service.appSaveMain('xxx.umd.js');
-    const readFileArg = fileServiceTesting.getArgFirst('readFile');
+    const readFileArg = fileServiceTesting.getResult('readFile').getArgFirst();
     expect(readFileArg).equal('xxx.umd.js');
     expect(result).eql([
       'deploy/@app.js',
@@ -402,13 +385,13 @@ describe('commands/build.ts', () => {
   it('#appSaveVendor (valid input)', async () => {
     const {
       service,
-      mockedServices: { '@services/file': fileServiceTesting },
+      mockedServices: { '@lib/services/file': fileServiceTesting },
     } = await setup();
 
     const result = await service.appSaveVendor(
       'xxx.js,src/xxx.js,@xxx.js,@/xxx.js,~xxx/xxx.js,~/xxx/xxx.js'
     );
-    const readFileStackedArgs = fileServiceTesting.getStackedArgs('readFile');
+    const readFileStackedArgs = fileServiceTesting.getResult('readFile').getStackedArgs();
     expect(readFileStackedArgs).eql([
       ['xxx.js'],
       ['src/xxx.js'],

@@ -7,9 +7,9 @@ import {
   mockModule,
   mockService,
   rewireFull,
-} from '@lamnhan/testing';
+} from '@lamnhan/testea';
 
-import { Rollup } from '../src/lib/services/rollup';
+import { RollupService } from '../src/lib/services/rollup';
 
 // rollup
 const mockedRollupModule = {
@@ -24,7 +24,7 @@ const mockedProjectService = {
 
 // setup test
 async function setup<
-  ServiceStubs extends ServiceStubing<Rollup>,
+  ServiceStubs extends ServiceStubing<RollupService>,
   ProjectServiceMocks extends ServiceMocking<typeof mockedProjectService>,
   RollupModuleMocks extends ModuleMocking<typeof mockedRollupModule>
 >(
@@ -40,7 +40,7 @@ async function setup<
   const { rollupModuleMocks = {} } = moduleMocks;
   return rewireFull(
     // rewire the module
-    '@services/rollup',
+    '@lib/services/rollup',
     {
       '~rollup': mockModule({
         ...mockedRollupModule,
@@ -48,15 +48,15 @@ async function setup<
       }),
     },
     // rewire the service
-    Rollup,
+    RollupService,
     {
-      '@services/project': mockService({
+      '@lib/services/project': mockService({
         ...mockedProjectService,
         ...projectServiceMocks,
       }),
     },
     serviceStubs
-  );
+  ).getResult();
 }
 
 describe('services/rollup.ts', () => {
@@ -104,11 +104,11 @@ describe('services/rollup.ts', () => {
       { format: 'umd', file: 'xxx' },
       { format: 'esm', file: 'xxx2' },
     ]);
-    const rollupArg = rollupModuleTesting.getArgFirst('rollup');
+    const rollupArg = rollupModuleTesting.getResult('rollup').getArgFirst();
     expect(rollupArg.input).equal('xxx');
     expect(rollupArg.plugins[0].name).equal('node-resolve');
     expect(rollupArg.plugins[1].name).equal('commonjs');
-    expect(rollupModuleTesting.getStackedArgs('write')).eql([
+    expect(rollupModuleTesting.getResult('write').getStackedArgs()).eql([
       [{ format: 'umd', file: 'xxx' }],
       [{ format: 'esm', file: 'xxx2' }],
     ]);

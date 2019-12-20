@@ -1,9 +1,9 @@
 // tslint:disable: no-any
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { mockModule, rewireFull } from '@lamnhan/testing';
+import { mockModule, rewireFull } from '@lamnhan/testea';
 
-import { CLI } from '../src/cli/index';
+import { Cli } from '../src/cli/index';
 
 // commander
 const mockedCommanderModule = {
@@ -34,21 +34,21 @@ class MockedDocsCommand {
 async function setup() {
   return rewireFull(
     // rewire the module
-    '@src/cli',
+    '@cli/index',
     {
       '~commander': mockModule(mockedCommanderModule),
-      '@services/file': { FileService: class {} },
-      '@services/message': { MessageService: class {} },
-      '@services/typedoc': { TypedocService: class {} },
-      '@services/project': { ProjectService: class {} },
-      '@services/rollup': { RollupService: class {} },
-      '@services/content': { ContentService: class {} },
-      '@commands/build': { BuildCommand: MockedBuildCommand },
-      '@commands/docs': { DocsCommand: MockedDocsCommand },
+      '@lib/services/file': { FileService: class {} },
+      '@lib/services/message': { MessageService: class {} },
+      '@lib/services/typedoc': { TypedocService: class {} },
+      '@lib/services/project': { ProjectService: class {} },
+      '@lib/services/rollup': { RollupService: class {} },
+      '@lib/services/content': { ContentService: class {} },
+      '@cli/commands/build': { BuildCommand: MockedBuildCommand },
+      '@cli/commands/docs': { DocsCommand: MockedDocsCommand },
     },
     // rewire the service
-    CLI
-  );
+    Cli
+  ).getResult();
 }
 
 describe('cli.ts', () => {
@@ -60,17 +60,15 @@ describe('cli.ts', () => {
 
     const result = service.getApp();
     // retrieve data
-    const versionArgs = commanderModuleTesting.getArgs('version');
-    const usageArgs = commanderModuleTesting.getArgs('usage');
-    const descriptionStkArgs = commanderModuleTesting.getStackedArgs(
-      'description'
-    );
-    const commandStkArgs = commanderModuleTesting.getStackedArgs('command');
-    const optionStkArgs = commanderModuleTesting.getStackedArgs('option');
-    const buildCommand = commanderModuleTesting.getArgInStack('action', 1, 1);
-    const docsCommand = commanderModuleTesting.getArgInStack('action', 2, 1);
-    const helpCommand = commanderModuleTesting.getArgInStack('action', 3, 1);
-    const anyCommand = commanderModuleTesting.getArgInStack('action', 4, 1);
+    const versionArgs = commanderModuleTesting.getResult('version').getArgs();
+    const usageArgs = commanderModuleTesting.getResult('usage').getArgs();
+    const descriptionStkArgs = commanderModuleTesting.getResult('description').getStackedArgs();
+    const commandStkArgs = commanderModuleTesting.getResult('command').getStackedArgs();
+    const optionStkArgs = commanderModuleTesting.getResult('option').getStackedArgs();
+    const buildCommand = commanderModuleTesting.getResult('action').getArgInStack(1, 1);
+    const docsCommand = commanderModuleTesting.getResult('action').getArgInStack(2, 1);
+    const helpCommand = commanderModuleTesting.getResult('action').getArgInStack(3, 1);
+    const anyCommand = commanderModuleTesting.getResult('action').getArgInStack(4, 1);
     // commander data
     expect(versionArgs).eql(['2.0.0-beta.1', '-v, --version']);
     expect(usageArgs).eql(['sheetbase-app-scripts [options] [command]']);

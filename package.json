@@ -1,6 +1,6 @@
 {
   "name": "@sheetbase/app-scripts",
-  "version": "3.0.0-beta",
+  "version": "3.0.0-beta1",
   "description": "Scripts for Sheetbase backend modules and apps.",
   "author": "Sheetbase",
   "homepage": "https://sheetbase.dev",
@@ -18,7 +18,6 @@
   ],
   "scripts": {
     "compile": "tsc -p .",
-    "lint": "gts check",
     "fix": "gts fix",
     "build": "npm run compile && npm i -g",
     "docs": "ayedocs generate",
@@ -43,18 +42,17 @@
     "fs-extra": "^8.1.0",
     "match-all": "^1.2.5",
     "prettier": "^1.19.1",
-    "rollup": "^1.27.8",
+    "rollup": "^1.27.13",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0"
   },
   "devDependencies": {
-    "@lamnhan/testea": "0.0.6",
-    "@types/chai": "^4.2.6",
+    "@lamnhan/testea": "1.0.0-beta1",
+    "@types/chai": "^4.2.7",
     "@types/fs-extra": "^8.0.1",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^12.12.14",
+    "@types/node": "^12.12.21",
     "@types/prettier": "^1.19.0",
-    "@types/sinon": "^7.5.1",
     "chai": "^4.2.0",
     "coveralls": "^3.0.9",
     "gts": "^1.1.2",

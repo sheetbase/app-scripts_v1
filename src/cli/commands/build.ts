@@ -16,7 +16,6 @@ export interface BuildOptions {
 }
 
 export class BuildCommand {
-
   DIST_DIR = resolve('dist');
   DEPLOY_DIR = resolve('deploy');
 
@@ -24,7 +23,7 @@ export class BuildCommand {
     private fileService: FileService,
     private messageService: MessageService,
     private projectService: ProjectService,
-    private rollupService: RollupService,
+    private rollupService: RollupService
   ) {}
 
   async run(options: BuildOptions) {

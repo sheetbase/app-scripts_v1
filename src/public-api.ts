@@ -1,5 +1,5 @@
-export * from './lib/index';
-export * from './lib/main';
+export { Main as AppscriptsModule } from './lib/index';
+export { Cli as AppscriptsCliModule } from './cli/index';
 
 export * from './lib/services/file';
 export * from './lib/services/message';

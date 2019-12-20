@@ -7,7 +7,6 @@ import { ProjectService } from './project';
 export { OutputOptions };
 
 export class RollupService {
-
   constructor(private projectService: ProjectService) {}
 
   async getConfigs() {
@@ -32,7 +31,7 @@ export class RollupService {
         // tslint:disable-next-line: no-any
         (resolve as any)(resolveConfigs),
         // tslint:disable-next-line: no-any
-        (commonjs as any)(commonjsConfigs)
+        (commonjs as any)(commonjsConfigs),
       ],
     });
     for (const output of outputs) {
