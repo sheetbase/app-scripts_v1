@@ -50,29 +50,6 @@ function extractParamChildren(methodName, methodTags, fileContent) {
   }
   // result
   return result;
-  // // get param str
-  // let paramStr = fileContent.substr(fileContent.indexOf('  ' + methodName + '('));
-  // paramStr = paramStr.substr(0, paramStr.indexOf(') {'));
-  // paramStr = paramStr.replace(/\r\n|\r|\n/g, '');
-  // const paramOpening = paramName + ': {';
-  // paramStr = paramStr.substr(paramStr.indexOf(paramOpening) + paramOpening.length);
-  // paramStr = paramStr.substr(0, paramStr.indexOf('}'));
-  // // result
-  // return paramStr
-  // .split(';')
-  // .map(x => x.trim())
-  // .filter(x => !!x)
-  // .map(item => {
-  //   const [ name, type ] = item.split(':').map(x => x.trim());
-  //   const shortText = tags[paramName + '.' + name];
-  //   const isOptional = item.indexOf('?:') !== -1;
-  //   return {
-  //     name,
-  //     type,
-  //     shortText,
-  //     isOptional,
-  //   };
-  // });
 }
 
 function buildDisabledRows(disabled, buildEndpoint) {
@@ -291,114 +268,6 @@ module.exports = (umdName) => {
         );
         summaryRoutes.push(...summary);
         detailRoutes.push(...detail);
-
-        // routeDeclaration
-        // .getFunctionsOrMethods(dec => dec.NAME.indexOf('__') !== -1)
-        // .forEach(method => {
-        //   const { NAME, REFLECTION, SHORT_TEXT, TYPE, PARAMETERS, RETURNS } = method;
-        //   const [ routeMethod, routeEndpoint ] = NAME
-        //     .replace('__', ' ')
-        //     .split(' ')
-        //     .map(x => x.replace(/\_/g, '/'));
-        //   // summary
-        //   summaryRoutes.push([ `[${buildEndpoint(routeEndpoint)}](#${buildEndpointID(routeMethod, routeEndpoint)})`, `\`${routeMethod}\``, SHORT_TEXT ]);
-        //   // detail (request rows)
-        //   let requestQueryRows = [];
-        //   let requestBodyRows = [];
-        //   let requestDataRows = [];
-        //   if (!!PARAMETERS[0]) {
-        //     const paramChildren = extractParamChildren(
-        //       NAME,
-        //       REFLECTION.comment.tags || [],
-        //       fileContent
-        //     );
-        //     Object.keys(paramChildren).forEach(key => {
-        //       const rows = paramChildren[key].map(prop => {
-        //         const { name, type, shortText, isOptional } = prop;
-        //         return [ isOptional ? `${name}?`: `**${name}**`, `[[${type}]]`, shortText ];
-        //       });
-        //       if (key === 'query') {
-        //         requestQueryRows = rows;
-        //       } else if (key === 'body') {
-        //         requestBodyRows = rows;
-        //       } else if (key === 'data') {
-        //         requestDataRows = rows;
-        //       }
-        //     });
-        //   }
-        //   // PARAMETERS.forEach(param => {
-        //   //   console.log(param);
-        //   //   param.reflection.type.declaration.children.forEach(child => {
-        //   //     console.log(child.type.declaration);
-        //   //   });
-        //   // });
-        //   // PARAMETERS.forEach(param => {
-        //   //   const paramChildren = extractParamChildren(
-        //   //     NAME,
-        //   //     REFLECTION.comment.tags || [],
-        //   //     fileContent,
-        //   //     param.name
-        //   //   );
-        //   //   const rows = paramChildren.map(prop => {
-        //   //     const { name, type, shortText, isOptional } = prop;
-        //   //     return [ isOptional ? `${name}?`: `**${name}**`, `[[${type}]]`, shortText ];
-        //   //   });
-        //   //   if (param.name === 'query') {
-        //   //     requestQueryRows = rows;
-        //   //   } else if (param.name === 'body') {
-        //   //     requestBodyRows = rows;
-        //   //   } else if (param.name === 'data') {
-        //   //     requestDataRows = rows;
-        //   //   }
-        //   // });
-        //   // request blocks
-        //   const requestHeaders = ['Name', 'Type', 'Description'];
-        //   const requestQuery = [];
-        //   const requestBody = [];
-        //   const requestData = [];
-        //   if (!!requestQueryRows.length) {
-        //     requestQuery.push(
-        //       contentService.blockText('**Request query**'),
-        //       contentService.blockTable(requestHeaders, requestQueryRows),
-        //     );
-        //   }
-        //   if (!!requestBodyRows.length) {
-        //     requestQuery.push(
-        //       contentService.blockText('**Request body**'),
-        //       contentService.blockTable(requestHeaders, requestBodyRows),
-        //     );
-        //   }
-        //   if (!!requestDataRows.length) {
-        //     requestQuery.push(
-        //       contentService.blockText('**Middleware data**'),
-        //       contentService.blockTable(requestHeaders, requestDataRows),
-        //     );
-        //   }
-        //   // save detail
-        //   detailRoutes.push(
-        //     contentService.blockHeading(`\`${routeMethod}\` ${buildEndpoint(routeEndpoint)}`, childLevel + 2, buildEndpointID(routeMethod, routeEndpoint)),
-        //     contentService.blockText(SHORT_TEXT),
-        //     ...requestQuery,
-        //     ...requestBody,
-        //     ...requestData,
-        //     contentService.blockText([
-        //       '**Response**',
-        //       `\`${TYPE}\`` + (!!RETURNS ? ` - ${RETURNS}` : '')
-        //     ]),
-        //     contentService.blockText('---'),
-        //   );
-        // });
-        // // result
-        // // routingBlocks.push(
-        // //   contentService.blockHeading('Routes', 3, 'routing-routes'),
-        // //   contentService.blockHeading('Routes overview', 4, 'routing-routes-overview'),
-        // //   contentService.blockTable(
-        // //     ['Route', 'Method', 'Description'],
-        // //     summaryRoutes,
-        // //   ),
-        // //   contentService.blockHeading('Routes detail', 4, 'routing-routes-detail'),
-        // //   ...detailRoutes
-        // // );
       }
     });
     // sum-up data
@@ -413,7 +282,7 @@ module.exports = (umdName) => {
         `**${umdName}** module provides REST API endpoints allowing clients to access server resources. Theses enpoints are not exposed by default, to expose the endpoints:`,
         [
           `\`\`\`ts`,
-          `${umdName}.registerRoutes();`,
+          `${umdName}.registerRoutes(routeEnabling?);`,
           `\`\`\``
         ].join('\n')
       ]),
