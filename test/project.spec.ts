@@ -9,39 +9,40 @@ import {
 
 import { ProjectService } from '../src/lib/services/project';
 
-// @src/services/file
-const mockedFileService = {
-  readJson: async () => ({ name: 'xxx' }),
-};
-
-// setup test
-async function setup<
-  ServiceStubs extends ServiceStubing<ProjectService>,
-  FileServiceMocks extends ServiceMocking<typeof mockedFileService>
->(
-  serviceStubs?: ServiceStubs,
-  serviceMocks: {
-    fileServiceMocks?: FileServiceMocks;
-  } = {}
-) {
-  const { fileServiceMocks = {} } = serviceMocks;
-  return rewireFull(
-    // rewire the module
-    '@lib/services/project',
-    undefined,
-    // rewire the service
-    ProjectService,
-    {
-      '@lib/services/file': mockService({
-        ...mockedFileService,
-        ...fileServiceMocks,
-      }),
-    },
-    serviceStubs
-  ).getResult();
-}
-
 describe('services/project.ts', () => {
+  
+  // @src/services/file
+  const mockedFileService = {
+    readJson: async () => ({ name: 'xxx' }),
+  };
+
+  // setup test
+  async function setup<
+    ServiceStubs extends ServiceStubing<ProjectService>,
+    FileServiceMocks extends ServiceMocking<typeof mockedFileService>
+  >(
+    serviceStubs?: ServiceStubs,
+    serviceMocks: {
+      fileServiceMocks?: FileServiceMocks;
+    } = {}
+  ) {
+    const { fileServiceMocks = {} } = serviceMocks;
+    return rewireFull(
+      // rewire the module
+      '@lib/services/project',
+      undefined,
+      // rewire the service
+      ProjectService,
+      {
+        '@lib/services/file': mockService({
+          ...mockedFileService,
+          ...fileServiceMocks,
+        }),
+      },
+      serviceStubs
+    ).getResult();
+  }
+
   it('#getPackageJson', async () => {
     const {
       service,

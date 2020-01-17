@@ -66,7 +66,7 @@ export class ProjectService {
     } else {
       const inputPath = './dist/src/public-api.js';
       const umdPath = `./dist/${fullName}.js`;
-      const umdName = name.charAt(0).toUpperCase() + name.slice(1);
+      const umdName = name.charAt(0).toUpperCase() + name.slice(1) + 'Module';
       const esmPath = `./dist/${fullName}.esm.js`;
       const typingsPath = `./dist/${fullName}.d.ts`;
       return {

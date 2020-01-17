@@ -7,10 +7,10 @@ module.exports = (extra) => {
     const { convertings = {} } = options;
     const { name: packageName } = projectService.PACKAGE;
     const name = packageName.split('/').pop();
-    const umdName = name.charAt(0).toUpperCase() + name.substr(1);
+    const umdName = name.charAt(0).toUpperCase() + name.substr(1) + 'Module';
     // routing
     templateSections['routing'] = [
-      'RouteService',
+      '*',
       routingConvertBuilder(umdName),
       convertings['routing'] || {}
     ];

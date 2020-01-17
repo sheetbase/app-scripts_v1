@@ -11,93 +11,94 @@ import {
 
 import { BuildCommand } from '../src/cli/commands/build';
 
-// path
-const mockedPathModule = {
-  resolve: (...args: string[]) => args.join('/'),
-};
-
-// child_process
-const mockedChildProcessModule = {
-  execSync: '...',
-};
-
-// @services/file
-const mockedFileService = {
-  readFile: async () => 'xxx',
-  outputFile: '...$',
-  copy: '...$',
-  remove: async () => undefined,
-};
-
-// @services/message
-const mockedMessageService = {
-  logOk: '.',
-};
-
-// @services/project
-const mockedProjectService = {
-  getConfigs: async () => ({}),
-};
-
-// @services/rollup
-const mockedRollupService = {
-  bundleCode: '...$',
-};
-
-// setup test
-async function setup<
-  ServiceStubs extends ServiceStubing<BuildCommand>,
-  FileServiceMocks extends ServiceMocking<typeof mockedFileService>,
-  MessageServiceMocks extends ServiceMocking<typeof mockedMessageService>,
-  ProjectServiceMocks extends ServiceMocking<typeof mockedProjectService>,
-  RollupServiceMocks extends ServiceMocking<typeof mockedRollupService>
->(
-  serviceStubs?: ServiceStubs,
-  serviceMocks: {
-    fileServiceMocks?: FileServiceMocks;
-    messageServiceMocks?: MessageServiceMocks;
-    projectServiceMocks?: ProjectServiceMocks;
-    rollupServiceMocks?: RollupServiceMocks;
-  } = {}
-) {
-  const {
-    fileServiceMocks = {},
-    messageServiceMocks = {},
-    projectServiceMocks = {},
-    rollupServiceMocks = {},
-  } = serviceMocks;
-  return rewireFull(
-    // rewire the module
-    '@cli/commands/build',
-    {
-      path: mockModule(mockedPathModule),
-      child_process: mockModule(mockedChildProcessModule),
-    },
-    // rewire the service
-    BuildCommand,
-    {
-      '@lib/services/file': mockService({
-        ...mockedFileService,
-        ...fileServiceMocks,
-      }),
-      '@lib/services/message': mockService({
-        ...mockedMessageService,
-        ...messageServiceMocks,
-      }),
-      '@lib/services/project': mockService({
-        ...mockedProjectService,
-        ...projectServiceMocks,
-      }),
-      '@lib/services/rollup': mockService({
-        ...mockedRollupService,
-        ...rollupServiceMocks,
-      }),
-    },
-    serviceStubs
-  ).getResult();
-}
-
 describe('commands/build.ts', () => {
+    
+  // path
+  const mockedPathModule = {
+    resolve: (...args: string[]) => args.join('/'),
+  };
+
+  // child_process
+  const mockedChildProcessModule = {
+    execSync: '...',
+  };
+
+  // @services/file
+  const mockedFileService = {
+    readFile: async () => 'xxx',
+    outputFile: '...$',
+    copy: '...$',
+    remove: async () => undefined,
+  };
+
+  // @services/message
+  const mockedMessageService = {
+    logOk: '.',
+  };
+
+  // @services/project
+  const mockedProjectService = {
+    getConfigs: async () => ({}),
+  };
+
+  // @services/rollup
+  const mockedRollupService = {
+    bundleCode: '...$',
+  };
+
+  // setup test
+  async function setup<
+    ServiceStubs extends ServiceStubing<BuildCommand>,
+    FileServiceMocks extends ServiceMocking<typeof mockedFileService>,
+    MessageServiceMocks extends ServiceMocking<typeof mockedMessageService>,
+    ProjectServiceMocks extends ServiceMocking<typeof mockedProjectService>,
+    RollupServiceMocks extends ServiceMocking<typeof mockedRollupService>
+  >(
+    serviceStubs?: ServiceStubs,
+    serviceMocks: {
+      fileServiceMocks?: FileServiceMocks;
+      messageServiceMocks?: MessageServiceMocks;
+      projectServiceMocks?: ProjectServiceMocks;
+      rollupServiceMocks?: RollupServiceMocks;
+    } = {}
+  ) {
+    const {
+      fileServiceMocks = {},
+      messageServiceMocks = {},
+      projectServiceMocks = {},
+      rollupServiceMocks = {},
+    } = serviceMocks;
+    return rewireFull(
+      // rewire the module
+      '@/cli/commands/build',
+      {
+        path: mockModule(mockedPathModule),
+        child_process: mockModule(mockedChildProcessModule),
+      },
+      // rewire the service
+      BuildCommand,
+      {
+        '@lib/services/file': mockService({
+          ...mockedFileService,
+          ...fileServiceMocks,
+        }),
+        '@lib/services/message': mockService({
+          ...mockedMessageService,
+          ...messageServiceMocks,
+        }),
+        '@lib/services/project': mockService({
+          ...mockedProjectService,
+          ...projectServiceMocks,
+        }),
+        '@lib/services/rollup': mockService({
+          ...mockedRollupService,
+          ...rollupServiceMocks,
+        }),
+      },
+      serviceStubs
+    ).getResult();
+  }
+
   it('service instances', async () => {
     const { service } = await setup();
 

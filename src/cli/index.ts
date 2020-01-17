@@ -33,7 +33,7 @@ export class Cli {
 
   getApp() {
     commander
-      .version(require('../package.json').version, '-v, --version')
+      .version(require('../../package.json').version, '-v, --version')
       .usage('sheetbase-app-scripts [options] [command]')
       .description('Scripts for Sheetbase backend modules and apps.');
 

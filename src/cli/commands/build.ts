@@ -1,5 +1,5 @@
-import { resolve } from 'path';
 import { execSync } from 'child_process';
+import { resolve } from 'path';
 
 import {
   ProjectConfigs,
@@ -107,8 +107,8 @@ export class BuildCommand {
   async appSaveMain(mainPath: string) {
     const mainContent = await this.fileService.readFile(resolve(mainPath));
     const wwwSnippet = [
-      'function doGet(e) { return App.Server.HTTP.get(e); }',
-      'function doPost(e) { return App.Server.HTTP.post(e); }',
+      'function doGet(e) { return Sheetbase.www().get(e); }',
+      'function doPost(e) { return Sheetbase.www().post(e); }',
     ].join('\n');
     const content = mainContent + '\n\n' + wwwSnippet;
     return this.fileService.outputFile(

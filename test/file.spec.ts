@@ -4,47 +4,48 @@ import { ModuleMocking, mockModule, rewireFull } from '@lamnhan/testea';
 
 import { FileService } from '../src/lib/services/file';
 
-// path
-const mockedPathModule = {
-  resolve: (...args: string[]) => args.join('/'),
-};
-
-// fs-extra
-const mockedFSExtra = {
-  pathExists: async () => true,
-  statSync: (path: string) => ({ isDirectory: () => path.indexOf('.') === -1 }),
-  readJson: async () => ({ a: 1 }),
-  copy: async () => undefined,
-  remove: async () => undefined,
-  readFile: async () => 'xxx',
-  outputFile: async () => undefined,
-};
-
-// setup test
-async function setup<
-  FSExtraModuleMocks extends ModuleMocking<typeof mockedFSExtra>
->(
-  moduleMocks: {
-    fsExtraModuleMocks?: FSExtraModuleMocks;
-  } = {}
-) {
-  const { fsExtraModuleMocks = {} } = moduleMocks;
-  return rewireFull(
-    // rewire the module
-    '@lib/services/file',
-    {
-      path: mockModule(mockedPathModule),
-      '~fs-extra': mockModule({
-        ...mockedFSExtra,
-        ...fsExtraModuleMocks,
-      }),
-    },
-    // rewire the service
-    FileService
-  ).getResult();
-}
-
 describe('services/file.ts', () => {
+
+  // path
+  const mockedPathModule = {
+    resolve: (...args: string[]) => args.join('/'),
+  };
+
+  // fs-extra
+  const mockedFSExtra = {
+    pathExists: async () => true,
+    statSync: (path: string) => ({ isDirectory: () => path.indexOf('.') === -1 }),
+    readJson: async () => ({ a: 1 }),
+    copy: async () => undefined,
+    remove: async () => undefined,
+    readFile: async () => 'xxx',
+    outputFile: async () => undefined,
+  };
+
+  // setup test
+  async function setup<
+    FSExtraModuleMocks extends ModuleMocking<typeof mockedFSExtra>
+  >(
+    moduleMocks: {
+      fsExtraModuleMocks?: FSExtraModuleMocks;
+    } = {}
+  ) {
+    const { fsExtraModuleMocks = {} } = moduleMocks;
+    return rewireFull(
+      // rewire the module
+      '@lib/services/file',
+      {
+        path: mockModule(mockedPathModule),
+        '~fs-extra': mockModule({
+          ...mockedFSExtra,
+          ...fsExtraModuleMocks,
+        }),
+      },
+      // rewire the service
+      FileService
+    ).getResult();
+  }
+
   it('#readFile', async () => {
     const {
       service,
@@ -85,7 +86,7 @@ describe('services/file.ts', () => {
 
     const result = await service.copy([], 'dest');
     const copyArgs = fsExtraModuleTesting.getResult('copy').getArgs();
-    expect(copyArgs).equal(undefined);
+    expect(copyArgs).eql([]);
   });
 
   it('#copy (src in valid)', async () => {
@@ -96,7 +97,7 @@ describe('services/file.ts', () => {
 
     const result = await service.copy([''], 'dest');
     const copyArgs = fsExtraModuleTesting.getResult('copy').getArgs();
-    expect(copyArgs).equal(undefined);
+    expect(copyArgs).eql([]);
   });
 
   it('#copy (src not exists)', async () => {
@@ -112,7 +113,7 @@ describe('services/file.ts', () => {
 
     const result = await service.copy(['xxx.txt'], 'dest');
     const copyArgs = fsExtraModuleTesting.getResult('copy').getArgs();
-    expect(copyArgs).equal(undefined);
+    expect(copyArgs).eql([]);
   });
 
   it('#copy', async () => {

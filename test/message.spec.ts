@@ -3,19 +3,20 @@ import { sinon } from '@lamnhan/testea';
 
 import { MessageService } from '../src/lib/services/message';
 
-const messageService = new MessageService();
-let logStub: sinon.SinonStub;
-
-function before() {
-  // tslint:disable-next-line: no-any
-  logStub = sinon.stub(console, 'log').callsFake(value => value) as any;
-}
-
-function after() {
-  logStub.restore();
-}
-
 describe('services/message.ts', () => {
+  
+  const messageService = new MessageService();
+  let logStub: sinon.SinonStub;
+  
+  function before() {
+    // tslint:disable-next-line: no-any
+    logStub = sinon.stub(console, 'log').callsFake((value: any) => value) as any;
+  }
+  
+  function after() {
+    logStub.restore();
+  }
+
   beforeEach(before);
   afterEach(after);
 

@@ -42,7 +42,7 @@
     "fs-extra": "^8.1.0",
     "match-all": "^1.2.5",
     "prettier": "^1.19.1",
-    "rollup": "^1.27.13",
+    "rollup": "^1.27.14",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0"
   },
@@ -51,14 +51,14 @@
     "@types/chai": "^4.2.7",
     "@types/fs-extra": "^8.0.1",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^12.12.21",
+    "@types/node": "^13.1.1",
     "@types/prettier": "^1.19.0",
     "chai": "^4.2.0",
     "coveralls": "^3.0.9",
     "gts": "^1.1.2",
     "mocha": "^6.2.2",
-    "nyc": "^14.1.1",
+    "nyc": "^15.0.0",
     "tslint": "^5.20.1",
-    "typescript": "^3.7.3"
+    "typescript": "^3.7.4"
   }
 }

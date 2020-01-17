@@ -4,6 +4,7 @@ module.exports = (extra) => {
     // consts
     const { name: packageName } = projectService.PACKAGE;
     const name = packageName.split('/').pop();
+    const varName = name + 'Module';
     const umdName = name.charAt(0).toUpperCase() + name.substr(1);
     // getting started
     templateSections['installation'] = [
@@ -13,14 +14,16 @@ module.exports = (extra) => {
         `- Usage:`,
         [
           `\`\`\`ts`,
-          `// 1. import constructor`,
-          `import { ${name} } from '${packageName}';`,
+          `// 1. import module`,
+          `import { ${umdName} } from '${packageName}';`,
           '',
           `// 2. create an instance`,
-          `const ${umdName} = ${name}(/* options */);`,
-          '',
-          `// 3. start using`,
-          `const getOptions = ${umdName}.getOptions();`,
+          `export class App {`,
+          `  ${varName}: ${umdName};`,
+          `  constructor() {`,
+          `    this.${varName} = new ${umdName}(/* options */);`,
+          `  }`,
+          `}`,
           `\`\`\``,
         ].join('\n')
       ]),

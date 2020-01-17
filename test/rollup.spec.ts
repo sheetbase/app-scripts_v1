@@ -11,55 +11,56 @@ import {
 
 import { RollupService } from '../src/lib/services/rollup';
 
-// rollup
-const mockedRollupModule = {
-  rollup: '*',
-  write: '*',
-};
-
-// @src/services/project
-const mockedProjectService = {
-  getPackageJson: async () => ({}),
-};
-
-// setup test
-async function setup<
-  ServiceStubs extends ServiceStubing<RollupService>,
-  ProjectServiceMocks extends ServiceMocking<typeof mockedProjectService>,
-  RollupModuleMocks extends ModuleMocking<typeof mockedRollupModule>
->(
-  serviceStubs?: ServiceStubs,
-  serviceMocks: {
-    projectServiceMocks?: ProjectServiceMocks;
-  } = {},
-  moduleMocks: {
-    rollupModuleMocks?: RollupModuleMocks;
-  } = {}
-) {
-  const { projectServiceMocks = {} } = serviceMocks;
-  const { rollupModuleMocks = {} } = moduleMocks;
-  return rewireFull(
-    // rewire the module
-    '@lib/services/rollup',
-    {
-      '~rollup': mockModule({
-        ...mockedRollupModule,
-        ...rollupModuleMocks,
-      }),
-    },
-    // rewire the service
-    RollupService,
-    {
-      '@lib/services/project': mockService({
-        ...mockedProjectService,
-        ...projectServiceMocks,
-      }),
-    },
-    serviceStubs
-  ).getResult();
-}
-
 describe('services/rollup.ts', () => {
+  
+  // rollup
+  const mockedRollupModule = {
+    rollup: '*',
+    write: '*',
+  };
+
+  // @src/services/project
+  const mockedProjectService = {
+    getPackageJson: async () => ({}),
+  };
+
+  // setup test
+  async function setup<
+    ServiceStubs extends ServiceStubing<RollupService>,
+    ProjectServiceMocks extends ServiceMocking<typeof mockedProjectService>,
+    RollupModuleMocks extends ModuleMocking<typeof mockedRollupModule>
+  >(
+    serviceStubs?: ServiceStubs,
+    serviceMocks: {
+      projectServiceMocks?: ProjectServiceMocks;
+    } = {},
+    moduleMocks: {
+      rollupModuleMocks?: RollupModuleMocks;
+    } = {}
+  ) {
+    const { projectServiceMocks = {} } = serviceMocks;
+    const { rollupModuleMocks = {} } = moduleMocks;
+    return rewireFull(
+      // rewire the module
+      '@lib/services/rollup',
+      {
+        '~rollup': mockModule({
+          ...mockedRollupModule,
+          ...rollupModuleMocks,
+        }),
+      },
+      // rewire the service
+      RollupService,
+      {
+        '@lib/services/project': mockService({
+          ...mockedProjectService,
+          ...projectServiceMocks,
+        }),
+      },
+      serviceStubs
+    ).getResult();
+  }
+
   it('#getConfigs (no values)', async () => {
     const { service } = await setup();
 
