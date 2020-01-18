@@ -180,7 +180,7 @@ module.exports = (umdName) => {
       } catch (error) {}
       // a set
       if (!!endpoint) {
-        const buildEndpoint = e => e;
+        const buildEndpoint = e => ('/' + e).replace('//', '/');
         const buildEndpointID = (method, e) =>
           method + '__' + (e.charAt(0) === '/' ? e.substr(1): e).replace(/\//g, '_');
         const methodExtractor = name => ({      
@@ -279,7 +279,7 @@ module.exports = (umdName) => {
     // intro
     routingBlocks.push(
       contentService.blockText([
-        `**${umdName}** module provides REST API endpoints allowing clients to access server resources. Theses enpoints are not exposed by default, to expose the endpoints:`,
+        `**${umdName}** provides REST API endpoints allowing clients to access server resources. Theses enpoints are not exposed by default, to expose the endpoints:`,
         [
           `\`\`\`ts`,
           `${umdName}.registerRoutes(routeEnabling?);`,
@@ -292,7 +292,7 @@ module.exports = (umdName) => {
       routingBlocks.push(
         contentService.blockHeading('Disabled', childLevel, 'routing-disabled'),
         contentService.blockText([
-          `These routes are disabled by default but can be changed by passing \`disabledRoutes\` property when [\`registerRoutes\`](#routing):`
+          `These routes are disabled by default but can be changed by passing \`routeEnabling\` property when [\`registerRoutes\`](#routing):`
         ]),
         contentService.blockTable(
           ['Enpoint', 'Methods'],
@@ -305,7 +305,7 @@ module.exports = (umdName) => {
       routingBlocks.push(
         contentService.blockHeading('Errors', childLevel, 'routing-errors'),
         contentService.blockText([
-          `**${umdName}** module returns these routing errors, you may use the error code to customize the message:`
+          `**${umdName}** returns these routing errors, you may use the error code to customize the message:`
         ]),
         contentService.blockList(errorItems),
       );

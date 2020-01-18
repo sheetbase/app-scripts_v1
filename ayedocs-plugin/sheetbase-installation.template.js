@@ -3,9 +3,14 @@ module.exports = (extra) => {
     const templateSections = {};
     // consts
     const { name: packageName } = projectService.PACKAGE;
-    const name = packageName.split('/').pop();
+    const name = packageName
+      .split('/')
+      .pop()
+      .split('-')
+      .map((x, i) => i === 0 ? x: (x.charAt(0).toUpperCase() + x.substr(1)))
+      .join('');
     const varName = name + 'Module';
-    const umdName = name.charAt(0).toUpperCase() + name.substr(1);
+    const umdName = varName.charAt(0).toUpperCase() + varName.substr(1);
     // getting started
     templateSections['installation'] = [
       contentService.blockHeading('Installation', 2, 'installation'),
@@ -19,7 +24,10 @@ module.exports = (extra) => {
           '',
           `// 2. create an instance`,
           `export class App {`,
+          '  // the object',
           `  ${varName}: ${umdName};`,
+          '',
+          '  // initiate the instance',
           `  constructor() {`,
           `    this.${varName} = new ${umdName}(/* options */);`,
           `  }`,

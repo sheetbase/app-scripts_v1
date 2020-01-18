@@ -6,8 +6,13 @@ module.exports = (extra) => {
     // consts
     const { convertings = {} } = options;
     const { name: packageName } = projectService.PACKAGE;
-    const name = packageName.split('/').pop();
-    const umdName = name.charAt(0).toUpperCase() + name.substr(1) + 'Module';
+    const name = packageName
+      .split('/')
+      .pop()
+      .split('-')
+      .map((x, i) => i === 0 ? x: (x.charAt(0).toUpperCase() + x.substr(1)))
+      .join('');
+    const umdName = (name.charAt(0).toUpperCase() + name.substr(1) + 'Module');
     // routing
     templateSections['routing'] = [
       '*',
