@@ -29,7 +29,7 @@ function extractParamChildren(methodName, methodTags, fileContent) {
       const shortText = tags[paramName + '.' + name];
       const isOptional = item.indexOf('?:') !== -1;
       return {
-        name,
+        name: name.replace('?', ''),
         type,
         shortText,
         isOptional,
@@ -52,18 +52,6 @@ function extractParamChildren(methodName, methodTags, fileContent) {
   return result;
 }
 
-function buildDisabledRows(disabled, buildEndpoint) {
-  return Object
-    .keys(disabled)
-    .map(endpoint => {
-      const value = disabled[endpoint];
-      const valueStr = typeof value === 'string'
-        ? `\`${value}\``
-        : value.map(val => `\`${ val.toUpperCase() }\``).join(', ');
-      return [ buildEndpoint(endpoint), valueStr ];
-    });
-}
-
 function buildErrorItems(errors) {
   return Object
     .keys(errors)
@@ -72,20 +60,30 @@ function buildErrorItems(errors) {
 
 function buildRoutes(
   contentService,
+  methodExtractor,
   methods,
+  disabledRoutes,
   fileContent,
   childLevel,
-  buildEndpoint,
-  buildEndpointID,
-  methodExtractor
 ) {
   const summary = [];
   const detail = [];
   methods.forEach(method => {
     const { NAME, REFLECTION, SHORT_TEXT, TYPE, PARAMETERS, RETURNS } = method;
-    const { routeMethod, routeEndpoint } = methodExtractor(NAME);
+    const { routeMethod, routeEndpoint, routeId } = methodExtractor(NAME);
+    // check disabled status
+    let isDisabled = false;
+    if (!!disabledRoutes[routeEndpoint]) {
+      const value = disabledRoutes[routeEndpoint];
+      isDisabled = typeof value === 'string' || value.indexOf(routeMethod.toLowerCase()) !== -1;
+    }
     // summary
-    summary.push([ `[${buildEndpoint(routeEndpoint)}](#${buildEndpointID(routeMethod, routeEndpoint)})`, `\`${routeMethod}\``, SHORT_TEXT ]);
+    summary.push([
+      `[${routeEndpoint}](#${routeId})`,
+      `\`${routeMethod}\``,
+      isDisabled ? `\`true\`` : '',
+      SHORT_TEXT
+    ]);
     // detail (request rows)
     let requestQueryRows = [];
     let requestBodyRows = [];
@@ -135,8 +133,12 @@ function buildRoutes(
     }
     // save detail
     detail.push(
-      contentService.blockHeading(`\`${routeMethod}\` ${buildEndpoint(routeEndpoint)}`, childLevel + 2, buildEndpointID(routeMethod, routeEndpoint)),
-      contentService.blockText(SHORT_TEXT),
+      contentService.blockHeading(
+        `\`${routeMethod}\` ${routeEndpoint}`,
+        childLevel + 2,
+        routeId
+      ),
+      contentService.blockText(`${isDisabled ? `\`DISABLED\``: ''}` + ' ' + SHORT_TEXT),
       ...requestQuery,
       ...requestBody,
       ...requestData,
@@ -158,7 +160,6 @@ module.exports = (umdName) => {
     const childLevel = headingLevel + 1;
     // build blocks
     const errorItems = [];
-    const disabledRows = [];
     const summaryRoutes = [];
     const detailRoutes = [];
     const children = declaration.getClasses(declaration => declaration.NAME.endsWith('Route'));
@@ -180,25 +181,14 @@ module.exports = (umdName) => {
       } catch (error) {}
       // a set
       if (!!endpoint) {
-        const buildEndpoint = e => ('/' + e).replace('//', '/');
-        const buildEndpointID = (method, e) =>
-          method + '__' + (e.charAt(0) === '/' ? e.substr(1): e).replace(/\//g, '_');
-        const methodExtractor = name => ({      
-          routeMethod: name.toUpperCase(),
-          routeEndpoint: endpoint,
-        });
-        // disabled
-        try {
-          const { DEFAULT_VALUE: value } = routeDeclaration.getChild('disabled');
-          disabledRows.push(
-            ...buildDisabledRows(
-              { [endpoint]: value },
-              buildEndpoint
-            ),
-          );
-        } catch (error) {
-          // no .disabled
-        }
+        const buildEndpoint = endpoint => ('/' + endpoint).replace('//', '/');
+        const buildEndpointID = (method, endpoint) => method + '_' + endpoint.replace(/\//g, '_');
+        const methodExtractor = name => {
+          const routeMethod = name.toUpperCase();
+          const routeEndpoint = buildEndpoint(endpoint);
+          const routeId = buildEndpointID(routeMethod, routeEndpoint);
+          return { routeMethod, routeEndpoint, routeId };
+        };
         // errors
         try {
           const { DEFAULT_VALUE: errors } = routeDeclaration.getChild('errors');
@@ -208,43 +198,56 @@ module.exports = (umdName) => {
         } catch (error) {
           // no .errors
         }
+        // disabled
+        let disabledRoutes = {};
+        try {
+          const { DEFAULT_VALUE: value } = routeDeclaration.getChild('disabled');
+          disabledRoutes = { [endpoint]: value };
+        } catch (error) {
+          // no .disabled
+        }
         // routes
         const { summary, detail } = buildRoutes(
           contentService,
+          methodExtractor,
           routeDeclaration.getFunctionsOrMethods(),
+          disabledRoutes,
           fileContent,
           childLevel,
-          buildEndpoint,
-          buildEndpointID,
-          methodExtractor
         );
         summaryRoutes.push(...summary);
         detailRoutes.push(...detail);
       }
       // a group
       else {
-        const buildEndpoint = e => ('/' + baseEndpoint + '/' + e).replace('//', '/');
-        const buildEndpointID = (method, e) =>
-          method + '__' + (!!baseEndpoint ? (baseEndpoint + '_'): '') + e.replace(/\//g, '_');
-        const methodExtractor = name => {
-          const [ routeMethod, routeEndpoint ] = name
-          .replace('__', ' ')
-          .split(' ')
-          .map(x => x.replace(/\_/g, '/'));
-          return { routeMethod, routeEndpoint };
-        };
-        // disabled
-        try {
-          const { DEFAULT_VALUE: disabled } = routeDeclaration.getChild('disabledRoutes');
-          disabledRows.push(
-            ...buildDisabledRows(
-              disabled,
-              buildEndpoint
-            ),
-          );
-        } catch (error) {
-          // no .disabledRoutes
+        const buildEndpoint = endpoint => {
+          if (
+            !baseEndpoint ||
+            (
+              !!baseEndpoint &&
+              (
+                endpoint.substr(0, baseEndpoint.length) === baseEndpoint ||
+                endpoint.substr(0, baseEndpoint.length + 1) === `/${baseEndpoint}`
+              )
+            )
+          ) {
+            endpoint = '/' + endpoint;
+          } else {
+            endpoint = '/' + baseEndpoint + '/' + endpoint;
+          }
+          return endpoint.replace('//', '/');
         }
+        const buildEndpointID = (method, endpoint) => method + '_' + endpoint.replace(/\//g, '_');
+        const methodExtractor = name => {
+          const result = name
+            .replace('__', ' ')
+            .split(' ')
+            .map(x => x.replace(/\_/g, '/'));
+          const routeMethod = result[0];
+          const routeEndpoint = buildEndpoint(result[1]);
+          const routeId = buildEndpointID(routeMethod, routeEndpoint);
+          return { routeMethod, routeEndpoint, routeId };
+        };
         // errors
         try {
           const { DEFAULT_VALUE: errors } = routeDeclaration.getChild('routingErrors');
@@ -253,18 +256,28 @@ module.exports = (umdName) => {
           );
         } catch (error) {
           // no .routingErrors
+        }        
+        // disabled
+        let disabledRoutes = {};
+        try {
+          const { DEFAULT_VALUE: disabled } = routeDeclaration.getChild('disabledRoutes');
+          Object.keys(disabled).forEach(endpoint => {
+            const value = disabled[endpoint];
+            disabledRoutes[buildEndpoint(endpoint)] = value;
+          });
+        } catch (error) {
+          // no .disabledRoutes
         }
         // routes
         const { summary, detail } = buildRoutes(
           contentService,
+          methodExtractor,
           routeDeclaration.getFunctionsOrMethods(
             methodDeclaration => methodDeclaration.NAME.indexOf('__') !== -1
           ),
+          disabledRoutes,
           fileContent,
           childLevel,
-          buildEndpoint,
-          buildEndpointID,
-          methodExtractor
         );
         summaryRoutes.push(...summary);
         detailRoutes.push(...detail);
@@ -287,19 +300,6 @@ module.exports = (umdName) => {
         ].join('\n')
       ]),
     );
-    // disabled
-    if (!!disabledRows.length) {
-      routingBlocks.push(
-        contentService.blockHeading('Disabled', childLevel, 'routing-disabled'),
-        contentService.blockText([
-          `These routes are disabled by default but can be changed by passing \`routeEnabling\` property when [\`registerRoutes\`](#routing):`
-        ]),
-        contentService.blockTable(
-          ['Enpoint', 'Methods'],
-          disabledRows,
-        ),
-      );
-    }
     // errors
     if (!!errorItems.length) {
       routingBlocks.push(
@@ -315,7 +315,7 @@ module.exports = (umdName) => {
       contentService.blockHeading('Routes', childLevel, 'routing-routes'),
       contentService.blockHeading('Routes overview', childLevel + 1, 'routing-routes-overview'),
       contentService.blockTable(
-        ['Route', 'Method', 'Description'],
+        ['Route', 'Method', 'Disabled', 'Description'],
         summaryRoutes,
       ),
       contentService.blockHeading('Routes detail', childLevel + 1, 'routing-routes-detail'),
