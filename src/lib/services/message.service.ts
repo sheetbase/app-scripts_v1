@@ -1,4 +1,4 @@
-import { green } from 'chalk';
+import {green} from 'chalk';
 
 export class MessageService {
   OK = `[${green('OK')}]`;

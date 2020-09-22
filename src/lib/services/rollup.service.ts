@@ -1,10 +1,10 @@
-import { rollup, OutputOptions } from 'rollup';
+import {rollup, OutputOptions} from 'rollup';
 import * as resolve from 'rollup-plugin-node-resolve';
 import * as commonjs from 'rollup-plugin-commonjs';
 
-import { ProjectService } from './project';
+import {ProjectService} from './project.service';
 
-export { OutputOptions };
+export {OutputOptions};
 
 export class RollupService {
   constructor(private projectService: ProjectService) {}
@@ -24,7 +24,7 @@ export class RollupService {
   }
 
   async bundleCode(input: string, outputs: OutputOptions[]) {
-    const { resolveConfigs, commonjsConfigs } = await this.getConfigs();
+    const {resolveConfigs, commonjsConfigs} = await this.getConfigs();
     const bundle = await rollup({
       input,
       plugins: [

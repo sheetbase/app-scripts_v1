@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>RollupService | @sheetbase/app-scripts</title>
+	<title>Lib | @sheetbase/app-scripts</title>
 	<meta name="description" content="Documentation for @sheetbase/app-scripts">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="rollupservice.html">RollupService</a>
+					<a href="lib.html">Lib</a>
 				</li>
 			</ul>
-			<h1>Class RollupService</h1>
+			<h1>Class Lib</h1>
 		</div>
 	</div>
 </header>
@@ -68,7 +68,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">RollupService</span>
+						<span class="target">Lib</span>
 					</li>
 				</ul>
 			</section>
@@ -79,14 +79,16 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="rollupservice.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="lib.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
-							<h3>Methods</h3>
+							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="rollupservice.html#bundlecode" class="tsd-kind-icon">bundle<wbr>Code</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="rollupservice.html#getconfigs" class="tsd-kind-icon">get<wbr>Configs</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="lib.html#fileservice" class="tsd-kind-icon">file<wbr>Service</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="lib.html#messageservice" class="tsd-kind-icon">message<wbr>Service</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="lib.html#projectservice" class="tsd-kind-icon">project<wbr>Service</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="lib.html#rollupservice" class="tsd-kind-icon">rollup<wbr>Service</a></li>
 							</ul>
 						</section>
 					</div>
@@ -98,70 +100,61 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Rollup<wbr>Service<span class="tsd-signature-symbol">(</span>projectService<span class="tsd-signature-symbol">: </span><a href="projectservice.html" class="tsd-signature-type">ProjectService</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="rollupservice.html" class="tsd-signature-type">RollupService</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Lib<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="lib.html" class="tsd-signature-type">Lib</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in lib/services/rollup.service.ts:9</li>
+									<li>Defined in <a href="https://github.com/sheetbase/app-scripts/blob/d8ef46d/src/lib/index.ts#L10">lib/index.ts:10</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>projectService: <a href="projectservice.html" class="tsd-signature-type">ProjectService</a></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="rollupservice.html" class="tsd-signature-type">RollupService</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="lib.html" class="tsd-signature-type">Lib</a></h4>
 						</li>
 					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="bundlecode" class="tsd-anchor"></a>
-					<h3>bundle<wbr>Code</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">bundle<wbr>Code<span class="tsd-signature-symbol">(</span>input<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, outputs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">OutputOptions</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in lib/services/rollup.service.ts:26</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>input: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5>outputs: <span class="tsd-signature-type">OutputOptions</span><span class="tsd-signature-symbol">[]</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="fileservice" class="tsd-anchor"></a>
+					<h3>file<wbr>Service</h3>
+					<div class="tsd-signature tsd-kind-icon">file<wbr>Service<span class="tsd-signature-symbol">:</span> <a href="fileservice.html" class="tsd-signature-type">FileService</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/app-scripts/blob/d8ef46d/src/lib/index.ts#L7">lib/index.ts:7</a></li>
+						</ul>
+					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getconfigs" class="tsd-anchor"></a>
-					<h3>get<wbr>Configs</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Configs<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>commonjsConfigs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>resolveConfigs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in lib/services/rollup.service.ts:12</li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>commonjsConfigs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>resolveConfigs<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="messageservice" class="tsd-anchor"></a>
+					<h3>message<wbr>Service</h3>
+					<div class="tsd-signature tsd-kind-icon">message<wbr>Service<span class="tsd-signature-symbol">:</span> <a href="messageservice.html" class="tsd-signature-type">MessageService</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/app-scripts/blob/d8ef46d/src/lib/index.ts#L8">lib/index.ts:8</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="projectservice" class="tsd-anchor"></a>
+					<h3>project<wbr>Service</h3>
+					<div class="tsd-signature tsd-kind-icon">project<wbr>Service<span class="tsd-signature-symbol">:</span> <a href="projectservice.html" class="tsd-signature-type">ProjectService</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/app-scripts/blob/d8ef46d/src/lib/index.ts#L9">lib/index.ts:9</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="rollupservice" class="tsd-anchor"></a>
+					<h3>rollup<wbr>Service</h3>
+					<div class="tsd-signature tsd-kind-icon">rollup<wbr>Service<span class="tsd-signature-symbol">:</span> <a href="rollupservice.html" class="tsd-signature-type">RollupService</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/app-scripts/blob/d8ef46d/src/lib/index.ts#L10">lib/index.ts:10</a></li>
+						</ul>
+					</aside>
 				</section>
 			</section>
 		</div>
@@ -184,33 +177,39 @@
 					<li class=" tsd-kind-class">
 						<a href="fileservice.html" class="tsd-kind-icon">File<wbr>Service</a>
 					</li>
-					<li class=" tsd-kind-class">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-class">
 						<a href="lib.html" class="tsd-kind-icon">Lib</a>
+						<ul>
+							<li class=" tsd-kind-constructor tsd-parent-kind-class">
+								<a href="lib.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="lib.html#fileservice" class="tsd-kind-icon">file<wbr>Service</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="lib.html#messageservice" class="tsd-kind-icon">message<wbr>Service</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="lib.html#projectservice" class="tsd-kind-icon">project<wbr>Service</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="lib.html#rollupservice" class="tsd-kind-icon">rollup<wbr>Service</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-class">
 						<a href="messageservice.html" class="tsd-kind-icon">Message<wbr>Service</a>
 					</li>
 					<li class=" tsd-kind-class">
 						<a href="projectservice.html" class="tsd-kind-icon">Project<wbr>Service</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-class">
+					<li class=" tsd-kind-class">
 						<a href="rollupservice.html" class="tsd-kind-icon">Rollup<wbr>Service</a>
-						<ul>
-							<li class=" tsd-kind-constructor tsd-parent-kind-class">
-								<a href="rollupservice.html#constructor" class="tsd-kind-icon">constructor</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="rollupservice.html#bundlecode" class="tsd-kind-icon">bundle<wbr>Code</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="rollupservice.html#getconfigs" class="tsd-kind-icon">get<wbr>Configs</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-interface">
 						<a href="../interfaces/buildoptions.html" class="tsd-kind-icon">Build<wbr>Options</a>
 					</li>

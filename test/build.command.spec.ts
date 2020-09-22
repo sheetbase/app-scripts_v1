@@ -1,5 +1,7 @@
-// tslint:disable: no-any ban-ts-ignore
-import { expect } from 'chai';
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {describe, it} from 'mocha';
+import {expect} from 'chai';
 import {
   MockBuilder,
   ServiceMocking,
@@ -9,10 +11,9 @@ import {
   rewireFull,
 } from '@lamnhan/testea';
 
-import { BuildCommand } from '../src/cli/commands/build';
+import {BuildCommand} from '../src/cli/commands/build.command';
 
 describe('commands/build.ts', () => {
-    
   // path
   const mockedPathModule = {
     resolve: (...args: string[]) => args.join('/'),
@@ -100,7 +101,7 @@ describe('commands/build.ts', () => {
   }
 
   it('service instances', async () => {
-    const { service } = await setup();
+    const {service} = await setup();
 
     expect(
       // @ts-ignore
@@ -121,7 +122,7 @@ describe('commands/build.ts', () => {
   });
 
   it('props', async () => {
-    const { service } = await setup();
+    const {service} = await setup();
 
     expect(service.DIST_DIR).equal('dist');
     expect(service.DEPLOY_DIR).equal('deploy');
@@ -138,7 +139,7 @@ describe('commands/build.ts', () => {
       umdPath: 'xxx.umd.js',
       typingsPath: 'xxx.d.ts',
     };
-    const { service } = await setup(
+    const {service} = await setup(
       {
         compileCode: async () => (compileCodeCalled = true),
         bundleCode: async (...args: any[]) => (bundleCodeArgs = args),
@@ -171,7 +172,7 @@ describe('commands/build.ts', () => {
       umdPath: 'xxx.umd.js',
       typingsPath: 'xxx.d.ts',
     };
-    const { service } = await setup(
+    const {service} = await setup(
       {
         compileCode: async () => (compileCodeCalled = true),
         bundleCode: async (...args: any[]) => (bundleCodeArgs = args),
@@ -197,14 +198,14 @@ describe('commands/build.ts', () => {
   });
 
   it('#compileCode', async () => {
-    const { service } = await setup();
+    const {service} = await setup();
 
     const result = service.compileCode();
-    expect(result).eql([`npx tsc -p .`, { stdio: 'ignore' }]);
+    expect(result).eql(['npx tsc -p .', {stdio: 'ignore'}]);
   });
 
   it('#bundleCode (app)', async () => {
-    const { service } = await setup();
+    const {service} = await setup();
 
     const result = await service.bundleCode({
       type: 'app',
@@ -228,7 +229,7 @@ describe('commands/build.ts', () => {
   });
 
   it('#bundleCode (module)', async () => {
-    const { service } = await setup();
+    const {service} = await setup();
 
     const result = await service.bundleCode({
       type: 'module',
@@ -260,7 +261,7 @@ describe('commands/build.ts', () => {
   it('#buildModule', async () => {
     let moduleSaveTypingsArgs: any[] = [];
 
-    const { service } = await setup({
+    const {service} = await setup({
       moduleSaveTypings: async (...args: any[]) =>
         (moduleSaveTypingsArgs = args),
     });
@@ -270,10 +271,10 @@ describe('commands/build.ts', () => {
   });
 
   it('#moduleSaveTypings', async () => {
-    const { service } = await setup();
+    const {service} = await setup();
 
     const result = await service.moduleSaveTypings('xxx.d.ts');
-    expect(result).eql(['xxx.d.ts', `export * from './src/public-api';`]);
+    expect(result).eql(['xxx.d.ts', "export * from './src/public-api';"]);
   });
 
   it('#buildApp', async () => {
@@ -284,7 +285,7 @@ describe('commands/build.ts', () => {
 
     const {
       service,
-      mockedServices: { '@lib/services/file': fileServiceTesting },
+      mockedServices: {'@lib/services/file': fileServiceTesting},
     } = await setup({
       appSaveIndex: async () => (appSaveIndexCalled = true),
       appSaveMain: async (...args: any[]) => (appSaveMainArgs = args),
@@ -297,7 +298,9 @@ describe('commands/build.ts', () => {
       'src/xxx',
       'src/xxx.js'
     );
-    const removeStackedArgs = fileServiceTesting.getResult('remove').getStackedArgs();
+    const removeStackedArgs = fileServiceTesting
+      .getResult('remove')
+      .getStackedArgs();
     expect(removeStackedArgs).eql([['deploy'], ['dist']]);
     expect(appSaveIndexCalled).equal(true);
     expect(appSaveMainArgs).eql(['xxx.umd.js']);
@@ -306,7 +309,7 @@ describe('commands/build.ts', () => {
   });
 
   it('#appSaveIndex', async () => {
-    const { service } = await setup();
+    const {service} = await setup();
 
     const result = await service.appSaveIndex();
     expect(result).eql(['deploy/@index.js', '// A Sheetbase Application']);
@@ -315,7 +318,7 @@ describe('commands/build.ts', () => {
   it('#appSaveMain', async () => {
     const {
       service,
-      mockedServices: { '@lib/services/file': fileServiceTesting },
+      mockedServices: {'@lib/services/file': fileServiceTesting},
     } = await setup();
 
     const result = await service.appSaveMain('xxx.umd.js');
@@ -333,7 +336,7 @@ describe('commands/build.ts', () => {
   });
 
   it('#appCopyResources (no input)', async () => {
-    const { service } = await setup();
+    const {service} = await setup();
 
     const result = await service.appCopyResources(undefined as any);
     expect(result).eql([
@@ -343,7 +346,7 @@ describe('commands/build.ts', () => {
   });
 
   it('#appCopyResources (invalid input)', async () => {
-    const { service } = await setup();
+    const {service} = await setup();
 
     const result = await service.appCopyResources(', , ');
     expect(result).eql([
@@ -353,7 +356,7 @@ describe('commands/build.ts', () => {
   });
 
   it('#appCopyResources (valid input)', async () => {
-    const { service } = await setup();
+    const {service} = await setup();
 
     const result = await service.appCopyResources('abc.txt, src/xxx,xxx.xyz ');
     expect(result).eql([
@@ -370,14 +373,14 @@ describe('commands/build.ts', () => {
   });
 
   it('#appSaveVendor (no input)', async () => {
-    const { service } = await setup();
+    const {service} = await setup();
 
     const result = await service.appSaveVendor(undefined as any);
     expect(result).equal(undefined);
   });
 
   it('#appSaveVendor (invalid input)', async () => {
-    const { service } = await setup();
+    const {service} = await setup();
 
     const result = await service.appSaveVendor(', , ');
     expect(result).equal(undefined);
@@ -386,13 +389,15 @@ describe('commands/build.ts', () => {
   it('#appSaveVendor (valid input)', async () => {
     const {
       service,
-      mockedServices: { '@lib/services/file': fileServiceTesting },
+      mockedServices: {'@lib/services/file': fileServiceTesting},
     } = await setup();
 
     const result = await service.appSaveVendor(
       'xxx.js,src/xxx.js,@xxx.js,@/xxx.js,~xxx/xxx.js,~/xxx/xxx.js'
     );
-    const readFileStackedArgs = fileServiceTesting.getResult('readFile').getStackedArgs();
+    const readFileStackedArgs = fileServiceTesting
+      .getResult('readFile')
+      .getStackedArgs();
     expect(readFileStackedArgs).eql([
       ['xxx.js'],
       ['src/xxx.js'],

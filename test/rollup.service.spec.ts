@@ -1,5 +1,6 @@
-// tslint:disable: no-any
-import { expect } from 'chai';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {describe, it} from 'mocha';
+import {expect} from 'chai';
 import {
   ModuleMocking,
   ServiceMocking,
@@ -9,10 +10,9 @@ import {
   rewireFull,
 } from '@lamnhan/testea';
 
-import { RollupService } from '../src/lib/services/rollup';
+import {RollupService} from '../src/lib/services/rollup.service';
 
 describe('services/rollup.ts', () => {
-  
   // rollup
   const mockedRollupModule = {
     rollup: '*',
@@ -38,8 +38,8 @@ describe('services/rollup.ts', () => {
       rollupModuleMocks?: RollupModuleMocks;
     } = {}
   ) {
-    const { projectServiceMocks = {} } = serviceMocks;
-    const { rollupModuleMocks = {} } = moduleMocks;
+    const {projectServiceMocks = {}} = serviceMocks;
+    const {rollupModuleMocks = {}} = moduleMocks;
     return rewireFull(
       // rewire the module
       '@lib/services/rollup',
@@ -62,7 +62,7 @@ describe('services/rollup.ts', () => {
   }
 
   it('#getConfigs (no values)', async () => {
-    const { service } = await setup();
+    const {service} = await setup();
 
     const result = await service.getConfigs();
     expect(result).eql({
@@ -72,12 +72,12 @@ describe('services/rollup.ts', () => {
   });
 
   it('#getConfigs (has values)', async () => {
-    const { service } = await setup(undefined, {
+    const {service} = await setup(undefined, {
       // remock project service
       projectServiceMocks: {
         getPackageJson: async () => ({
           rollup: {
-            commonjs: { a: 1 },
+            commonjs: {a: 1},
           },
         }),
       },
@@ -86,14 +86,14 @@ describe('services/rollup.ts', () => {
     const result = await service.getConfigs();
     expect(result).eql({
       resolveConfigs: {},
-      commonjsConfigs: { a: 1 },
+      commonjsConfigs: {a: 1},
     });
   });
 
   it('#bundleCode', async () => {
     const {
       service,
-      mockedModules: { '~rollup': rollupModuleTesting },
+      mockedModules: {'~rollup': rollupModuleTesting},
     } = await setup({
       getConfigs: async () => ({
         resolveConfigs: {},
@@ -102,16 +102,16 @@ describe('services/rollup.ts', () => {
     });
 
     await service.bundleCode('xxx', [
-      { format: 'umd', file: 'xxx' },
-      { format: 'esm', file: 'xxx2' },
+      {format: 'umd', file: 'xxx'},
+      {format: 'esm', file: 'xxx2'},
     ]);
     const rollupArg = rollupModuleTesting.getResult('rollup').getArgFirst();
     expect(rollupArg.input).equal('xxx');
     expect(rollupArg.plugins[0].name).equal('node-resolve');
     expect(rollupArg.plugins[1].name).equal('commonjs');
     expect(rollupModuleTesting.getResult('write').getStackedArgs()).eql([
-      [{ format: 'umd', file: 'xxx' }],
-      [{ format: 'esm', file: 'xxx2' }],
+      [{format: 'umd', file: 'xxx'}],
+      [{format: 'esm', file: 'xxx2'}],
     ]);
   });
 });

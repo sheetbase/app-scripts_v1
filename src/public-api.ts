@@ -1,7 +1,7 @@
-export { Main as AppscriptsModule } from './lib/index';
-export { Cli as AppscriptsCliModule } from './cli/index';
+export {Lib as SheetbaseAppscriptsModule} from './lib/index';
+export {Cli as SheetbaseAppscriptsCliModule} from './cli/index';
 
-export * from './lib/services/file';
-export * from './lib/services/message';
-export * from './lib/services/project';
-export * from './lib/services/rollup';
+export * from './lib/services/file.service';
+export * from './lib/services/message.service';
+export * from './lib/services/project.service';
+export * from './lib/services/rollup.service';

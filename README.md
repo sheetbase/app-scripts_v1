@@ -86,8 +86,8 @@ const sheetbaseTemplate = require("@sheetbase/app-scripts/ayedocs-plugin/sheetba
 module.exports = {
   fileRender: {
     "sheetbase.md": sheetbaseTemplate(),
-    "sheetbase-full.md": sheetbaseTemplate(true)
-  }
+    "sheetbase-full.md": sheetbaseTemplate(true),
+  },
 };
 ```
 
@@ -101,8 +101,8 @@ const sheetbaseInstallationTemplate = require("@sheetbase/app-scripts/ayedocs-pl
 module.exports = {
   fileRender: {
     "sheetbase-installation.md": sheetbaseInstallationTemplate(),
-    "sheetbase-installation-full.md": sheetbaseInstallationTemplate(true)
-  }
+    "sheetbase-installation-full.md": sheetbaseInstallationTemplate(true),
+  },
 };
 ```
 
@@ -116,8 +116,8 @@ const sheetbaseRoutingTemplate = require("@sheetbase/app-scripts/ayedocs-plugin/
 module.exports = {
   fileRender: {
     "sheetbase-routing.md": sheetbaseRoutingTemplate(),
-    "sheetbase-routing-full.md": sheetbaseRoutingTemplate(true)
-  }
+    "sheetbase-routing-full.md": sheetbaseRoutingTemplate(true),
+  },
 };
 ```
 

@@ -1,41 +1,46 @@
-import { red } from 'chalk';
-import * as commander from 'commander';
-import { AppscriptsModule } from '../public-api';
+import {red} from 'chalk';
+import {Command} from 'commander';
+import {SheetbaseAppscriptsModule} from '../public-api';
 
-import { BuildCommand } from './commands/build';
+import {BuildCommand} from './commands/build.command';
 
 export class Cli {
-  private appscriptsModule: AppscriptsModule;
+  private sheetbaseAppscriptsModule: SheetbaseAppscriptsModule;
 
   buildCommand: BuildCommand;
 
   commander = [
     'sheetbase-app-scripts',
-    'Scripts for Sheetbase backend modules and apps.'
+    'Scripts for Sheetbase backend modules and apps.',
   ];
 
   buildCommandDef: CommandDef = [
     'build',
     'Build distribution package.',
     ['--copy [value]', 'Copied resources, comma-seperated.'],
-    ['--vendor [value]', 'Files for @vendor.js, comma-seperated.']
+    ['--vendor [value]', 'Files for @vendor.js, comma-seperated.'],
   ];
 
   constructor() {
-    this.appscriptsModule = new AppscriptsModule();
+    this.sheetbaseAppscriptsModule = new SheetbaseAppscriptsModule();
     this.buildCommand = new BuildCommand(
-      this.appscriptsModule.fileService,
-      this.appscriptsModule.messageService,
-      this.appscriptsModule.projectService,
-      this.appscriptsModule.rollupService
+      this.sheetbaseAppscriptsModule.fileService,
+      this.sheetbaseAppscriptsModule.messageService,
+      this.sheetbaseAppscriptsModule.projectService,
+      this.sheetbaseAppscriptsModule.rollupService
     );
   }
 
   getApp() {
+    const commander = new Command();
+
+    // general
+    const [command, description] = this.commander;
     commander
       .version(require('../../package.json').version, '-v, --version')
-      .usage('sheetbase-app-scripts [options] [command]')
-      .description('Scripts for Sheetbase backend modules and apps.');
+      .name(`${command}`)
+      .usage('[options] [command]')
+      .description(description);
 
     // build
     (() => {
@@ -58,7 +63,7 @@ export class Cli {
     commander
       .command('*')
       .description('Any other command is not supported.')
-      .action(cmd => console.error(red(`Unknown command '${cmd}'`)));
+      .action(cmd => console.error(red(`Unknown command '${cmd.args[0]}'`)));
 
     return commander;
   }

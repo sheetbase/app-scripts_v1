@@ -1,4 +1,4 @@
-import { FileService } from './file';
+import {FileService} from './file.service';
 
 export interface PackageJson {
   name: string;
@@ -10,7 +10,7 @@ export interface PackageJson {
   author: string;
   homepage: string;
   license: string;
-  scripts: { [key: string]: string };
+  scripts: {[key: string]: string};
   keywords: string[];
   repository: {
     type: string;
@@ -19,9 +19,9 @@ export interface PackageJson {
   bugs: {
     url: string;
   };
-  dependencies: { [key: string]: string };
-  devDependencies: { [key: string]: string };
-  peerDependencies: { [key: string]: string };
+  dependencies: {[key: string]: string};
+  devDependencies: {[key: string]: string};
+  peerDependencies: {[key: string]: string};
   // custom rollup plugin configs
   rollup?: {
     resolve?: {};
@@ -44,7 +44,7 @@ export class ProjectService {
   constructor(private fileService: FileService) {}
 
   async getConfigs(): Promise<ProjectConfigs> {
-    const { name: pkgName } = await this.getPackageJson();
+    const {name: pkgName} = await this.getPackageJson();
     const type =
       pkgName === '@sheetbase/backend' || pkgName.indexOf('@app') !== -1
         ? 'app'

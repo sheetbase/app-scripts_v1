@@ -1,5 +1,5 @@
-import { execSync } from 'child_process';
-import { resolve } from 'path';
+import {execSync} from 'child_process';
+import {resolve} from 'path';
 
 import {
   ProjectConfigs,
@@ -28,7 +28,7 @@ export class BuildCommand {
 
   async run(options: BuildOptions) {
     const projectConfigs = await this.projectService.getConfigs();
-    const { type, umdPath, typingsPath } = projectConfigs;
+    const {type, umdPath, typingsPath} = projectConfigs;
     // compile & bundle
     this.compileCode();
     await this.bundleCode(projectConfigs);
@@ -36,7 +36,7 @@ export class BuildCommand {
     if (type === 'module') {
       await this.buildModule(typingsPath as string);
     } else {
-      const { copy = '', vendor = '' } = options;
+      const {copy = '', vendor = ''} = options;
       await this.buildApp(umdPath, copy, vendor);
     }
     // done
@@ -44,11 +44,11 @@ export class BuildCommand {
   }
 
   compileCode() {
-    return execSync(`npx tsc -p .`, { stdio: 'ignore' });
+    return execSync('npx tsc -p .', {stdio: 'ignore'});
   }
 
   async bundleCode(configs: ProjectConfigs) {
-    const { type, inputPath, umdPath, umdName, esmPath } = configs;
+    const {type, inputPath, umdPath, umdName, esmPath} = configs;
     // build output
     const output: OutputOptions[] = [
       // umd for both app & module
@@ -78,7 +78,7 @@ export class BuildCommand {
   async moduleSaveTypings(typingsPath: string) {
     return this.fileService.outputFile(
       typingsPath,
-      `export * from './src/public-api';`
+      "export * from './src/public-api';"
     );
   }
 
@@ -133,7 +133,7 @@ export class BuildCommand {
     (input || '')
       .split(',')
       .forEach(item => !!item.trim() && vendors.push(item.trim()));
-    if (!!vendors.length) {
+    if (vendors.length) {
       // merge vendor code
       const contentArr: string[] = [];
       for (const vendor of vendors) {

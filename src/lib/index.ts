@@ -1,9 +1,9 @@
-import { FileService } from './services/file';
-import { MessageService } from './services/message';
-import { ProjectService } from './services/project';
-import { RollupService } from './services/rollup';
+import {FileService} from './services/file.service';
+import {MessageService} from './services/message.service';
+import {ProjectService} from './services/project.service';
+import {RollupService} from './services/rollup.service';
 
-export class Main {
+export class Lib {
   fileService: FileService;
   messageService: MessageService;
   projectService: ProjectService;
