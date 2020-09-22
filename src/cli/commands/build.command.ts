@@ -44,7 +44,7 @@ export class BuildCommand {
   }
 
   compileCode() {
-    return execSync('npx tsc -p .', {stdio: 'ignore'});
+    return execSync('npx tsc', {stdio: 'ignore'});
   }
 
   async bundleCode(configs: ProjectConfigs) {
