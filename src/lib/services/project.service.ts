@@ -34,10 +34,9 @@ export interface ProjectConfigs {
   name: string;
   fullName: string;
   inputPath: string;
-  umdPath: string;
-  umdName: string;
+  iifePath: string;
+  iifeName: string;
   esmPath?: string;
-  typingsPath?: string;
 }
 
 export class ProjectService {
@@ -52,32 +51,30 @@ export class ProjectService {
     const name = pkgName.split('/').pop() as string; // ex.: server
     const fullName = pkgName.replace('@', '').replace('/', '-'); //ex.: sheetbase-server
     if (type === 'app') {
-      const inputPath = './dist/src/index.js';
-      const umdPath = './dist/app.js';
-      const umdName = 'App';
+      const inputPath = './src/www.js';
+      const iifePath = './src/sheetbase-app.js';
+      const iifeName = 'App';
       return {
         type,
         name,
         fullName,
         inputPath,
-        umdPath,
-        umdName,
+        iifePath,
+        iifeName,
       };
     } else {
-      const inputPath = './dist/src/public-api.js';
-      const umdPath = `./dist/${fullName}.js`;
-      const umdName = name.charAt(0).toUpperCase() + name.slice(1) + 'Module';
-      const esmPath = `./dist/${fullName}.esm.js`;
-      const typingsPath = `./dist/${fullName}.d.ts`;
+      const inputPath = './src/public-api.js';
+      const esmPath = './src/sheetbase-module.esm.js';
+      const iifePath = './src/sheetbase-module.js';
+      const iifeName = 'Module';
       return {
         type,
         name,
         fullName,
         inputPath,
-        umdPath,
-        umdName,
+        iifePath,
+        iifeName,
         esmPath,
-        typingsPath,
       };
     }
   }

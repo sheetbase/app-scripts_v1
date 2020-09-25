@@ -3,20 +3,24 @@ import {Command} from 'commander';
 import {SheetbaseAppscriptsModule} from '../public-api';
 
 import {BuildCommand} from './commands/build.command';
+import {PushCommand} from './commands/push.command';
 
 export class Cli {
   private sheetbaseAppscriptsModule: SheetbaseAppscriptsModule;
 
   buildCommand: BuildCommand;
+  pushCommand: PushCommand;
 
   commander = [
     'sheetbase-app-scripts',
     'Scripts for Sheetbase backend modules and apps.',
   ];
 
-  buildCommandDef: CommandDef = [
-    'build',
-    'Build distribution package.',
+  buildCommandDef: CommandDef = ['build', 'Build distribution package.'];
+
+  pushCommandDef: CommandDef = [
+    'push',
+    'Push to the Apps Script server.',
     ['--copy [value]', 'Copied resources, comma-seperated.'],
     ['--vendor [value]', 'Files for @vendor.js, comma-seperated.'],
   ];
@@ -28,6 +32,11 @@ export class Cli {
       this.sheetbaseAppscriptsModule.messageService,
       this.sheetbaseAppscriptsModule.projectService,
       this.sheetbaseAppscriptsModule.rollupService
+    );
+    this.pushCommand = new PushCommand(
+      this.sheetbaseAppscriptsModule.fileService,
+      this.sheetbaseAppscriptsModule.messageService,
+      this.sheetbaseAppscriptsModule.projectService
     );
   }
 
@@ -44,13 +53,22 @@ export class Cli {
 
     // build
     (() => {
-      const [command, description, copyOpt, vendorOpt] = this.buildCommandDef;
+      const [command, description] = this.buildCommandDef;
+      commander
+        .command(command)
+        .description(description)
+        .action(() => this.buildCommand.run());
+    })();
+
+    // push
+    (() => {
+      const [command, description, copyOpt, vendorOpt] = this.pushCommandDef;
       commander
         .command(command)
         .description(description)
         .option(...copyOpt) // --copy
         .option(...vendorOpt) // --vendor
-        .action(options => this.buildCommand.run(options));
+        .action(options => this.pushCommand.run(options));
     })();
 
     // help

@@ -67,8 +67,8 @@ describe('services/project.ts', () => {
       name: 'xxx',
       fullName: 'sheetbase-xxx',
       inputPath: './dist/src/public-api.js',
-      umdPath: './dist/sheetbase-xxx.js',
-      umdName: 'Xxx',
+      iifePath: './dist/sheetbase-xxx.js',
+      iifeName: 'Xxx',
       esmPath: './dist/sheetbase-xxx.esm.js',
       typingsPath: './dist/sheetbase-xxx.d.ts',
     });
@@ -84,8 +84,8 @@ describe('services/project.ts', () => {
       name: 'backend',
       fullName: 'sheetbase-backend',
       inputPath: './dist/src/index.js',
-      umdPath: './dist/app.js',
-      umdName: 'App',
+      iifePath: './dist/app.js',
+      iifeName: 'App',
     });
   });
 

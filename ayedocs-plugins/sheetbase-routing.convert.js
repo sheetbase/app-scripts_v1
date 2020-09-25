@@ -152,7 +152,7 @@ function buildRoutes(
   return { summary, detail };
 }
 
-module.exports = (umdName) => {
+module.exports = (iifeName) => {
   return (declaration, options, contentService) => {
     // process level
     const withHeading = typeof options.heading === 'boolean' ? options.heading: true;
@@ -292,10 +292,10 @@ module.exports = (umdName) => {
     // intro
     routingBlocks.push(
       contentService.blockText([
-        `**${umdName}** provides REST API endpoints allowing clients to access server resources. Theses enpoints are not exposed by default, to expose the endpoints:`,
+        `**${iifeName}** provides REST API endpoints allowing clients to access server resources. Theses enpoints are not exposed by default, to expose the endpoints:`,
         [
           `\`\`\`ts`,
-          `${umdName}.registerRoutes(routeEnabling?);`,
+          `${iifeName}.registerRoutes(routeEnabling?);`,
           `\`\`\``
         ].join('\n')
       ]),
@@ -305,7 +305,7 @@ module.exports = (umdName) => {
       routingBlocks.push(
         contentService.blockHeading('Errors', childLevel, 'routing-errors'),
         contentService.blockText([
-          `**${umdName}** returns these routing errors, you may use the error code to customize the message:`
+          `**${iifeName}** returns these routing errors, you may use the error code to customize the message:`
         ]),
         contentService.blockList(errorItems),
       );

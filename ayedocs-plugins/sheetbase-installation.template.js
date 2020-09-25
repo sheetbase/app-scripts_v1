@@ -10,7 +10,7 @@ module.exports = (extra) => {
       .map((x, i) => i === 0 ? x: (x.charAt(0).toUpperCase() + x.substr(1)))
       .join('');
     const varName = name + 'Module';
-    const umdName = varName.charAt(0).toUpperCase() + varName.substr(1);
+    const iifeName = varName.charAt(0).toUpperCase() + varName.substr(1);
     // getting started
     templateSections['installation'] = [
       contentService.blockHeading('Installation', 2, 'installation'),
@@ -20,16 +20,16 @@ module.exports = (extra) => {
         [
           `\`\`\`ts`,
           `// 1. import module`,
-          `import { ${umdName} } from '${packageName}';`,
+          `import { ${iifeName} } from '${packageName}';`,
           '',
           `// 2. create an instance`,
           `export class App {`,
           '  // the object',
-          `  ${varName}: ${umdName};`,
+          `  ${varName}: ${iifeName};`,
           '',
           '  // initiate the instance',
           `  constructor() {`,
-          `    this.${varName} = new ${umdName}(/* options */);`,
+          `    this.${varName} = new ${iifeName}(/* options */);`,
           `  }`,
           `}`,
           `\`\`\``,

@@ -102,7 +102,7 @@ describe('services/rollup.ts', () => {
     });
 
     await service.bundleCode('xxx', [
-      {format: 'umd', file: 'xxx'},
+      {format: 'iife', file: 'xxx'},
       {format: 'esm', file: 'xxx2'},
     ]);
     const rollupArg = rollupModuleTesting.getResult('rollup').getArgFirst();
@@ -110,7 +110,7 @@ describe('services/rollup.ts', () => {
     expect(rollupArg.plugins[0].name).equal('node-resolve');
     expect(rollupArg.plugins[1].name).equal('commonjs');
     expect(rollupModuleTesting.getResult('write').getStackedArgs()).eql([
-      [{format: 'umd', file: 'xxx'}],
+      [{format: 'iife', file: 'xxx'}],
       [{format: 'esm', file: 'xxx2'}],
     ]);
   });
