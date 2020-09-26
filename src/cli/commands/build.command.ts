@@ -44,26 +44,16 @@ export class BuildCommand {
   }
 
   private async bundleCode(configs: ProjectConfigs) {
-    const {type, inputPath, iifePath, iifeName, esmPath} = configs;
+    const {inputPath, iifePath, iifeName} = configs;
     // build output
     const output: OutputOptions[] = [
-      // iife for both app & module
       {
         format: 'iife',
         file: iifePath,
-        sourcemap: type === 'module',
         name: iifeName,
         exports: 'named',
       },
     ];
-    // esm for module only
-    if (type === 'module') {
-      output.push({
-        format: 'esm',
-        file: esmPath,
-        sourcemap: true,
-      });
-    }
     // bundle
     return this.rollupService.bundleCode(inputPath, output);
   }

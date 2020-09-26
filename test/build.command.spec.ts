@@ -242,7 +242,6 @@ describe('commands/build.ts', () => {
       inputPath: 'xxx.js',
       iifePath: 'xxx.iife.js',
       iifeName: 'Xxx',
-      esmPath: 'xxx.esm.js',
     } as any);
     expect(result).eql([
       // input
@@ -253,12 +252,6 @@ describe('commands/build.ts', () => {
           format: 'iife',
           file: 'xxx.iife.js',
           name: 'Xxx',
-          sourcemap: true,
-        },
-        {
-          format: 'esm',
-          sourcemap: true,
-          file: 'xxx.esm.js',
         },
       ],
     ]);

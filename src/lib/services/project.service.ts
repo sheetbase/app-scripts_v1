@@ -36,7 +36,6 @@ export interface ProjectConfigs {
   inputPath: string;
   iifePath: string;
   iifeName: string;
-  esmPath?: string;
 }
 
 export class ProjectService {
@@ -50,33 +49,17 @@ export class ProjectService {
         : 'module';
     const name = pkgName.split('/').pop() as string; // ex.: server
     const fullName = pkgName.replace('@', '').replace('/', '-'); //ex.: sheetbase-server
-    if (type === 'app') {
-      const inputPath = './src/www.js';
-      const iifePath = './src/sheetbase-app.js';
-      const iifeName = 'App';
-      return {
-        type,
-        name,
-        fullName,
-        inputPath,
-        iifePath,
-        iifeName,
-      };
-    } else {
-      const inputPath = './src/public-api.js';
-      const esmPath = './src/sheetbase-module.esm.js';
-      const iifePath = './src/sheetbase-module.js';
-      const iifeName = 'Module';
-      return {
-        type,
-        name,
-        fullName,
-        inputPath,
-        iifePath,
-        iifeName,
-        esmPath,
-      };
-    }
+    const inputPath = type === 'app' ? './src/www.js' : './src/public-api.js';
+    const iifePath = `./src/sheetbase-${type}.js`;
+    const iifeName = type === 'app' ? 'App' : 'Module';
+    return {
+      type,
+      name,
+      fullName,
+      inputPath,
+      iifePath,
+      iifeName,
+    };
   }
 
   async getPackageJson() {

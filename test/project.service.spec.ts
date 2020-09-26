@@ -69,8 +69,6 @@ describe('services/project.ts', () => {
       inputPath: './dist/src/public-api.js',
       iifePath: './dist/sheetbase-xxx.js',
       iifeName: 'Xxx',
-      esmPath: './dist/sheetbase-xxx.esm.js',
-      typingsPath: './dist/sheetbase-xxx.d.ts',
     });
   });
 
