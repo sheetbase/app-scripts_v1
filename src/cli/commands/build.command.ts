@@ -28,8 +28,8 @@ export class BuildCommand {
     if (type === 'app') {
       const iifeContent = await this.fileService.readFile(iifePath);
       const wwwSnippet = [
-        'function doGet(e) { return App.Server.www().get(e); }',
-        'function doPost(e) { return App.Server.www().post(e); }',
+        'function doGet(e) { return App.www.get(e); }',
+        'function doPost(e) { return App.www.post(e); }',
       ].join('\n');
       this.fileService.outputFile(iifePath, iifeContent + '\n' + wwwSnippet);
     }
