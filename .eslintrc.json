@@ -1,4 +1,4 @@
 {
-  "ignorePatterns": ["docs/", "**/*.js", "**/*.d.ts"],
+  "ignorePatterns": ["docs/", "**/*.js", "**/*.d.ts", "!ayedocs-plugins/*.js"],
   "extends": "./node_modules/gts/"
 }

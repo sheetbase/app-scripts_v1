@@ -4,37 +4,41 @@ function extractParamChildren(methodName, methodTags, fileContent) {
   const result = {};
   // extract tags
   const tags = {};
-  methodTags.forEach(({ text }) => {
-    const [ id, desc ] = text
+  methodTags.forEach(({text}) => {
+    const [id, desc] = text
       .split(' - ')
       .map(x => x.trim().replace(/\r\n|\r|\n/g, ''));
-    return tags[id] = desc;
+    return (tags[id] = desc);
   });
   // extract param
-  let paramsStr = fileContent.substr(fileContent.indexOf('  ' + methodName + '('));
+  let paramsStr = fileContent.substr(
+    fileContent.indexOf('  ' + methodName + '(')
+  );
   paramsStr = paramsStr.substr(0, paramsStr.indexOf(') {'));
   paramsStr = paramsStr.split('res: ').shift();
   paramsStr = paramsStr.replace(/\r\n|\r|\n/g, '');
-  const paramExtracter = (paramName) => {
+  const paramExtracter = paramName => {
     const paramOpening = paramName + ': {';
-    let paramStr = paramsStr.substr(paramsStr.indexOf(paramOpening) + paramOpening.length);
+    let paramStr = paramsStr.substr(
+      paramsStr.indexOf(paramOpening) + paramOpening.length
+    );
     paramStr = paramStr.substr(0, paramStr.indexOf('}'));
     // result
     return paramStr
-    .split(';')
-    .map(x => x.trim())
-    .filter(x => !!x)
-    .map(item => {
-      const [ name, type ] = item.split(':').map(x => x.trim());
-      const shortText = tags[paramName + '.' + name];
-      const isOptional = item.indexOf('?:') !== -1;
-      return {
-        name: name.replace('?', ''),
-        type,
-        shortText,
-        isOptional,
-      };
-    });
+      .split(';')
+      .map(x => x.trim())
+      .filter(x => !!x)
+      .map(item => {
+        const [name, type] = item.split(':').map(x => x.trim());
+        const shortText = tags[paramName + '.' + name];
+        const isOptional = item.indexOf('?:') !== -1;
+        return {
+          name: name.replace('?', ''),
+          type,
+          shortText,
+          isOptional,
+        };
+      });
   };
   // query
   if (paramsStr.indexOf('query:') !== -1) {
@@ -53,9 +57,7 @@ function extractParamChildren(methodName, methodTags, fileContent) {
 }
 
 function buildErrorItems(errors) {
-  return Object
-    .keys(errors)
-    .map(code => [`\`${code}\``, errors[code]])
+  return Object.keys(errors).map(code => [`\`${code}\``, errors[code]]);
 }
 
 function buildRoutes(
@@ -64,31 +66,33 @@ function buildRoutes(
   methods,
   disabledRoutes,
   fileContent,
-  childLevel,
+  childLevel
 ) {
   const summary = [];
   const detail = [];
   methods.forEach(method => {
-    const { NAME, REFLECTION, SHORT_TEXT, TYPE, PARAMETERS, RETURNS } = method;
-    const { routeMethod, routeEndpoint, routeId } = methodExtractor(NAME);
+    const {NAME, REFLECTION, SHORT_TEXT, TYPE, PARAMETERS, RETURNS} = method;
+    const {routeMethod, routeEndpoint, routeId} = methodExtractor(NAME);
     // check disabled status
     let isDisabled = false;
-    if (!!disabledRoutes[routeEndpoint]) {
+    if (disabledRoutes[routeEndpoint]) {
       const value = disabledRoutes[routeEndpoint];
-      isDisabled = typeof value === 'string' || value.indexOf(routeMethod.toLowerCase()) !== -1;
+      isDisabled =
+        typeof value === 'string' ||
+        value.indexOf(routeMethod.toLowerCase()) !== -1;
     }
     // summary
     summary.push([
       `[${routeEndpoint}](#${routeId})`,
       `\`${routeMethod}\``,
-      isDisabled ? `\`true\`` : '',
-      SHORT_TEXT
+      isDisabled ? '`true`' : '',
+      SHORT_TEXT,
     ]);
     // detail (request rows)
     let requestQueryRows = [];
     let requestBodyRows = [];
     let requestDataRows = [];
-    if (!!PARAMETERS[0]) {
+    if (PARAMETERS[0]) {
       const paramChildren = extractParamChildren(
         NAME,
         REFLECTION.comment.tags || [],
@@ -96,8 +100,12 @@ function buildRoutes(
       );
       Object.keys(paramChildren).forEach(key => {
         const rows = paramChildren[key].map(prop => {
-          const { name, type, shortText, isOptional } = prop;
-          return [ isOptional ? `${name}?`: `**${name}**`, `[[${type}]]`, shortText ];
+          const {name, type, shortText, isOptional} = prop;
+          return [
+            isOptional ? `${name}?` : `**${name}**`,
+            `[[${type}]]`,
+            shortText,
+          ];
         });
         if (key === 'query') {
           requestQueryRows = rows;
@@ -113,22 +121,22 @@ function buildRoutes(
     const requestQuery = [];
     const requestBody = [];
     const requestData = [];
-    if (!!requestQueryRows.length) {
+    if (requestQueryRows.length) {
       requestQuery.push(
         contentService.blockText('**Request query**'),
-        contentService.blockTable(requestHeaders, requestQueryRows),
+        contentService.blockTable(requestHeaders, requestQueryRows)
       );
     }
-    if (!!requestBodyRows.length) {
+    if (requestBodyRows.length) {
       requestQuery.push(
         contentService.blockText('**Request body**'),
-        contentService.blockTable(requestHeaders, requestBodyRows),
+        contentService.blockTable(requestHeaders, requestBodyRows)
       );
     }
-    if (!!requestDataRows.length) {
+    if (requestDataRows.length) {
       requestQuery.push(
         contentService.blockText('**Middleware data**'),
-        contentService.blockTable(requestHeaders, requestDataRows),
+        contentService.blockTable(requestHeaders, requestDataRows)
       );
     }
     // save detail
@@ -138,82 +146,92 @@ function buildRoutes(
         childLevel + 2,
         routeId
       ),
-      contentService.blockText(`${isDisabled ? `\`DISABLED\``: ''}` + ' ' + SHORT_TEXT),
+      contentService.blockText(
+        `${isDisabled ? '`DISABLED`' : ''}` + ' ' + SHORT_TEXT
+      ),
       ...requestQuery,
       ...requestBody,
       ...requestData,
       contentService.blockText([
         '**Response**',
-        `\`${TYPE}\`` + (!!RETURNS ? ` - ${RETURNS}` : '')
+        `\`${TYPE}\`` + (RETURNS ? ` - ${RETURNS}` : ''),
       ]),
-      contentService.blockText('---'),
+      contentService.blockText('---')
     );
   });
-  return { summary, detail };
+  return {summary, detail};
 }
 
-module.exports = (iifeName) => {
+module.exports = iifeName => {
   return (declaration, options, contentService) => {
     // process level
-    const withHeading = typeof options.heading === 'boolean' ? options.heading: true;
+    const withHeading =
+      typeof options.heading === 'boolean' ? options.heading : true;
     const headingLevel = (options.level || 2) - (withHeading ? 0 : 1);
     const childLevel = headingLevel + 1;
     // build blocks
     const errorItems = [];
     const summaryRoutes = [];
     const detailRoutes = [];
-    const children = declaration.getClasses(declaration => declaration.NAME.endsWith('Route'));
+    const children = declaration.getClasses(declaration =>
+      declaration.NAME.endsWith('Route')
+    );
     children.forEach(routeDeclaration => {
       const fileContent = fs.readFileSync(
         './src/' + routeDeclaration.FILE_NAME,
-        { encoding: 'utf8' },
+        {encoding: 'utf8'}
       );
       // extract endpoint and baseEndpoint
       let endpoint = '';
       try {
         const endpointDeclaration = routeDeclaration.getChild('endpoint');
         endpoint = endpointDeclaration.DEFAULT_VALUE;
-      } catch (error) {}
+      } catch (error) {
+        console.log('Warning: Error getting "endpoint".');
+      }
       let baseEndpoint = '';
       try {
-        const baseEndpointDeclaration = routeDeclaration.getChild('baseEndpoint');
+        const baseEndpointDeclaration = routeDeclaration.getChild(
+          'baseEndpoint'
+        );
         baseEndpoint = baseEndpointDeclaration.DEFAULT_VALUE;
-      } catch (error) {}
+      } catch (error) {
+        console.log('Warning: Error getting "baseEndpoint".');
+      }
       // a set
-      if (!!endpoint) {
+      if (endpoint) {
         const buildEndpoint = endpoint => ('/' + endpoint).replace('//', '/');
-        const buildEndpointID = (method, endpoint) => method + '_' + endpoint.replace(/\//g, '_');
+        const buildEndpointID = (method, endpoint) =>
+          method + '_' + endpoint.replace(/\//g, '_');
         const methodExtractor = name => {
           const routeMethod = name.toUpperCase();
           const routeEndpoint = buildEndpoint(endpoint);
           const routeId = buildEndpointID(routeMethod, routeEndpoint);
-          return { routeMethod, routeEndpoint, routeId };
+          return {routeMethod, routeEndpoint, routeId};
         };
         // errors
         try {
-          const { DEFAULT_VALUE: errors } = routeDeclaration.getChild('errors');
-          errorItems.push(
-            ...buildErrorItems(errors),
-          );
+          const {DEFAULT_VALUE: errors} = routeDeclaration.getChild('errors');
+          errorItems.push(...buildErrorItems(errors));
         } catch (error) {
           // no .errors
         }
         // disabled
         let disabledRoutes = {};
         try {
-          const { DEFAULT_VALUE: value } = routeDeclaration.getChild('disabled');
-          disabledRoutes = { [endpoint]: value };
+          const {DEFAULT_VALUE: value} = routeDeclaration.getChild('disabled');
+          disabledRoutes = {[endpoint]: value};
         } catch (error) {
           // no .disabled
         }
         // routes
-        const { summary, detail } = buildRoutes(
+        const {summary, detail} = buildRoutes(
           contentService,
           methodExtractor,
           routeDeclaration.getFunctionsOrMethods(),
           disabledRoutes,
           fileContent,
-          childLevel,
+          childLevel
         );
         summaryRoutes.push(...summary);
         detailRoutes.push(...detail);
@@ -223,44 +241,44 @@ module.exports = (iifeName) => {
         const buildEndpoint = endpoint => {
           if (
             !baseEndpoint ||
-            (
-              !!baseEndpoint &&
-              (
-                endpoint.substr(0, baseEndpoint.length) === baseEndpoint ||
-                endpoint.substr(0, baseEndpoint.length + 1) === `/${baseEndpoint}`
-              )
-            )
+            (!!baseEndpoint &&
+              (endpoint.substr(0, baseEndpoint.length) === baseEndpoint ||
+                endpoint.substr(0, baseEndpoint.length + 1) ===
+                  `/${baseEndpoint}`))
           ) {
             endpoint = '/' + endpoint;
           } else {
             endpoint = '/' + baseEndpoint + '/' + endpoint;
           }
           return endpoint.replace('//', '/');
-        }
-        const buildEndpointID = (method, endpoint) => method + '_' + endpoint.replace(/\//g, '_');
+        };
+        const buildEndpointID = (method, endpoint) =>
+          method + '_' + endpoint.replace(/\//g, '_');
         const methodExtractor = name => {
           const result = name
             .replace('__', ' ')
             .split(' ')
-            .map(x => x.replace(/\_/g, '/'));
+            .map(x => x.replace(/_/g, '/'));
           const routeMethod = result[0];
           const routeEndpoint = buildEndpoint(result[1]);
           const routeId = buildEndpointID(routeMethod, routeEndpoint);
-          return { routeMethod, routeEndpoint, routeId };
+          return {routeMethod, routeEndpoint, routeId};
         };
         // errors
         try {
-          const { DEFAULT_VALUE: errors } = routeDeclaration.getChild('routingErrors');
-          errorItems.push(
-            ...buildErrorItems(errors)
+          const {DEFAULT_VALUE: errors} = routeDeclaration.getChild(
+            'routingErrors'
           );
+          errorItems.push(...buildErrorItems(errors));
         } catch (error) {
           // no .routingErrors
-        }        
+        }
         // disabled
-        let disabledRoutes = {};
+        const disabledRoutes = {};
         try {
-          const { DEFAULT_VALUE: disabled } = routeDeclaration.getChild('disabledRoutes');
+          const {DEFAULT_VALUE: disabled} = routeDeclaration.getChild(
+            'disabledRoutes'
+          );
           Object.keys(disabled).forEach(endpoint => {
             const value = disabled[endpoint];
             disabledRoutes[buildEndpoint(endpoint)] = value;
@@ -269,7 +287,7 @@ module.exports = (iifeName) => {
           // no .disabledRoutes
         }
         // routes
-        const { summary, detail } = buildRoutes(
+        const {summary, detail} = buildRoutes(
           contentService,
           methodExtractor,
           routeDeclaration.getFunctionsOrMethods(
@@ -277,7 +295,7 @@ module.exports = (iifeName) => {
           ),
           disabledRoutes,
           fileContent,
-          childLevel,
+          childLevel
         );
         summaryRoutes.push(...summary);
         detailRoutes.push(...detail);
@@ -287,41 +305,49 @@ module.exports = (iifeName) => {
     const routingBlocks = [];
     // heading
     if (withHeading) {
-      routingBlocks.push(contentService.blockHeading('Routing', headingLevel, 'routing'));
+      routingBlocks.push(
+        contentService.blockHeading('Routing', headingLevel, 'routing')
+      );
     }
     // intro
     routingBlocks.push(
       contentService.blockText([
         `**${iifeName}** provides REST API endpoints allowing clients to access server resources. Theses enpoints are not exposed by default, to expose the endpoints:`,
-        [
-          `\`\`\`ts`,
-          `${iifeName}.registerRoutes(routeEnabling?);`,
-          `\`\`\``
-        ].join('\n')
-      ]),
+        ['```ts', `${iifeName}.registerRoutes(routeEnabling?);`, '```'].join(
+          '\n'
+        ),
+      ])
     );
     // errors
-    if (!!errorItems.length) {
+    if (errorItems.length) {
       routingBlocks.push(
         contentService.blockHeading('Errors', childLevel, 'routing-errors'),
         contentService.blockText([
-          `**${iifeName}** returns these routing errors, you may use the error code to customize the message:`
+          `**${iifeName}** returns these routing errors, you may use the error code to customize the message:`,
         ]),
-        contentService.blockList(errorItems),
+        contentService.blockList(errorItems)
       );
     }
     // routes
     routingBlocks.push(
       contentService.blockHeading('Routes', childLevel, 'routing-routes'),
-      contentService.blockHeading('Routes overview', childLevel + 1, 'routing-routes-overview'),
+      contentService.blockHeading(
+        'Routes overview',
+        childLevel + 1,
+        'routing-routes-overview'
+      ),
       contentService.blockTable(
         ['Route', 'Method', 'Disabled', 'Description'],
-        summaryRoutes,
+        summaryRoutes
       ),
-      contentService.blockHeading('Routes detail', childLevel + 1, 'routing-routes-detail'),
+      contentService.blockHeading(
+        'Routes detail',
+        childLevel + 1,
+        'routing-routes-detail'
+      ),
       ...detailRoutes
     );
     // result
     return routingBlocks;
-  }
-}
+  };
+};
