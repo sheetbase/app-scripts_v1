@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>ProjectService | @sheetbase/app-scripts</title>
+	<title>PushCommand | @sheetbase/app-scripts</title>
 	<meta name="description" content="Documentation for @sheetbase/app-scripts">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -54,10 +54,10 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="projectservice.html">ProjectService</a>
+					<a href="pushcommand.html">PushCommand</a>
 				</li>
 			</ul>
-			<h1>Class ProjectService</h1>
+			<h1>Class PushCommand</h1>
 		</div>
 	</div>
 </header>
@@ -68,7 +68,7 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">ProjectService</span>
+						<span class="target">PushCommand</span>
 					</li>
 				</ul>
 			</section>
@@ -79,14 +79,19 @@
 						<section class="tsd-index-section ">
 							<h3>Constructors</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="projectservice.html#constructor" class="tsd-kind-icon">constructor</a></li>
+								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="pushcommand.html#constructor" class="tsd-kind-icon">constructor</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="pushcommand.html#deploy_dir" class="tsd-kind-icon">DEPLOY_<wbr>DIR</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="projectservice.html#getconfigs" class="tsd-kind-icon">get<wbr>Configs</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="projectservice.html#getpackagejson" class="tsd-kind-icon">get<wbr>Package<wbr>Json</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="pushcommand.html#run" class="tsd-kind-icon">run</a></li>
 							</ul>
 						</section>
 					</div>
@@ -98,13 +103,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Project<wbr>Service<span class="tsd-signature-symbol">(</span>fileService<span class="tsd-signature-symbol">: </span><a href="fileservice.html" class="tsd-signature-type">FileService</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="projectservice.html" class="tsd-signature-type">ProjectService</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Push<wbr>Command<span class="tsd-signature-symbol">(</span>fileService<span class="tsd-signature-symbol">: </span><a href="fileservice.html" class="tsd-signature-type">FileService</a>, messageService<span class="tsd-signature-symbol">: </span><a href="messageservice.html" class="tsd-signature-type">MessageService</a>, projectService<span class="tsd-signature-symbol">: </span><a href="projectservice.html" class="tsd-signature-type">ProjectService</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="pushcommand.html" class="tsd-signature-type">PushCommand</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/app-scripts/blob/37fb9d1/src/lib/services/project.service.ts#L41">lib/services/project.service.ts:41</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/app-scripts/blob/37fb9d1/src/cli/commands/push.command.ts#L13">cli/commands/push.command.ts:13</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -112,45 +117,53 @@
 								<li>
 									<h5>fileService: <a href="fileservice.html" class="tsd-signature-type">FileService</a></h5>
 								</li>
+								<li>
+									<h5>messageService: <a href="messageservice.html" class="tsd-signature-type">MessageService</a></h5>
+								</li>
+								<li>
+									<h5>projectService: <a href="projectservice.html" class="tsd-signature-type">ProjectService</a></h5>
+								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <a href="projectservice.html" class="tsd-signature-type">ProjectService</a></h4>
+							<h4 class="tsd-returns-title">Returns <a href="pushcommand.html" class="tsd-signature-type">PushCommand</a></h4>
 						</li>
 					</ul>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="deploy_dir" class="tsd-anchor"></a>
+					<h3>DEPLOY_<wbr>DIR</h3>
+					<div class="tsd-signature tsd-kind-icon">DEPLOY_<wbr>DIR<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;.deploy&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/app-scripts/blob/37fb9d1/src/cli/commands/push.command.ts#L13">cli/commands/push.command.ts:13</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getconfigs" class="tsd-anchor"></a>
-					<h3>get<wbr>Configs</h3>
+					<a name="run" class="tsd-anchor"></a>
+					<h3>run</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Configs<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/projectconfigs.html" class="tsd-signature-type">ProjectConfigs</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">run<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><a href="../interfaces/pushoptions.html" class="tsd-signature-type">PushOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/app-scripts/blob/37fb9d1/src/lib/services/project.service.ts#L44">lib/services/project.service.ts:44</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/app-scripts/blob/37fb9d1/src/cli/commands/push.command.ts#L21">cli/commands/push.command.ts:21</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/projectconfigs.html" class="tsd-signature-type">ProjectConfigs</a><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getpackagejson" class="tsd-anchor"></a>
-					<h3>get<wbr>Package<wbr>Json</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Package<wbr>Json<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/packagejson.html" class="tsd-signature-type">PackageJson</a><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/app-scripts/blob/37fb9d1/src/lib/services/project.service.ts#L65">lib/services/project.service.ts:65</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/packagejson.html" class="tsd-signature-type">PackageJson</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>options: <a href="../interfaces/pushoptions.html" class="tsd-signature-type">PushOptions</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -181,27 +194,27 @@
 					<li class=" tsd-kind-class">
 						<a href="messageservice.html" class="tsd-kind-icon">Message<wbr>Service</a>
 					</li>
+					<li class=" tsd-kind-class">
+						<a href="projectservice.html" class="tsd-kind-icon">Project<wbr>Service</a>
+					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-class">
-						<a href="projectservice.html" class="tsd-kind-icon">Project<wbr>Service</a>
+						<a href="pushcommand.html" class="tsd-kind-icon">Push<wbr>Command</a>
 						<ul>
 							<li class=" tsd-kind-constructor tsd-parent-kind-class">
-								<a href="projectservice.html#constructor" class="tsd-kind-icon">constructor</a>
+								<a href="pushcommand.html#constructor" class="tsd-kind-icon">constructor</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="pushcommand.html#deploy_dir" class="tsd-kind-icon">DEPLOY_<wbr>DIR</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="projectservice.html#getconfigs" class="tsd-kind-icon">get<wbr>Configs</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="projectservice.html#getpackagejson" class="tsd-kind-icon">get<wbr>Package<wbr>Json</a>
+								<a href="pushcommand.html#run" class="tsd-kind-icon">run</a>
 							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
-					<li class=" tsd-kind-class">
-						<a href="pushcommand.html" class="tsd-kind-icon">Push<wbr>Command</a>
-					</li>
 					<li class=" tsd-kind-class">
 						<a href="rollupservice.html" class="tsd-kind-icon">Rollup<wbr>Service</a>
 					</li>

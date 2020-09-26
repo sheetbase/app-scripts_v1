@@ -26,13 +26,14 @@
 - [Install](#install)
   - [Global](#global)
   - [Local](#local)
-- [Ayedocs plugin](#ayedocs-plugin)
+- [Ayedocs plugins](#ayedocs-plugins)
   - [Sheetbase template](#sheetbase-template)
   - [Sheetbase installation template](#sheetbase-installation-template)
   - [Sheetbase routing template](#sheetbase-routing-template)
 - [Command overview](#command-overview)
 - [Command reference](#command-reference)
   - [`build`](#command-build)
+  - [`push`](#command-push)
   - [`help`](#command-help)
 - [Detail API reference](https://sheetbase.github.io/app-scripts)
 
@@ -65,9 +66,9 @@ Add these lines to the project `package.json`.
 
 </section>
 
-<section id="ayedocs-plugin">
+<section id="ayedocs-plugins">
 
-## Ayedocs plugin
+## Ayedocs plugins
 
 This package provides Ayedocs templates and converts for conviniently document generation for Sheetbase server modules.
 
@@ -81,7 +82,7 @@ Included all sections:
 - Routing
 
 ```js
-const sheetbaseTemplate = require("@sheetbase/app-scripts/ayedocs-plugin/sheetbase.template");
+const sheetbaseTemplate = require("@sheetbase/app-scripts/ayedocs-plugins/sheetbase.template");
 
 module.exports = {
   fileRender: {
@@ -96,7 +97,7 @@ module.exports = {
 Common installation & basic usage section.
 
 ```js
-const sheetbaseInstallationTemplate = require("@sheetbase/app-scripts/ayedocs-plugin/sheetbase-installation.template");
+const sheetbaseInstallationTemplate = require("@sheetbase/app-scripts/ayedocs-plugins/sheetbase-installation.template");
 
 module.exports = {
   fileRender: {
@@ -111,7 +112,7 @@ module.exports = {
 Showing **endpoint**, **default disabled routes**, **routing errors** and **the list of routes**.
 
 ```js
-const sheetbaseRoutingTemplate = require("@sheetbase/app-scripts/ayedocs-plugin/sheetbase-routing.template");
+const sheetbaseRoutingTemplate = require("@sheetbase/app-scripts/ayedocs-plugins/sheetbase-routing.template");
 
 module.exports = {
   fileRender: {
@@ -130,7 +131,8 @@ module.exports = {
 
 Scripts for Sheetbase backend modules and apps.
 
-- [`sheetbase-app-scripts build --copy [value] --vendor [value]`](#command-build)
+- [`sheetbase-app-scripts build`](#command-build)
+- [`sheetbase-app-scripts push --copy [value] --vendor [value]`](#command-push)
 - [`sheetbase-app-scripts help`](#command-help)
 
 <h2><a name="command-reference"><p>Command reference</p>
@@ -140,6 +142,11 @@ Scripts for Sheetbase backend modules and apps.
 </a></h3>
 
 Build distribution package.
+
+<h3><a name="command-push"><p><code>push</code></p>
+</a></h3>
+
+Push to the Apps Script server.
 
 **Options**
 
