@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import {ModuleMocking, mockModule, rewireFull} from '@lamnhan/testea';

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {describe, it} from 'mocha';
 import {expect} from 'chai';
 import {

@@ -187,7 +187,7 @@ module.exports = iifeName => {
         const endpointDeclaration = routeDeclaration.getChild('endpoint');
         endpoint = endpointDeclaration.DEFAULT_VALUE;
       } catch (error) {
-        console.log('Warning: Error getting "endpoint".');
+        // console.log('Warning: Error getting "endpoint".');
       }
       let baseEndpoint = '';
       try {
@@ -196,7 +196,7 @@ module.exports = iifeName => {
         );
         baseEndpoint = baseEndpointDeclaration.DEFAULT_VALUE;
       } catch (error) {
-        console.log('Warning: Error getting "baseEndpoint".');
+        // console.log('Warning: Error getting "baseEndpoint".');
       }
       // a set
       if (endpoint) {
@@ -214,7 +214,7 @@ module.exports = iifeName => {
           const {DEFAULT_VALUE: errors} = routeDeclaration.getChild('errors');
           errorItems.push(...buildErrorItems(errors));
         } catch (error) {
-          // no .errors
+          // console.log('Warning: Error getting "errors".');
         }
         // disabled
         let disabledRoutes = {};
@@ -222,7 +222,7 @@ module.exports = iifeName => {
           const {DEFAULT_VALUE: value} = routeDeclaration.getChild('disabled');
           disabledRoutes = {[endpoint]: value};
         } catch (error) {
-          // no .disabled
+          // console.log('Warning: Error getting "disabled".');
         }
         // routes
         const {summary, detail} = buildRoutes(
@@ -271,7 +271,7 @@ module.exports = iifeName => {
           );
           errorItems.push(...buildErrorItems(errors));
         } catch (error) {
-          // no .routingErrors
+          // console.log('Warning: Error getting "routingErrors".');
         }
         // disabled
         const disabledRoutes = {};
@@ -284,7 +284,7 @@ module.exports = iifeName => {
             disabledRoutes[buildEndpoint(endpoint)] = value;
           });
         } catch (error) {
-          // no .disabledRoutes
+          // console.log('Warning: Error getting "disabledRoutes".');
         }
         // routes
         const {summary, detail} = buildRoutes(

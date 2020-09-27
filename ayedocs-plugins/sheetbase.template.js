@@ -19,14 +19,14 @@ module.exports = extra => {
       contentService.blockHeading('Options', 2, 'options'),
       ['Options', 'SUMMARY_PROPERTIES', convertings['options'] || {}],
     ];
-    // main
-    templateSections['main'] = [
-      'Main',
+    // lib
+    templateSections['lib'] = [
+      'Lib',
       'FULL',
       {
         // eslint-disable-next-line node/no-unsupported-features/es-syntax
-        ...(convertings['main'] || {}),
-        title: 'Main',
+        ...(convertings['lib'] || {}),
+        title: 'Lib',
       },
     ];
     // routing

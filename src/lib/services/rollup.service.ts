@@ -28,9 +28,7 @@ export class RollupService {
     const bundle = await rollup({
       input,
       plugins: [
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (resolve as any)(resolveConfigs),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (commonjs as any)(commonjsConfigs),
       ],
     });
