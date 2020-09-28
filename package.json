@@ -48,7 +48,7 @@
     "rollup-plugin-node-resolve": "^5.2.0"
   },
   "devDependencies": {
-    "@lamnhan/testea": "1.0.0-beta3",
+    "@lamnhan/testea": "^1.0.0-beta3",
     "@types/chai": "^4.2.12",
     "@types/fs-extra": "^9.0.1",
     "@types/mocha": "^8.0.3",
